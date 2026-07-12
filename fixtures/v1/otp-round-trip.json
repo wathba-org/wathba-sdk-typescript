@@ -1,0 +1,49 @@
+{
+  "contractVersion": "2026.07.mvp.002",
+  "operationId": "sendOtp",
+  "problem": {
+    "body": {
+      "billingEffect": "none",
+      "code": "validation_failed",
+      "correlationId": "corr_fixture_123",
+      "retryable": false,
+      "status": 400,
+      "title": "Request validation failed",
+      "type": "https://wathba.dev/problems/validation-failed",
+      "violations": [
+        {
+          "message": "Invalid email address",
+          "path": "email"
+        }
+      ]
+    },
+    "contentType": "application/problem+json",
+    "status": 400
+  },
+  "request": {
+    "body": {
+      "email": "user@example.com",
+      "environmentId": "env_fixture_123",
+      "purpose": "login"
+    },
+    "idempotencyKey": "idem_fixture_otp_send_123",
+    "path": {
+      "projectId": "prj_fixture_123"
+    }
+  },
+  "schemaVersion": "1.0",
+  "success": {
+    "body": {
+      "amountMinor": 0,
+      "capability": "messaging.otp",
+      "currency": "SAR",
+      "executionId": "exe_fixture_123",
+      "message": "accepted",
+      "operationCode": "sendOtp",
+      "state": "succeeded",
+      "statusCode": 201
+    },
+    "contentType": "application/json",
+    "status": 201
+  }
+}

@@ -1,0 +1,392 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "actionRef": {
+      "additionalProperties": false,
+      "properties": {
+        "actionCode": {
+          "pattern": "^[a-z][a-z0-9_]{2,127}$",
+          "type": "string"
+        },
+        "actionId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "allowedDecisions": {
+          "items": {
+            "enum": [
+              "approve",
+              "deny",
+              "cancel",
+              "acknowledge",
+              "submit"
+            ],
+            "type": "string"
+          },
+          "maxItems": 5,
+          "type": "array"
+        },
+        "browserUrl": {
+          "format": "uri",
+          "pattern": "^https:\\/\\/.*",
+          "type": "string"
+        },
+        "cancellation": {
+          "enum": [
+            "not_allowed",
+            "allowed_before_decision",
+            "allowed_before_delivery",
+            "owner_specific"
+          ],
+          "type": "string"
+        },
+        "capabilityCode": {
+          "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$",
+          "type": "string"
+        },
+        "copyKeys": {
+          "additionalProperties": false,
+          "properties": {
+            "consequence": {
+              "maxLength": 160,
+              "minLength": 3,
+              "type": "string"
+            },
+            "summary": {
+              "maxLength": 160,
+              "minLength": 3,
+              "type": "string"
+            },
+            "title": {
+              "maxLength": 160,
+              "minLength": 3,
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "summary",
+            "consequence"
+          ],
+          "type": "object"
+        },
+        "decideOperationId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "environmentId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "expiresAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "type": "string"
+        },
+        "freshness": {
+          "enum": [
+            "current_session",
+            "browser_fresh",
+            "step_up_required"
+          ],
+          "type": "string"
+        },
+        "inputClassification": {
+          "enum": [
+            "member_safe",
+            "protected_handle",
+            "classified_input_required"
+          ],
+          "type": "string"
+        },
+        "owner": {
+          "enum": [
+            "member_accounts",
+            "application_access_and_keys",
+            "provider_connections",
+            "projects",
+            "verification",
+            "billing_wallet",
+            "budget_controls",
+            "member_notifications",
+            "service_catalog"
+          ],
+          "type": "string"
+        },
+        "ownerState": {
+          "enum": [
+            "pending_external",
+            "completed",
+            "denied",
+            "expired",
+            "cancelled",
+            "unknown_delivery"
+          ],
+          "type": "string"
+        },
+        "projectId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "protocolVersion": {
+          "const": "1.0",
+          "type": "string"
+        },
+        "readOperationId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "reasonCode": {
+          "pattern": "^[a-z][a-z0-9_]{2,127}$",
+          "type": "string"
+        },
+        "resumeRef": {
+          "maxLength": 240,
+          "minLength": 3,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$",
+          "type": "string"
+        },
+        "safeCostCapSummary": {
+          "additionalProperties": false,
+          "properties": {
+            "capCode": {
+              "pattern": "^[a-z][a-z0-9_]{2,127}$",
+              "type": "string"
+            },
+            "capUnit": {
+              "maxLength": 64,
+              "minLength": 1,
+              "type": "string"
+            },
+            "capValue": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "costClass": {
+              "enum": [
+                "free",
+                "capped",
+                "spend_possible"
+              ],
+              "type": "string"
+            },
+            "summaryKey": {
+              "maxLength": 160,
+              "minLength": 3,
+              "type": "string"
+            }
+          },
+          "required": [
+            "costClass",
+            "summaryKey"
+          ],
+          "type": "object"
+        },
+        "sourceRef": {
+          "maxLength": 240,
+          "minLength": 3,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$",
+          "type": "string"
+        },
+        "sourceVersion": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "statusOperationId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        }
+      },
+      "required": [
+        "protocolVersion",
+        "owner",
+        "actionCode",
+        "actionId",
+        "projectId",
+        "environmentId",
+        "capabilityCode",
+        "sourceRef",
+        "sourceVersion",
+        "ownerState",
+        "reasonCode",
+        "allowedDecisions",
+        "copyKeys",
+        "inputClassification",
+        "freshness",
+        "expiresAt",
+        "readOperationId",
+        "decideOperationId",
+        "statusOperationId",
+        "browserUrl",
+        "resumeRef",
+        "cancellation"
+      ],
+      "type": "object"
+    },
+    "facts": {
+      "additionalProperties": false,
+      "properties": {
+        "authority": {
+          "enum": [
+            "current",
+            "stale",
+            "unknown"
+          ],
+          "type": "string"
+        },
+        "capabilityCode": {
+          "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$",
+          "type": "string"
+        },
+        "deliveryReadiness": {
+          "enum": [
+            "ready",
+            "degraded",
+            "blocked",
+            "unknown"
+          ],
+          "type": "string"
+        },
+        "displayHost": {
+          "maxLength": 253,
+          "minLength": 1,
+          "pattern": "^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$",
+          "type": "string"
+        },
+        "endpointId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "endpointState": {
+          "enum": [
+            "active",
+            "cooling_down",
+            "disabled",
+            "missing",
+            "unknown"
+          ],
+          "type": "string"
+        },
+        "endpointVerificationVersion": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "environmentId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "expiresAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "type": "string"
+        },
+        "freshness": {
+          "enum": [
+            "current",
+            "stale",
+            "unknown"
+          ],
+          "type": "string"
+        },
+        "observedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "type": "string"
+        },
+        "ownerRef": {
+          "maxLength": 240,
+          "minLength": 3,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$",
+          "type": "string"
+        },
+        "ownerVersion": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "projectId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "requiredEventKeys": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_]{2,159}$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "signingReadiness": {
+          "enum": [
+            "current",
+            "missing",
+            "stale",
+            "unknown"
+          ],
+          "type": "string"
+        },
+        "sourceRef": {
+          "maxLength": 240,
+          "minLength": 3,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$",
+          "type": "string"
+        },
+        "sourceVersion": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "subscriptionReadiness": {
+          "enum": [
+            "ready",
+            "missing",
+            "incomplete",
+            "unknown"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "environmentId",
+        "capabilityCode",
+        "endpointState",
+        "requiredEventKeys",
+        "subscriptionReadiness",
+        "signingReadiness",
+        "deliveryReadiness",
+        "authority",
+        "freshness",
+        "ownerRef",
+        "ownerVersion",
+        "sourceRef",
+        "sourceVersion",
+        "observedAt",
+        "expiresAt"
+      ],
+      "type": "object"
+    },
+    "protocolVersion": {
+      "const": "1.0",
+      "type": "string"
+    }
+  },
+  "required": [
+    "protocolVersion",
+    "actionRef",
+    "facts"
+  ],
+  "type": "object"
+}

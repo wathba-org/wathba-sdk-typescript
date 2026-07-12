@@ -1,0 +1,52 @@
+[
+  {
+    "operationId": "requestWebhookReadinessAction",
+    "method": "POST",
+    "path": "/v1/platform/projects/{projectId}/environments/{environmentId}/capabilities/{capabilityCode}/webhook-readiness-actions",
+    "requiredScopes": [
+      "webhooks:manage"
+    ],
+    "idempotency": "required",
+    "requestSchema": "webhook-readiness-action-request.schema.json",
+    "responseSchema": "webhook-readiness-action-read.schema.json",
+    "browserOnly": false,
+    "cliReadable": true,
+    "currentFreshness": "current_session"
+  },
+  {
+    "operationId": "getWebhookReadinessAction",
+    "method": "GET",
+    "path": "/v1/platform/webhook-readiness-actions/{actionId}",
+    "requiredScopes": [],
+    "idempotency": "none",
+    "requestSchema": null,
+    "responseSchema": "webhook-readiness-action-read.schema.json",
+    "browserOnly": true,
+    "cliReadable": false,
+    "currentFreshness": "current_session"
+  },
+  {
+    "operationId": "decideWebhookReadinessAction",
+    "method": "POST",
+    "path": "/v1/platform/webhook-readiness-actions/{actionId}/decisions",
+    "requiredScopes": [],
+    "idempotency": "required",
+    "requestSchema": "webhook-readiness-action-decision.schema.json",
+    "responseSchema": "webhook-readiness-action-status.schema.json",
+    "browserOnly": true,
+    "cliReadable": false,
+    "currentFreshness": "browser_fresh"
+  },
+  {
+    "operationId": "getWebhookReadinessActionStatus",
+    "method": "GET",
+    "path": "/v1/platform/webhook-readiness-actions/{actionId}/status",
+    "requiredScopes": [],
+    "idempotency": "none",
+    "requestSchema": null,
+    "responseSchema": "webhook-readiness-action-status.schema.json",
+    "browserOnly": false,
+    "cliReadable": true,
+    "currentFreshness": "current_session"
+  }
+]

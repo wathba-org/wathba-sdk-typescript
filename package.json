@@ -1,0 +1,85 @@
+{
+  "name": "@wathba/sdk",
+  "version": "0.1.0",
+  "description": "Server-side TypeScript SDK for Wathba capabilities",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wathba-org/wathba-sdk-typescript.git"
+  },
+  "homepage": "https://github.com/wathba-org/wathba-sdk-typescript#readme",
+  "bugs": {
+    "url": "https://github.com/wathba-org/wathba-sdk-typescript/issues"
+  },
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "browser": "./dist/esm/browser-unsupported.js",
+  "engines": {
+    "node": ">=24"
+  },
+  "sideEffects": [
+    "./dist/esm/browser-unsupported.js",
+    "./dist/cjs/browser-unsupported.js"
+  ],
+  "files": [
+    "dist",
+    "release.json",
+    "openapi/release.json",
+    "openapi/wathba-public.openapi.json",
+    "fixtures",
+    "protocols",
+    "recipes",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "browser": {
+        "types": "./dist/esm/browser-unsupported.d.ts",
+        "default": "./dist/esm/browser-unsupported.js"
+      },
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./raw": {
+      "browser": {
+        "types": "./dist/esm/browser-unsupported.d.ts",
+        "default": "./dist/esm/browser-unsupported.js"
+      },
+      "types": "./dist/esm/raw-client.d.ts",
+      "import": "./dist/esm/raw-client.js",
+      "require": "./dist/cjs/raw-client.js"
+    }
+  },
+  "scripts": {
+    "openapi:import": "node scripts/import-openapi.mjs",
+    "fixtures:import": "node scripts/import-fixtures.mjs",
+    "protocols:import": "node scripts/import-protocols.mjs",
+    "contracts:check": "node scripts/check-contracts.mjs",
+    "generate": "node scripts/generate.mjs",
+    "generate:check": "node scripts/generate.mjs --check",
+    "format:check": "node scripts/check-format.mjs",
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc -p tsconfig.esm.json --noEmit && pnpm build && tsc -p test/tsconfig.public-types.json",
+    "test:browser": "pnpm build && node scripts/check-browser-boundary.mjs",
+    "test": "pnpm build && node --test test/*.test.mjs test/*.test.cjs",
+    "audit:surface": "node scripts/audit-surface.mjs",
+    "audit:dependencies": "pnpm audit --audit-level high",
+    "audit:licenses": "node scripts/check-licenses.mjs",
+    "prepublishOnly": "pnpm verify",
+    "verify": "pnpm contracts:check && pnpm generate:check && pnpm format:check && pnpm typecheck && pnpm test && pnpm test:browser && pnpm audit:surface && pnpm audit:dependencies && pnpm audit:licenses && pnpm pack --dry-run"
+  },
+  "devDependencies": {
+    "@types/node": "24.3.0",
+    "openapi-typescript": "7.13.0",
+    "typescript": "5.9.3"
+  },
+  "packageManager": "pnpm@11.8.0",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

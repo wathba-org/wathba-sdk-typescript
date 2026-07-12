@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "const": "submit",
+          "type": "string"
+        },
+        "expectedSourceVersion": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "limits": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "limitMinor": {
+                "maximum": 9007199254740991,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "operationId": {
+                "pattern": "^[a-z][A-Za-z0-9]{2,159}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "operationId",
+              "limitMinor"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "protocolVersion": {
+          "const": "1.0",
+          "type": "string"
+        }
+      },
+      "required": [
+        "protocolVersion",
+        "decision",
+        "expectedSourceVersion",
+        "limits"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "enum": [
+            "deny",
+            "cancel"
+          ],
+          "type": "string"
+        },
+        "expectedSourceVersion": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "protocolVersion": {
+          "const": "1.0",
+          "type": "string"
+        }
+      },
+      "required": [
+        "protocolVersion",
+        "decision",
+        "expectedSourceVersion"
+      ],
+      "type": "object"
+    }
+  ]
+}

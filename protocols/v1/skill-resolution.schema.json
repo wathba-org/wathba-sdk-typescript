@@ -1,0 +1,923 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "catalogPin": {
+      "additionalProperties": false,
+      "properties": {
+        "catalogDefinitionId": {
+          "pattern": "^catdef_[A-Za-z0-9._-]+$",
+          "type": "string"
+        },
+        "catalogDefinitionVersion": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "catalogReleaseId": {
+          "pattern": "^catrel_[A-Za-z0-9._-]+$",
+          "type": "string"
+        },
+        "catalogReleaseVersion": {
+          "maxLength": 80,
+          "minLength": 3,
+          "type": "string"
+        }
+      },
+      "required": [
+        "catalogReleaseId",
+        "catalogReleaseVersion",
+        "catalogDefinitionId",
+        "catalogDefinitionVersion"
+      ],
+      "type": "object"
+    },
+    "integrationManifest": {
+      "additionalProperties": false,
+      "properties": {
+        "actions": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "actionCode": {
+                "pattern": "^[a-z][a-z0-9_]{2,127}$",
+                "type": "string"
+              },
+              "allowedDecisions": {
+                "items": {
+                  "enum": [
+                    "approve",
+                    "deny",
+                    "cancel",
+                    "acknowledge",
+                    "submit"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 5,
+                "minItems": 1,
+                "type": "array"
+              },
+              "cancellation": {
+                "enum": [
+                  "not_allowed",
+                  "allowed_before_decision",
+                  "allowed_before_delivery",
+                  "owner_specific"
+                ],
+                "type": "string"
+              },
+              "category": {
+                "enum": [
+                  "credential_destination",
+                  "provider_readiness",
+                  "budget_controls",
+                  "webhook_readiness",
+                  "production_promotion"
+                ],
+                "type": "string"
+              },
+              "copyKeys": {
+                "additionalProperties": false,
+                "properties": {
+                  "consequence": {
+                    "pattern": "^integration\\.[A-Za-z0-9_.-]+$",
+                    "type": "string"
+                  },
+                  "summary": {
+                    "pattern": "^integration\\.[A-Za-z0-9_.-]+$",
+                    "type": "string"
+                  },
+                  "title": {
+                    "pattern": "^integration\\.[A-Za-z0-9_.-]+$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "summary",
+                  "consequence"
+                ],
+                "type": "object"
+              },
+              "costClass": {
+                "enum": [
+                  "free",
+                  "capped",
+                  "spend_possible"
+                ],
+                "type": "string"
+              },
+              "environments": {
+                "items": {
+                  "enum": [
+                    "sandbox",
+                    "production"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 2,
+                "minItems": 1,
+                "type": "array"
+              },
+              "freshness": {
+                "enum": [
+                  "current_session",
+                  "browser_fresh",
+                  "step_up_required"
+                ],
+                "type": "string"
+              },
+              "inputClassification": {
+                "enum": [
+                  "member_safe",
+                  "protected_handle",
+                  "classified_input_required"
+                ],
+                "type": "string"
+              },
+              "inputSchemas": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "digest": {
+                      "pattern": "^sha256:[a-f0-9]{64}$",
+                      "type": "string"
+                    },
+                    "requirementCode": {
+                      "enum": [
+                        "legal_profile",
+                        "protected_documents",
+                        "origin_address"
+                      ],
+                      "type": "string"
+                    },
+                    "schemaRef": {
+                      "pattern": "^wathba:\\/\\/schemas\\/[a-z0-9./_-]+$",
+                      "type": "string"
+                    },
+                    "version": {
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "requirementCode",
+                    "schemaRef",
+                    "version",
+                    "digest"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "operationIds": {
+                "additionalProperties": false,
+                "properties": {
+                  "decide": {
+                    "pattern": "^[a-z][A-Za-z0-9]{2,159}$",
+                    "type": "string"
+                  },
+                  "read": {
+                    "pattern": "^[a-z][A-Za-z0-9]{2,159}$",
+                    "type": "string"
+                  },
+                  "request": {
+                    "pattern": "^[a-z][A-Za-z0-9]{2,159}$",
+                    "type": "string"
+                  },
+                  "status": {
+                    "pattern": "^[a-z][A-Za-z0-9]{2,159}$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "request",
+                  "read",
+                  "decide",
+                  "status"
+                ],
+                "type": "object"
+              },
+              "owner": {
+                "enum": [
+                  "application_access_and_keys",
+                  "provider_connections",
+                  "budget_controls",
+                  "billing_wallet",
+                  "member_notifications",
+                  "projects"
+                ],
+                "type": "string"
+              },
+              "requirementCodes": {
+                "items": {
+                  "enum": [
+                    "connection_authorization",
+                    "legal_profile",
+                    "protected_documents",
+                    "external_review",
+                    "origin_address",
+                    "external_account_funding",
+                    "connection_reauthorization"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "actionCode",
+              "owner",
+              "category",
+              "costClass",
+              "inputClassification",
+              "freshness",
+              "allowedDecisions",
+              "cancellation",
+              "environments",
+              "requirementCodes",
+              "inputSchemas",
+              "operationIds",
+              "copyKeys"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "artifacts": {
+          "additionalProperties": false,
+          "properties": {
+            "sdk": {
+              "additionalProperties": false,
+              "properties": {
+                "browserSupported": {
+                  "const": false,
+                  "type": "boolean"
+                },
+                "contractDigest": {
+                  "pattern": "^sha256:[a-f0-9]{64}$",
+                  "type": "string"
+                },
+                "integrity": {
+                  "pattern": "^sha512-[A-Za-z0-9+/]{86}==$",
+                  "type": "string"
+                },
+                "package": {
+                  "const": "@wathba/sdk",
+                  "type": "string"
+                },
+                "releaseMetadataDigest": {
+                  "pattern": "^sha256:[a-f0-9]{64}$",
+                  "type": "string"
+                },
+                "runtime": {
+                  "const": "node>=24",
+                  "type": "string"
+                },
+                "version": {
+                  "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "package",
+                "version",
+                "integrity",
+                "releaseMetadataDigest",
+                "contractDigest",
+                "runtime",
+                "browserSupported"
+              ],
+              "type": "object"
+            },
+            "skill": {
+              "additionalProperties": false,
+              "properties": {
+                "artifactId": {
+                  "pattern": "^[a-z0-9][a-z0-9._-]{2,159}$",
+                  "type": "string"
+                },
+                "capabilityCode": {
+                  "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$",
+                  "type": "string"
+                },
+                "digest": {
+                  "pattern": "^sha256:[a-f0-9]{64}$",
+                  "type": "string"
+                },
+                "mediaType": {
+                  "maxLength": 160,
+                  "minLength": 3,
+                  "type": "string"
+                },
+                "revoked": {
+                  "type": "boolean"
+                },
+                "signature": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "algorithm": {
+                      "const": "ed25519",
+                      "type": "string"
+                    },
+                    "keyId": {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
+                      "type": "string"
+                    },
+                    "publisherId": {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
+                      "type": "string"
+                    },
+                    "value": {
+                      "pattern": "^[A-Za-z0-9_-]{16,256}$",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "publisherId",
+                    "keyId",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                "skillId": {
+                  "pattern": "^wathba\\.skills\\.[a-z0-9-]+$",
+                  "type": "string"
+                },
+                "uri": {
+                  "format": "uri",
+                  "pattern": "^https:\\/\\/.*",
+                  "type": "string"
+                },
+                "version": {
+                  "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "artifactId",
+                "version",
+                "mediaType",
+                "uri",
+                "digest",
+                "signature",
+                "revoked",
+                "skillId",
+                "capabilityCode"
+              ],
+              "type": "object"
+            },
+            "verification": {
+              "additionalProperties": false,
+              "properties": {
+                "checks": {
+                  "items": {
+                    "pattern": "^[a-z][a-z0-9_.-]{2,159}$",
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "digest": {
+                  "pattern": "^sha256:[a-f0-9]{64}$",
+                  "type": "string"
+                },
+                "profileId": {
+                  "pattern": "^verify_[A-Za-z0-9._-]+$",
+                  "type": "string"
+                },
+                "version": {
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "profileId",
+                "version",
+                "digest",
+                "checks"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "skill",
+            "sdk",
+            "verification"
+          ],
+          "type": "object"
+        },
+        "assembledReleaseId": {
+          "pattern": "^arel_[A-Za-z0-9._-]+$",
+          "type": "string"
+        },
+        "assembledReleaseVersion": {
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?$",
+          "type": "string"
+        },
+        "capabilityCode": {
+          "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$",
+          "type": "string"
+        },
+        "catalogDefinitionId": {
+          "pattern": "^catdef_[A-Za-z0-9._-]+$",
+          "type": "string"
+        },
+        "catalogDefinitionVersion": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "catalogReleaseId": {
+          "pattern": "^catrel_[A-Za-z0-9._-]+$",
+          "type": "string"
+        },
+        "catalogReleaseVersion": {
+          "maxLength": 80,
+          "minLength": 3,
+          "type": "string"
+        },
+        "compatibility": {
+          "additionalProperties": false,
+          "properties": {
+            "agentHosts": {
+              "items": {
+                "const": "codex",
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            "architectures": {
+              "items": {
+                "enum": [
+                  "x86_64",
+                  "arm64"
+                ],
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            "cliProtocol": {
+              "const": "1.0",
+              "type": "string"
+            },
+            "cliVersion": {
+              "maxLength": 80,
+              "minLength": 3,
+              "type": "string"
+            },
+            "credentialDestinations": {
+              "items": {
+                "enum": [
+                  "local_mock",
+                  "gcp_secret_manager",
+                  "external_authenticated_probe"
+                ],
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            "frameworks": {
+              "items": {
+                "enum": [
+                  "generic-node-server",
+                  "nextjs-server",
+                  "nestjs-fastify"
+                ],
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            "operatingSystems": {
+              "items": {
+                "enum": [
+                  "darwin",
+                  "linux",
+                  "windows"
+                ],
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array"
+            }
+          },
+          "required": [
+            "cliProtocol",
+            "cliVersion",
+            "agentHosts",
+            "operatingSystems",
+            "architectures",
+            "frameworks",
+            "credentialDestinations"
+          ],
+          "type": "object"
+        },
+        "contract": {
+          "additionalProperties": false,
+          "properties": {
+            "openApi": {
+              "additionalProperties": false,
+              "properties": {
+                "artifactId": {
+                  "pattern": "^[a-z0-9][a-z0-9._-]{2,159}$",
+                  "type": "string"
+                },
+                "digest": {
+                  "pattern": "^sha256:[a-f0-9]{64}$",
+                  "type": "string"
+                },
+                "mediaType": {
+                  "maxLength": 160,
+                  "minLength": 3,
+                  "type": "string"
+                },
+                "revoked": {
+                  "type": "boolean"
+                },
+                "signature": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "algorithm": {
+                      "const": "ed25519",
+                      "type": "string"
+                    },
+                    "keyId": {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
+                      "type": "string"
+                    },
+                    "publisherId": {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
+                      "type": "string"
+                    },
+                    "value": {
+                      "pattern": "^[A-Za-z0-9_-]{16,256}$",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "publisherId",
+                    "keyId",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                "uri": {
+                  "format": "uri",
+                  "pattern": "^https:\\/\\/.*",
+                  "type": "string"
+                },
+                "version": {
+                  "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "artifactId",
+                "version",
+                "mediaType",
+                "uri",
+                "digest",
+                "signature",
+                "revoked"
+              ],
+              "type": "object"
+            },
+            "protocols": {
+              "additionalProperties": false,
+              "properties": {
+                "artifactId": {
+                  "pattern": "^[a-z0-9][a-z0-9._-]{2,159}$",
+                  "type": "string"
+                },
+                "digest": {
+                  "pattern": "^sha256:[a-f0-9]{64}$",
+                  "type": "string"
+                },
+                "mediaType": {
+                  "maxLength": 160,
+                  "minLength": 3,
+                  "type": "string"
+                },
+                "revoked": {
+                  "type": "boolean"
+                },
+                "signature": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "algorithm": {
+                      "const": "ed25519",
+                      "type": "string"
+                    },
+                    "keyId": {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
+                      "type": "string"
+                    },
+                    "publisherId": {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
+                      "type": "string"
+                    },
+                    "value": {
+                      "pattern": "^[A-Za-z0-9_-]{16,256}$",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "publisherId",
+                    "keyId",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                "uri": {
+                  "format": "uri",
+                  "pattern": "^https:\\/\\/.*",
+                  "type": "string"
+                },
+                "version": {
+                  "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "artifactId",
+                "version",
+                "mediaType",
+                "uri",
+                "digest",
+                "signature",
+                "revoked"
+              ],
+              "type": "object"
+            },
+            "version": {
+              "maxLength": 80,
+              "minLength": 3,
+              "type": "string"
+            }
+          },
+          "required": [
+            "version",
+            "openApi",
+            "protocols"
+          ],
+          "type": "object"
+        },
+        "forbiddenClassifications": {
+          "items": {
+            "enum": [
+              "provider_identifier",
+              "provider_schema",
+              "provider_credential",
+              "raw_secret",
+              "browser_credential"
+            ],
+            "type": "string"
+          },
+          "minItems": 5,
+          "type": "array"
+        },
+        "manifestId": {
+          "pattern": "^cim_[A-Za-z0-9._-]+$",
+          "type": "string"
+        },
+        "operations": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "idempotency": {
+                "enum": [
+                  "none",
+                  "required"
+                ],
+                "type": "string"
+              },
+              "method": {
+                "enum": [
+                  "DELETE",
+                  "GET",
+                  "PATCH",
+                  "POST"
+                ],
+                "type": "string"
+              },
+              "operationId": {
+                "pattern": "^[a-z][A-Za-z0-9]{2,159}$",
+                "type": "string"
+              },
+              "path": {
+                "pattern": "^\\/v1\\/platform\\/.*",
+                "type": "string"
+              },
+              "problemSchemaRef": {
+                "const": "#/components/schemas/WathbaProblem",
+                "type": "string"
+              },
+              "requestSchemaRef": {
+                "anyOf": [
+                  {
+                    "pattern": "^#\\/components\\/schemas\\/.*",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "requiredScopes": {
+                "items": {
+                  "pattern": "^[a-z][a-z0-9-]*(?::[a-z0-9-]+)+$",
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "responseSchemaRef": {
+                "pattern": "^#\\/components\\/schemas\\/.*",
+                "type": "string"
+              },
+              "safeProbe": {
+                "enum": [
+                  "none",
+                  "read_only",
+                  "sandbox_non_spend"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "operationId",
+              "method",
+              "path",
+              "requiredScopes",
+              "requestSchemaRef",
+              "responseSchemaRef",
+              "problemSchemaRef",
+              "idempotency",
+              "safeProbe"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "schemaVersion": {
+          "const": "wathba.capability-integration-manifest.v1",
+          "type": "string"
+        },
+        "serviceCode": {
+          "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "manifestId",
+        "assembledReleaseId",
+        "assembledReleaseVersion",
+        "serviceCode",
+        "capabilityCode",
+        "catalogReleaseId",
+        "catalogReleaseVersion",
+        "catalogDefinitionId",
+        "catalogDefinitionVersion",
+        "contract",
+        "operations",
+        "actions",
+        "artifacts",
+        "compatibility",
+        "forbiddenClassifications"
+      ],
+      "type": "object"
+    },
+    "integrationManifestDigest": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "integrationManifestSignature": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "const": "ed25519",
+          "type": "string"
+        },
+        "keyId": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
+          "type": "string"
+        },
+        "publisherId": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
+          "type": "string"
+        },
+        "value": {
+          "pattern": "^[A-Za-z0-9_-]{16,256}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "algorithm",
+        "publisherId",
+        "keyId",
+        "value"
+      ],
+      "type": "object"
+    },
+    "schemaVersion": {
+      "const": "wathba.cli.skill-resolution.v1",
+      "type": "string"
+    },
+    "skill": {
+      "additionalProperties": false,
+      "properties": {
+        "artifactId": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{2,159}$",
+          "type": "string"
+        },
+        "capabilityCode": {
+          "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$",
+          "type": "string"
+        },
+        "digest": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "mediaType": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "revoked": {
+          "type": "boolean"
+        },
+        "signature": {
+          "additionalProperties": false,
+          "properties": {
+            "algorithm": {
+              "const": "ed25519",
+              "type": "string"
+            },
+            "keyId": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
+              "type": "string"
+            },
+            "publisherId": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
+              "type": "string"
+            },
+            "value": {
+              "pattern": "^[A-Za-z0-9_-]{16,256}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "algorithm",
+            "publisherId",
+            "keyId",
+            "value"
+          ],
+          "type": "object"
+        },
+        "skillId": {
+          "pattern": "^wathba\\.skills\\.[a-z0-9-]+$",
+          "type": "string"
+        },
+        "uri": {
+          "format": "uri",
+          "pattern": "^https:\\/\\/.*",
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifactId",
+        "version",
+        "mediaType",
+        "uri",
+        "digest",
+        "signature",
+        "revoked",
+        "skillId",
+        "capabilityCode"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "integrationManifestDigest",
+    "integrationManifestSignature",
+    "integrationManifest",
+    "skill",
+    "catalogPin"
+  ],
+  "type": "object"
+}

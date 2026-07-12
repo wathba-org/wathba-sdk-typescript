@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.0",
+  "contractVersion": "2026.07.mvp.002",
+  "signature": {
+    "algorithm": "hmac-sha256",
+    "version": "v1",
+    "signedBytes": "ascii(timestamp) + \".\" + rawBody",
+    "toleranceSeconds": 300
+  },
+  "testSecret": "whsec_wathba_compatibility_fixture_only",
+  "secretVersion": 2,
+  "timestamp": "1783468800",
+  "rawBody": "{\"eventId\":\"evt_fixture_otp_allowance_123\",\"eventType\":\"OtpAllowanceNearExhausted\",\"alertKey\":\"otp_allowance_near_exhausted\",\"payloadVersion\":1,\"payload\":{\"environmentId\":\"env_fixture_123\",\"memberId\":\"mem_fixture_123\",\"projectId\":\"prj_fixture_123\",\"remaining\":5}}",
+  "headers": {
+    "content-type": "application/json",
+    "user-agent": "Wathba-Webhooks/1.0",
+    "x-wathba-event-id": "evt_fixture_otp_allowance_123",
+    "x-wathba-signature": "v1=4ce3b5878fd613670043566f57d06905929069df611b0434f75a3111a6bf808f",
+    "x-wathba-signature-version": "2",
+    "x-wathba-timestamp": "1783468800"
+  },
+  "event": {
+    "eventId": "evt_fixture_otp_allowance_123",
+    "eventType": "OtpAllowanceNearExhausted",
+    "alertKey": "otp_allowance_near_exhausted",
+    "payloadVersion": 1,
+    "payload": {
+      "environmentId": "env_fixture_123",
+      "memberId": "mem_fixture_123",
+      "projectId": "prj_fixture_123",
+      "remaining": 5
+    }
+  }
+}

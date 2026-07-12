@@ -1,0 +1,47 @@
+name: Publish SDK
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: sdk-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm-production
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - name: Require tag and package version to match
+        run: node scripts/check-release-tag.mjs "${GITHUB_REF_NAME}"
+      - name: Verify exact generated release
+        run: pnpm verify
+      - name: Publish with npm provenance
+        run: pnpm publish --access public --provenance --no-git-checks
+      - name: Retrieve and verify the published registry artifact
+        run: node scripts/verify-published-package.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sdk-publication-attestation-${{ github.ref_name }}
+          path: publication-attestation.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Attach immutable publication evidence to the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" publication-attestation.json --verify-tag --generate-notes

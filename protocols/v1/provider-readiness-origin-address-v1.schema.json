@@ -1,0 +1,67 @@
+{
+  "$id": "wathba://schemas/provider-readiness/origin-address.v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "administrativeArea": {
+      "maxLength": 160,
+      "minLength": 1,
+      "type": "string"
+    },
+    "contact": {
+      "additionalProperties": false,
+      "properties": {
+        "fullName": {
+          "maxLength": 160,
+          "minLength": 1,
+          "type": "string"
+        },
+        "phoneE164": {
+          "pattern": "^\\+[1-9]\\d{7,14}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fullName",
+        "phoneE164"
+      ],
+      "type": "object"
+    },
+    "countryCode": {
+      "pattern": "^[A-Z]{2}$",
+      "type": "string"
+    },
+    "line1": {
+      "maxLength": 240,
+      "minLength": 1,
+      "type": "string"
+    },
+    "line2": {
+      "maxLength": 240,
+      "minLength": 1,
+      "type": "string"
+    },
+    "locality": {
+      "maxLength": 160,
+      "minLength": 1,
+      "type": "string"
+    },
+    "postalCode": {
+      "maxLength": 32,
+      "minLength": 1,
+      "type": "string"
+    },
+    "protocolVersion": {
+      "const": "1.0",
+      "type": "string"
+    }
+  },
+  "required": [
+    "protocolVersion",
+    "countryCode",
+    "administrativeArea",
+    "locality",
+    "line1"
+  ],
+  "type": "object"
+}
