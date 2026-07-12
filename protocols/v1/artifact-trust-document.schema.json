@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "additionalProperties": false,
+      "properties": {
+        "expiresAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "type": "string"
+        },
+        "issuedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "type": "string"
+        },
+        "keys": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "algorithm": {
+                "const": "ed25519",
+                "type": "string"
+              },
+              "keyId": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
+                "type": "string"
+              },
+              "notAfter": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "type": "string"
+              },
+              "notBefore": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "type": "string"
+              },
+              "publicKeySpki": {
+                "pattern": "^[A-Za-z0-9_-]{32,256}$",
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "active",
+                  "revoked"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "keyId",
+              "algorithm",
+              "publicKeySpki",
+              "notBefore",
+              "notAfter",
+              "status"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "publisherId": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": "wathba.artifact-trust.v1",
+          "type": "string"
+        },
+        "sourceVersion": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "publisherId",
+        "sourceVersion",
+        "issuedAt",
+        "expiresAt",
+        "keys"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "signature": {
+          "additionalProperties": false,
+          "properties": {
+            "algorithm": {
+              "const": "ed25519",
+              "type": "string"
+            },
+            "rootKeyId": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
+              "type": "string"
+            },
+            "value": {
+              "pattern": "^[A-Za-z0-9_-]{16,256}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "algorithm",
+            "rootKeyId",
+            "value"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "signature"
+      ],
+      "type": "object"
+    }
+  ]
+}

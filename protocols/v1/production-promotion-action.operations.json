@@ -1,0 +1,52 @@
+[
+  {
+    "operationId": "requestProductionPromotionAction",
+    "method": "POST",
+    "path": "/v1/platform/projects/{projectId}/environments/{environmentId}/capabilities/{capabilityCode}/production-promotion-actions",
+    "requiredScopes": [
+      "projects:write"
+    ],
+    "idempotency": "required",
+    "requestSchema": "production-promotion-action-request.schema.json",
+    "responseSchema": "production-promotion-action-read.schema.json",
+    "browserOnly": false,
+    "cliReadable": true,
+    "currentFreshness": "current_session"
+  },
+  {
+    "operationId": "getProductionPromotionAction",
+    "method": "GET",
+    "path": "/v1/platform/production-promotion-actions/{actionId}",
+    "requiredScopes": [],
+    "idempotency": "none",
+    "requestSchema": null,
+    "responseSchema": "production-promotion-action-read.schema.json",
+    "browserOnly": true,
+    "cliReadable": false,
+    "currentFreshness": "current_session"
+  },
+  {
+    "operationId": "decideProductionPromotionAction",
+    "method": "POST",
+    "path": "/v1/platform/production-promotion-actions/{actionId}/decisions",
+    "requiredScopes": [],
+    "idempotency": "required",
+    "requestSchema": "production-promotion-action-decision.schema.json",
+    "responseSchema": "production-promotion-action-status.schema.json",
+    "browserOnly": true,
+    "cliReadable": false,
+    "currentFreshness": "step_up_required"
+  },
+  {
+    "operationId": "getProductionPromotionActionStatus",
+    "method": "GET",
+    "path": "/v1/platform/production-promotion-actions/{actionId}/status",
+    "requiredScopes": [],
+    "idempotency": "none",
+    "requestSchema": null,
+    "responseSchema": "production-promotion-action-status.schema.json",
+    "browserOnly": false,
+    "cliReadable": true,
+    "currentFreshness": "current_session"
+  }
+]

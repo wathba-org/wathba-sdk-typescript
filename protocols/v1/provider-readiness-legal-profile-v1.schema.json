@@ -1,0 +1,74 @@
+{
+  "$id": "wathba://schemas/provider-readiness/legal-profile.v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "contact": {
+      "additionalProperties": false,
+      "properties": {
+        "email": {
+          "format": "email",
+          "maxLength": 254,
+          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+          "type": "string"
+        },
+        "fullName": {
+          "maxLength": 160,
+          "minLength": 1,
+          "type": "string"
+        },
+        "phoneE164": {
+          "pattern": "^\\+[1-9]\\d{7,14}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fullName",
+        "email",
+        "phoneE164"
+      ],
+      "type": "object"
+    },
+    "countryCode": {
+      "pattern": "^[A-Z]{2}$",
+      "type": "string"
+    },
+    "legalEntityType": {
+      "enum": [
+        "company",
+        "sole_proprietorship",
+        "nonprofit",
+        "government_entity"
+      ],
+      "type": "string"
+    },
+    "protocolVersion": {
+      "const": "1.0",
+      "type": "string"
+    },
+    "registeredName": {
+      "maxLength": 240,
+      "minLength": 1,
+      "type": "string"
+    },
+    "registrationNumber": {
+      "maxLength": 120,
+      "minLength": 1,
+      "type": "string"
+    },
+    "taxNumber": {
+      "maxLength": 120,
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "protocolVersion",
+    "legalEntityType",
+    "countryCode",
+    "registeredName",
+    "registrationNumber",
+    "contact"
+  ],
+  "type": "object"
+}

@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "evidenceRefs": {
+      "items": {
+        "maxLength": 240,
+        "minLength": 3,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$",
+        "type": "string"
+      },
+      "maxItems": 20,
+      "type": "array"
+    },
+    "expectedBindingOwnerVersion": {
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991,
+      "type": "integer"
+    },
+    "expectedCurrentPin": {
+      "additionalProperties": false,
+      "properties": {
+        "catalogDefinitionId": {
+          "pattern": "^catdef_[A-Za-z0-9._-]+$",
+          "type": "string"
+        },
+        "catalogDefinitionVersion": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "catalogReleaseId": {
+          "pattern": "^catrel_[A-Za-z0-9._-]+$",
+          "type": "string"
+        },
+        "catalogReleaseVersion": {
+          "maxLength": 80,
+          "minLength": 3,
+          "type": "string"
+        },
+        "skill": {
+          "additionalProperties": false,
+          "properties": {
+            "digest": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "skillId": {
+              "pattern": "^wathba\\.skills\\.[a-z0-9-]+$",
+              "type": "string"
+            },
+            "skillVersion": {
+              "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "skillId",
+            "skillVersion",
+            "digest"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "catalogReleaseId",
+        "catalogReleaseVersion",
+        "catalogDefinitionId",
+        "catalogDefinitionVersion",
+        "skill"
+      ],
+      "type": "object"
+    },
+    "protocolVersion": {
+      "const": "1.0",
+      "type": "string"
+    }
+  },
+  "required": [
+    "protocolVersion",
+    "expectedBindingOwnerVersion",
+    "expectedCurrentPin",
+    "evidenceRefs"
+  ],
+  "type": "object"
+}

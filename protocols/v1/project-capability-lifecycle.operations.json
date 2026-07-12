@@ -1,0 +1,38 @@
+[
+  {
+    "operationId": "activateProjectCapability",
+    "method": "POST",
+    "path": "/v1/cli/projects/{projectId}/environments/{environmentId}/capabilities/{capabilityCode}/activations",
+    "requiredScope": "projects:write",
+    "idempotency": "required",
+    "requestSchema": "project-capability-activation-request.schema.json",
+    "responseSchema": "project-capability-activation-response.schema.json"
+  },
+  {
+    "operationId": "getProjectCapabilityPin",
+    "method": "GET",
+    "path": "/v1/cli/projects/{projectId}/environments/{environmentId}/capabilities/{capabilityCode}/pin",
+    "requiredScope": "projects:read",
+    "idempotency": "none",
+    "requestSchema": null,
+    "responseSchema": "project-capability-current-pin-response.schema.json"
+  },
+  {
+    "operationId": "transitionProjectCapabilityPin",
+    "method": "POST",
+    "path": "/v1/cli/projects/{projectId}/environments/{environmentId}/capabilities/{capabilityCode}/pin-transitions",
+    "requiredScope": "projects:write",
+    "idempotency": "required",
+    "requestSchema": "project-capability-pin-transition-request.schema.json",
+    "responseSchema": "project-capability-pin-mutation-response.schema.json"
+  },
+  {
+    "operationId": "removeProjectCapabilityPin",
+    "method": "POST",
+    "path": "/v1/cli/projects/{projectId}/environments/{environmentId}/capabilities/{capabilityCode}/removals",
+    "requiredScope": "projects:write",
+    "idempotency": "required",
+    "requestSchema": "project-capability-removal-request.schema.json",
+    "responseSchema": "project-capability-pin-mutation-response.schema.json"
+  }
+]

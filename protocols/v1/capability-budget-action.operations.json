@@ -1,0 +1,52 @@
+[
+  {
+    "operationId": "requestCapabilityBudgetAction",
+    "method": "POST",
+    "path": "/v1/platform/projects/{projectId}/environments/{environmentId}/capabilities/{capabilityCode}/budget-actions",
+    "requiredScopes": [
+      "budgets:manage"
+    ],
+    "idempotency": "required",
+    "requestSchema": "capability-budget-action-request.schema.json",
+    "responseSchema": "capability-budget-action-read.schema.json",
+    "browserOnly": false,
+    "cliReadable": true,
+    "currentFreshness": "current_session"
+  },
+  {
+    "operationId": "getCapabilityBudgetAction",
+    "method": "GET",
+    "path": "/v1/platform/budget-actions/{actionId}",
+    "requiredScopes": [],
+    "idempotency": "none",
+    "requestSchema": null,
+    "responseSchema": "capability-budget-action-read.schema.json",
+    "browserOnly": true,
+    "cliReadable": false,
+    "currentFreshness": "current_session"
+  },
+  {
+    "operationId": "decideCapabilityBudgetAction",
+    "method": "POST",
+    "path": "/v1/platform/budget-actions/{actionId}/decisions",
+    "requiredScopes": [],
+    "idempotency": "required",
+    "requestSchema": "capability-budget-action-decision.schema.json",
+    "responseSchema": "capability-budget-action-status.schema.json",
+    "browserOnly": true,
+    "cliReadable": false,
+    "currentFreshness": "browser_fresh"
+  },
+  {
+    "operationId": "getCapabilityBudgetActionStatus",
+    "method": "GET",
+    "path": "/v1/platform/budget-actions/{actionId}/status",
+    "requiredScopes": [],
+    "idempotency": "none",
+    "requestSchema": null,
+    "responseSchema": "capability-budget-action-status.schema.json",
+    "browserOnly": false,
+    "cliReadable": true,
+    "currentFreshness": "current_session"
+  }
+]

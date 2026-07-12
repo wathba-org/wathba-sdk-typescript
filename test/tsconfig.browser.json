@@ -1,0 +1,11 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "customConditions": ["browser"],
+    "noEmit": true,
+    "rootDir": ".."
+  },
+  "include": ["browser-consumer.ts"]
+}

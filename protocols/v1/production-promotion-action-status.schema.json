@@ -1,0 +1,523 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "actionRef": {
+      "additionalProperties": false,
+      "properties": {
+        "actionCode": {
+          "pattern": "^[a-z][a-z0-9_]{2,127}$",
+          "type": "string"
+        },
+        "actionId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "allowedDecisions": {
+          "items": {
+            "enum": [
+              "approve",
+              "deny",
+              "cancel",
+              "acknowledge",
+              "submit"
+            ],
+            "type": "string"
+          },
+          "maxItems": 5,
+          "type": "array"
+        },
+        "browserUrl": {
+          "format": "uri",
+          "pattern": "^https:\\/\\/.*",
+          "type": "string"
+        },
+        "cancellation": {
+          "enum": [
+            "not_allowed",
+            "allowed_before_decision",
+            "allowed_before_delivery",
+            "owner_specific"
+          ],
+          "type": "string"
+        },
+        "capabilityCode": {
+          "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$",
+          "type": "string"
+        },
+        "copyKeys": {
+          "additionalProperties": false,
+          "properties": {
+            "consequence": {
+              "maxLength": 160,
+              "minLength": 3,
+              "type": "string"
+            },
+            "summary": {
+              "maxLength": 160,
+              "minLength": 3,
+              "type": "string"
+            },
+            "title": {
+              "maxLength": 160,
+              "minLength": 3,
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "summary",
+            "consequence"
+          ],
+          "type": "object"
+        },
+        "decideOperationId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "environmentId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "expiresAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "type": "string"
+        },
+        "freshness": {
+          "enum": [
+            "current_session",
+            "browser_fresh",
+            "step_up_required"
+          ],
+          "type": "string"
+        },
+        "inputClassification": {
+          "enum": [
+            "member_safe",
+            "protected_handle",
+            "classified_input_required"
+          ],
+          "type": "string"
+        },
+        "owner": {
+          "enum": [
+            "member_accounts",
+            "application_access_and_keys",
+            "provider_connections",
+            "projects",
+            "verification",
+            "billing_wallet",
+            "budget_controls",
+            "member_notifications",
+            "service_catalog"
+          ],
+          "type": "string"
+        },
+        "ownerState": {
+          "enum": [
+            "pending_external",
+            "completed",
+            "denied",
+            "expired",
+            "cancelled",
+            "unknown_delivery"
+          ],
+          "type": "string"
+        },
+        "projectId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "protocolVersion": {
+          "const": "1.0",
+          "type": "string"
+        },
+        "readOperationId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "reasonCode": {
+          "pattern": "^[a-z][a-z0-9_]{2,127}$",
+          "type": "string"
+        },
+        "resumeRef": {
+          "maxLength": 240,
+          "minLength": 3,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$",
+          "type": "string"
+        },
+        "safeCostCapSummary": {
+          "additionalProperties": false,
+          "properties": {
+            "capCode": {
+              "pattern": "^[a-z][a-z0-9_]{2,127}$",
+              "type": "string"
+            },
+            "capUnit": {
+              "maxLength": 64,
+              "minLength": 1,
+              "type": "string"
+            },
+            "capValue": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "costClass": {
+              "enum": [
+                "free",
+                "capped",
+                "spend_possible"
+              ],
+              "type": "string"
+            },
+            "summaryKey": {
+              "maxLength": 160,
+              "minLength": 3,
+              "type": "string"
+            }
+          },
+          "required": [
+            "costClass",
+            "summaryKey"
+          ],
+          "type": "object"
+        },
+        "sourceRef": {
+          "maxLength": 240,
+          "minLength": 3,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$",
+          "type": "string"
+        },
+        "sourceVersion": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "statusOperationId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        }
+      },
+      "required": [
+        "protocolVersion",
+        "owner",
+        "actionCode",
+        "actionId",
+        "projectId",
+        "environmentId",
+        "capabilityCode",
+        "sourceRef",
+        "sourceVersion",
+        "ownerState",
+        "reasonCode",
+        "allowedDecisions",
+        "copyKeys",
+        "inputClassification",
+        "freshness",
+        "expiresAt",
+        "readOperationId",
+        "decideOperationId",
+        "statusOperationId",
+        "browserUrl",
+        "resumeRef",
+        "cancellation"
+      ],
+      "type": "object"
+    },
+    "activationSnapshotId": {
+      "maxLength": 160,
+      "minLength": 3,
+      "type": "string"
+    },
+    "completedAt": {
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+      "type": "string"
+    },
+    "facts": {
+      "additionalProperties": false,
+      "properties": {
+        "capabilityCode": {
+          "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$",
+          "type": "string"
+        },
+        "environmentId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "expiresAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "type": "string"
+        },
+        "observedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "type": "string"
+        },
+        "ownerRef": {
+          "maxLength": 240,
+          "minLength": 3,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$",
+          "type": "string"
+        },
+        "ownerVersion": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "prerequisites": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "checkId": {
+                "enum": [
+                  "account_status",
+                  "project_status",
+                  "source_environment_status",
+                  "target_environment_status",
+                  "catalog_compatibility",
+                  "eligibility",
+                  "traffic_policy",
+                  "credential_destination",
+                  "credential_binding",
+                  "provider_readiness",
+                  "budget_policy",
+                  "wallet_facts",
+                  "webhook_readiness",
+                  "capability_verification"
+                ],
+                "type": "string"
+              },
+              "freshness": {
+                "enum": [
+                  "current",
+                  "stale",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              "outcome": {
+                "enum": [
+                  "satisfied",
+                  "action_required",
+                  "insufficient",
+                  "missing",
+                  "skipped",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              "owner": {
+                "enum": [
+                  "member_accounts",
+                  "projects",
+                  "service_catalog",
+                  "eligibility",
+                  "traffic_control",
+                  "application_access_and_keys",
+                  "provider_connections",
+                  "budget_controls",
+                  "billing_wallet",
+                  "member_notifications",
+                  "verification"
+                ],
+                "type": "string"
+              },
+              "sourceRef": {
+                "maxLength": 240,
+                "minLength": 3,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$",
+                "type": "string"
+              },
+              "sourceVersion": {
+                "maximum": 9007199254740991,
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "checkId",
+              "owner",
+              "sourceRef",
+              "sourceVersion",
+              "freshness",
+              "outcome"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "projectId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "sourceEnvironmentId": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        },
+        "sourcePin": {
+          "additionalProperties": false,
+          "properties": {
+            "catalogDefinitionId": {
+              "pattern": "^catdef_[A-Za-z0-9._-]+$",
+              "type": "string"
+            },
+            "catalogDefinitionVersion": {
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "catalogReleaseId": {
+              "pattern": "^catrel_[A-Za-z0-9._-]+$",
+              "type": "string"
+            },
+            "catalogReleaseVersion": {
+              "maxLength": 80,
+              "minLength": 3,
+              "type": "string"
+            },
+            "skill": {
+              "additionalProperties": false,
+              "properties": {
+                "digest": {
+                  "pattern": "^sha256:[a-f0-9]{64}$",
+                  "type": "string"
+                },
+                "skillId": {
+                  "pattern": "^wathba\\.skills\\.[a-z0-9-]+$",
+                  "type": "string"
+                },
+                "skillVersion": {
+                  "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "skillId",
+                "skillVersion",
+                "digest"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "catalogReleaseId",
+            "catalogReleaseVersion",
+            "catalogDefinitionId",
+            "catalogDefinitionVersion",
+            "skill"
+          ],
+          "type": "object"
+        },
+        "sourceRef": {
+          "maxLength": 240,
+          "minLength": 3,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$",
+          "type": "string"
+        },
+        "sourceVersion": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "targetPin": {
+          "additionalProperties": false,
+          "properties": {
+            "catalogDefinitionId": {
+              "pattern": "^catdef_[A-Za-z0-9._-]+$",
+              "type": "string"
+            },
+            "catalogDefinitionVersion": {
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "catalogReleaseId": {
+              "pattern": "^catrel_[A-Za-z0-9._-]+$",
+              "type": "string"
+            },
+            "catalogReleaseVersion": {
+              "maxLength": 80,
+              "minLength": 3,
+              "type": "string"
+            },
+            "skill": {
+              "additionalProperties": false,
+              "properties": {
+                "digest": {
+                  "pattern": "^sha256:[a-f0-9]{64}$",
+                  "type": "string"
+                },
+                "skillId": {
+                  "pattern": "^wathba\\.skills\\.[a-z0-9-]+$",
+                  "type": "string"
+                },
+                "skillVersion": {
+                  "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "skillId",
+                "skillVersion",
+                "digest"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "catalogReleaseId",
+            "catalogReleaseVersion",
+            "catalogDefinitionId",
+            "catalogDefinitionVersion",
+            "skill"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "projectId",
+        "environmentId",
+        "capabilityCode",
+        "sourceEnvironmentId",
+        "sourcePin",
+        "targetPin",
+        "prerequisites",
+        "ownerRef",
+        "ownerVersion",
+        "sourceRef",
+        "sourceVersion",
+        "observedAt",
+        "expiresAt"
+      ],
+      "type": "object"
+    },
+    "projectConfigVersionId": {
+      "maxLength": 160,
+      "minLength": 3,
+      "type": "string"
+    },
+    "protocolVersion": {
+      "const": "1.0",
+      "type": "string"
+    }
+  },
+  "required": [
+    "protocolVersion",
+    "actionRef",
+    "facts"
+  ],
+  "type": "object"
+}
