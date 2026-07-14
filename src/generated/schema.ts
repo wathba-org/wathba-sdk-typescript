@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+    "/v1/platform/projects/{projectId}/executions/{executionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the current status of a shipment execution */
+        get: operations["getShipmentExecutionStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/platform/projects/{projectId}/otp/send": {
         parameters: {
             query?: never;
@@ -320,16 +337,18 @@ export interface components {
         };
         CreateShipmentRequest: {
             addressId?: string;
-            amountMinor?: number;
+            amountMinor: number;
             courierName?: string;
             courierPartnerId?: string;
             currency?: string;
+            /** Format: email */
+            customerEmail?: string;
             customerName?: string;
             customerPhone?: string;
             destinationAddressLine?: string;
             destinationCityId?: string;
             environmentId: string;
-            items?: {
+            items: {
                 amountMinor?: number;
                 name: string;
                 quantity: number;
@@ -339,19 +358,21 @@ export interface components {
             /** @enum {string} */
             mode?: "preselected_courier" | "order_first";
             orderReference?: string;
-            parcel?: {
+            parcel: {
                 heightCm?: number;
                 lengthCm?: number;
-                weightGrams?: number;
+                weightGrams: number;
                 widthCm?: number;
             };
             paymentType?: string;
-            recipient?: {
+            recipient: {
                 address: {
                     cityId: string;
                     line: string;
                     shortAddress?: string;
                 };
+                /** Format: email */
+                email: string;
                 name: string;
                 phone: string;
             };
@@ -795,6 +816,92 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    getShipmentExecutionStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+                executionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperationExecution"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
     sendOtp: {
         parameters: {
             query?: never;
@@ -2473,7 +2580,8 @@ export interface operations {
             content: {
                 /**
                  * @example {
-                 *       "courierPartnerId": "tcp_allowed",
+                 *       "amountMinor": 5000,
+                 *       "currency": "SAR",
                  *       "environmentId": "env_123",
                  *       "items": [
                  *         {
@@ -2481,13 +2589,17 @@ export interface operations {
                  *           "quantity": 1
                  *         }
                  *       ],
-                 *       "mode": "preselected_courier",
+                 *       "mode": "order_first",
                  *       "orderReference": "ord_123",
+                 *       "parcel": {
+                 *         "weightGrams": 1000
+                 *       },
                  *       "recipient": {
                  *         "address": {
                  *           "cityId": "riyadh",
                  *           "line": "King Fahd Road"
                  *         },
+                 *         "email": "customer@example.com",
                  *         "name": "Customer Name",
                  *         "phone": "966500000000"
                  *       },

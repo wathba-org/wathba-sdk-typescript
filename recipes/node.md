@@ -32,6 +32,10 @@ export async function sendLoginOtp(email: string) {
 
 The exact numeric secret-version resource and approved capability/scope arrays are non-secret binding facts generated into the integration lock; do not replace the version with `latest`. The default provider uses the GCP workload metadata identity, verifies the payload checksum, and fails closed if the request falls outside that binding. Never pass a service-account key to the app or agent.
 
+If `WathbaClient` receives a non-production `baseUrl`, pass that same exact HTTPS origin as `allowedApiOrigin` to the credential provider. Setting only one side is a binding mismatch and fails closed before credential access.
+
 Persist the idempotency key with the logical command if your app may retry after a restart. The returned value is a typed outcome; only `final` is terminal, while `pending` must converge through a safe status read and `action_required` must be completed by the member. Do not persist or log the credential returned by the provider.
 
 For payments and shipping, branch on the typed outcome. Queue a bounded safe read for `pending`, render only the member-safe portal URL for `action_required`, and treat only `final` as terminal. Never automatically retry a mutation with a new idempotency key.
+
+For the complete capped staging request and its onboarding boundary, see [Shipping](./shipping.md).

@@ -1,0 +1,88 @@
+{
+  "contractVersion": "2026.07.mvp.004",
+  "operationId": "createShipment",
+  "pending": {
+    "body": {
+      "amountMinor": 5000,
+      "capability": "logistics.shipping",
+      "currency": "SAR",
+      "executionId": "exe_fixture_shipment_123",
+      "message": "provider outcome pending reconciliation",
+      "operationCode": "createShipment",
+      "state": "pending",
+      "statusCode": 202
+    },
+    "contentType": "application/json",
+    "status": 202
+  },
+  "problem": {
+    "body": {
+      "billingEffect": "none",
+      "code": "budget_unknown",
+      "correlationId": "corr_fixture_shipment_123",
+      "retryable": false,
+      "status": 409,
+      "title": "Budget state is not known",
+      "type": "https://wathba.dev/problems/budget-unknown"
+    },
+    "contentType": "application/problem+json",
+    "status": 409
+  },
+  "request": {
+    "body": {
+      "amountMinor": 5000,
+      "currency": "SAR",
+      "environmentId": "env_fixture_123",
+      "items": [
+        {
+          "amountMinor": 1000,
+          "name": "Fixture Item",
+          "quantity": 1
+        }
+      ],
+      "mode": "order_first",
+      "orderReference": "123456",
+      "parcel": {
+        "weightGrams": 1000
+      },
+      "recipient": {
+        "address": {
+          "cityId": "riyadh",
+          "line": "King Fahd Road"
+        },
+        "email": "customer@example.com",
+        "name": "Fixture Customer",
+        "phone": "966500000000"
+      },
+      "shipmentType": "normal"
+    },
+    "idempotencyKey": "idem_fixture_shipment_create_123",
+    "path": {
+      "projectId": "prj_fixture_123"
+    }
+  },
+  "resolved": {
+    "body": {
+      "amountMinor": 2674,
+      "capability": "logistics.shipping",
+      "currency": "SAR",
+      "executionId": "exe_fixture_shipment_123",
+      "message": "shipment created",
+      "operationCode": "createShipment",
+      "shipmentReference": "shipment_fixture_123",
+      "state": "succeeded",
+      "statusCode": 201,
+      "trackingStatus": "READY_FOR_PICKUP"
+    },
+    "contentType": "application/json",
+    "status": 200
+  },
+  "schemaVersion": "1.0",
+  "statusOperationId": "getShipmentExecutionStatus",
+  "statusRequest": {
+    "path": {
+      "executionId": "exe_fixture_shipment_123",
+      "projectId": "prj_fixture_123"
+    }
+  }
+}

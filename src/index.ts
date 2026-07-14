@@ -41,6 +41,8 @@ export {
   WathbaShippingClient,
   type CreateShipmentInput,
   type CreateShipmentResult,
+  type GetShipmentExecutionStatusInput,
+  type GetShipmentExecutionStatusResult,
 } from './shipping.js';
 export {
   captureWathbaOutcome,

@@ -300,8 +300,8 @@ export const runtimeSchemas = {
         "type": "string"
       },
       "amountMinor": {
+        "exclusiveMinimum": 0,
         "maximum": 9007199254740991,
-        "minimum": 0,
         "type": "integer"
       },
       "courierName": {
@@ -317,6 +317,11 @@ export const runtimeSchemas = {
         "maxLength": 3,
         "minLength": 3,
         "pattern": "^[A-Z]{3}$",
+        "type": "string"
+      },
+      "customerEmail": {
+        "format": "email",
+        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
         "type": "string"
       },
       "customerName": {
@@ -410,6 +415,9 @@ export const runtimeSchemas = {
             "type": "number"
           }
         },
+        "required": [
+          "weightGrams"
+        ],
         "type": "object"
       },
       "paymentType": {
@@ -443,6 +451,11 @@ export const runtimeSchemas = {
             ],
             "type": "object"
           },
+          "email": {
+            "format": "email",
+            "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+            "type": "string"
+          },
           "name": {
             "maxLength": 240,
             "minLength": 1,
@@ -456,6 +469,7 @@ export const runtimeSchemas = {
         },
         "required": [
           "name",
+          "email",
           "phone",
           "address"
         ],
@@ -479,7 +493,11 @@ export const runtimeSchemas = {
       }
     },
     "required": [
-      "environmentId"
+      "environmentId",
+      "amountMinor",
+      "recipient",
+      "items",
+      "parcel"
     ],
     "type": "object"
   },

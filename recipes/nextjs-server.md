@@ -21,4 +21,8 @@ export const wathba = new WathbaClient({
 
 The CLI replaces the example binding facts with the exact active numeric version and approved capability/scopes. Never use `latest`. Never import the SDK from a Client Component. Never serialize the client, credential, error object, or request payload into React props. The package's browser export rejects accidental browser bundling, but the server-only module boundary remains part of the app's design.
 
+For development or test, use one exact HTTPS value for both `WathbaClient({ baseUrl })` and the provider's `allowedApiOrigin`. A mismatch fails closed before secret access.
+
 If an operation returns `action_required`, pass only the validated member-safe action URL or a server-owned reference to the UI. Keep the Wathba credential, raw problem object, and correlation details on the server.
+
+Do not put external-service registration/login, pickup-address submission, wallet funding, activation, or key issuance in a Route Handler or Server Action. Those are CLI and hosted-member setup actions. See [Shipping](./shipping.md) for the runtime-only staging request.
