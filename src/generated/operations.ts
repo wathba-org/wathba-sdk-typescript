@@ -316,6 +316,43 @@ export const operationSpecs = {
       }
     }
   },
+  "getShipmentExecutionStatus": {
+    "operationId": "getShipmentExecutionStatus",
+    "method": "GET",
+    "path": "/v1/platform/projects/{projectId}/executions/{executionId}",
+    "capability": "logistics.shipping",
+    "idempotency": "none",
+    "safeProbe": "read_only",
+    "requiredScopes": [
+      "tools:execute"
+    ],
+    "pathParameters": {
+      "executionId": {
+        "required": true,
+        "schema": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        }
+      },
+      "projectId": {
+        "required": true,
+        "schema": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        }
+      }
+    },
+    "queryParameters": {},
+    "requestSchema": null,
+    "successResponses": {
+      "200": {
+        "contentType": "application/json",
+        "schema": "OperationExecution"
+      }
+    }
+  },
   "listPaymentLinks": {
     "operationId": "listPaymentLinks",
     "method": "GET",
@@ -735,6 +772,7 @@ export interface OperationInputMap {
   "getPaymentLink": { path: operations["getPaymentLink"]["parameters"]["path"] };
   "getPaymentProduct": { path: operations["getPaymentProduct"]["parameters"]["path"] };
   "getPaymentRefund": { path: operations["getPaymentRefund"]["parameters"]["path"] };
+  "getShipmentExecutionStatus": { path: operations["getShipmentExecutionStatus"]["parameters"]["path"] };
   "listPaymentLinks": { path: operations["listPaymentLinks"]["parameters"]["path"]; query?: operations["listPaymentLinks"]["parameters"]["query"] };
   "listPaymentProducts": { path: operations["listPaymentProducts"]["parameters"]["path"]; query?: operations["listPaymentProducts"]["parameters"]["query"] };
   "listPaymentRefunds": { path: operations["listPaymentRefunds"]["parameters"]["path"] };
@@ -757,6 +795,7 @@ export interface OperationResponseMap {
   "getPaymentLink": operations["getPaymentLink"]["responses"][200]["content"]["application/json"];
   "getPaymentProduct": operations["getPaymentProduct"]["responses"][200]["content"]["application/json"];
   "getPaymentRefund": operations["getPaymentRefund"]["responses"][200]["content"]["application/json"];
+  "getShipmentExecutionStatus": operations["getShipmentExecutionStatus"]["responses"][200]["content"]["application/json"];
   "listPaymentLinks": operations["listPaymentLinks"]["responses"][200]["content"]["application/json"];
   "listPaymentProducts": operations["listPaymentProducts"]["responses"][200]["content"]["application/json"];
   "listPaymentRefunds": operations["listPaymentRefunds"]["responses"][200]["content"]["application/json"];

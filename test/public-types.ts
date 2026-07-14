@@ -6,6 +6,8 @@ import {
   type CreatePaymentProductResult,
   type CreateShipmentInput,
   type CreateShipmentResult,
+  type GetShipmentExecutionStatusInput,
+  type GetShipmentExecutionStatusResult,
   type SendOtpInput,
   type SendOtpResult,
   type WathbaOutcome,
@@ -39,19 +41,31 @@ void paymentOutcome;
 const shipment: CreateShipmentInput = {
   projectId: 'prj_types',
   environmentId: 'env_types',
-  mode: 'preselected_courier',
-  courierPartnerId: 'courier_allowed_types',
+  mode: 'order_first',
+  amountMinor: 5_000,
+  currency: 'SAR',
   recipient: {
     name: 'Customer',
+    email: 'customer@example.com',
     phone: '966500000000',
     address: { line: 'King Fahd Road', cityId: 'riyadh' },
   },
-  items: [{ name: 'Item', quantity: 1 }],
+  items: [{ name: 'Item', quantity: 1, amountMinor: 1_000 }],
+  parcel: { weightGrams: 1_000 },
   idempotencyKey: asIdempotencyKey('idem_types_shipment'),
 };
 const shipmentOutcome: Promise<WathbaOutcome<CreateShipmentResult>> =
   client.shipping.create(shipment);
 void shipmentOutcome;
+
+const shipmentStatus: GetShipmentExecutionStatusInput = {
+  projectId: 'prj_types',
+  executionId: 'exe_types',
+};
+const shipmentStatusOutcome: Promise<
+  WathbaOutcome<GetShipmentExecutionStatusResult>
+> = client.shipping.getStatus(shipmentStatus);
+void shipmentStatusOutcome;
 
 function useOutcome(outcome: WathbaOutcome<CreateShipmentResult>): string {
   if (outcome.kind === 'action_required') return outcome.actionRef.browserUrl;

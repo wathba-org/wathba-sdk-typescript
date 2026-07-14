@@ -10,6 +10,8 @@ import {
 import { RawWathbaClient } from './raw-client.js';
 
 type CreateShipmentOperationInput = OperationInputMap['createShipment'];
+type GetShipmentExecutionStatusOperationInput =
+  OperationInputMap['getShipmentExecutionStatus'];
 
 export type CreateShipmentInput = Readonly<
   CreateShipmentOperationInput['body'] & {
@@ -19,6 +21,13 @@ export type CreateShipmentInput = Readonly<
 >;
 
 export type CreateShipmentResult = OperationResponseMap['createShipment'];
+
+export type GetShipmentExecutionStatusInput = Readonly<
+  GetShipmentExecutionStatusOperationInput['path']
+>;
+
+export type GetShipmentExecutionStatusResult =
+  OperationResponseMap['getShipmentExecutionStatus'];
 
 export class WathbaShippingClient {
   constructor(private readonly raw: RawWathbaClient) {}
@@ -31,6 +40,18 @@ export class WathbaShippingClient {
           path: { projectId },
           body,
           idempotencyKey,
+        }),
+      classifyOperationExecution,
+    );
+  }
+
+  getStatus(
+    input: GetShipmentExecutionStatusInput,
+  ): Promise<WathbaOutcome<GetShipmentExecutionStatusResult>> {
+    return captureWathbaOutcome(
+      () =>
+        this.raw.execute('getShipmentExecutionStatus', {
+          path: input,
         }),
       classifyOperationExecution,
     );

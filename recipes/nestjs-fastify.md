@@ -33,4 +33,8 @@ Controllers call an application use case; they do not resolve, read, log, or ret
 
 The CLI replaces the example with the active binding's exact numeric version and approved capability/scopes. The provider uses the runtime workload identity, rejects `latest`, and fails closed outside that binding; do not inject a service-account key or credential value into Nest configuration.
 
+For development or test, use one exact HTTPS value for both `WathbaClient({ baseUrl })` and the provider's `allowedApiOrigin`. A mismatched origin fails closed before the secret is resolved.
+
 Model `final`, `pending`, and `action_required` explicitly in the application layer. Schedule only safe read operations for convergence; do not turn a pending provider outcome into an HTTP success claim or replay a mutation with a fresh key.
+
+External shipping-account setup remains a CLI and hosted-member workflow, never a Nest controller concern. See [Shipping](./shipping.md) for the complete sandbox `order_first` request.

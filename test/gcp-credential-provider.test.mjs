@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createGcpSecretManagerCredentialProvider } from '../dist/esm/index.js';
+import {
+  WathbaClient,
+  asIdempotencyKey,
+  createGcpSecretManagerCredentialProvider,
+} from '../dist/esm/index.js';
 
 const RESOURCE =
   'projects/123456789012/secrets/wathba-app/versions/7';
@@ -115,6 +119,67 @@ test('rejects unapproved origin, capability, and scope before fetching a token o
   }
   assert.equal(tokenCalls, 0);
   assert.equal(fetchCalls, 0);
+});
+
+test('a test client baseUrl resolves only through the same explicit allowedApiOrigin', async () => {
+  const apiOrigin = 'https://apidev.wathba.info';
+  const runtimeRequests = [];
+  const provider = createGcpSecretManagerCredentialProvider({
+    secretVersionResource: RESOURCE,
+    allowedApiOrigin: apiOrigin,
+    allowedCapabilities: ['logistics.shipping'],
+    allowedScopes: ['shipments:create'],
+    accessTokenProvider: {
+      async getAccessToken() {
+        return 'workload-access-token-that-is-long-enough';
+      },
+    },
+    async fetch() {
+      return secretResponse(RESOURCE, CREDENTIAL);
+    },
+  });
+  const client = new WathbaClient({
+    baseUrl: apiOrigin,
+    credentialProvider: provider,
+    async fetch(url) {
+      runtimeRequests.push(String(url));
+      return Response.json(
+        {
+          executionId: 'exe_shipping_dev_origin',
+          state: 'succeeded',
+          statusCode: 201,
+          message: 'shipment_created',
+          capability: 'logistics.shipping',
+          operationCode: 'createShipment',
+          amountMinor: 5000,
+          currency: 'SAR',
+        },
+        { status: 201 },
+      );
+    },
+  });
+
+  const outcome = await client.shipping.create({
+    projectId: 'prj_shipping_dev_origin',
+    environmentId: 'env_shipping_dev_origin',
+    mode: 'order_first',
+    amountMinor: 5000,
+    currency: 'SAR',
+    recipient: {
+      name: 'Development Customer',
+      email: 'development.customer@example.com',
+      phone: '966500000002',
+      address: { line: 'King Fahd Road', cityId: 'riyadh' },
+    },
+    items: [{ name: 'Test item', quantity: 1, amountMinor: 1000 }],
+    parcel: { weightGrams: 1000 },
+    idempotencyKey: asIdempotencyKey('idem_shipping_dev_origin'),
+  });
+
+  assert.equal(outcome.kind, 'final');
+  assert.deepEqual(runtimeRequests, [
+    `${apiOrigin}/v1/platform/projects/prj_shipping_dev_origin/shipments`,
+  ]);
 });
 
 test('rejects wrong resource, invalid checksum, and malformed payload without exposing values', async () => {

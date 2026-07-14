@@ -9,7 +9,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: sdk-release-${{ github.ref }}
+  group: sdk-release-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -19,7 +19,18 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
+          fetch-depth: 0
           persist-credentials: false
+      - name: Require the tagged commit to be on origin/main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --no-tags
+          test "$(git rev-parse "${GITHUB_REF_NAME}^{commit}")" = "$GITHUB_SHA"
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || {
+            echo "::error::SDK release tag must point to a commit reachable from origin/main"
+            exit 1
+          }
       - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
@@ -31,10 +42,60 @@ jobs:
         run: node scripts/check-release-tag.mjs "${GITHUB_REF_NAME}"
       - name: Verify exact generated release
         run: pnpm verify
+      - name: Pack immutable release candidate
+        id: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          candidate_dir="${RUNNER_TEMP}/wathba-sdk-candidate"
+          mkdir -p "$candidate_dir"
+          pack_json="$(pnpm pack --json --pack-destination "$candidate_dir")"
+          package_name="$(node -p "require('./package.json').name")"
+          package_version="$(node -p "require('./package.json').version")"
+          candidate_path="$(
+            jq -er --arg name "$package_name" --arg version "$package_version" \
+              'select(.name == $name and .version == $version) | .filename' \
+              <<<"$pack_json"
+          )"
+          test -f "$candidate_path"
+          case "$candidate_path" in
+            "$candidate_dir"/*) ;;
+            *) echo "::error::packed candidate escaped the runner staging directory"; exit 1 ;;
+          esac
+          echo "path=${candidate_path}" >> "$GITHUB_OUTPUT"
+      - name: Detect an existing immutable registry version
+        id: registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          package_name="$(node -p "require('./package.json').name")"
+          package_version="$(node -p "require('./package.json').version")"
+          registry_path="$(node -e "const p=require('./package.json'); process.stdout.write(encodeURIComponent(p.name)+'/'+encodeURIComponent(p.version))")"
+          response="${RUNNER_TEMP}/wathba-sdk-registry-version.json"
+          status="$(
+            curl -sS -L --retry 3 --retry-all-errors --connect-timeout 10 \
+              -o "$response" -w '%{http_code}' \
+              "https://registry.npmjs.org/${registry_path}"
+          )"
+          case "$status" in
+            200)
+              jq -e --arg name "$package_name" --arg version "$package_version" \
+                '.name == $name and .version == $version' "$response" >/dev/null
+              echo "exists=true" >> "$GITHUB_OUTPUT"
+              ;;
+            404)
+              echo "exists=false" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "::error::npm registry availability check failed closed with HTTP ${status}"
+              exit 1
+              ;;
+          esac
       - name: Publish with npm provenance
-        run: pnpm publish --access public --provenance --no-git-checks
+        if: steps.registry.outputs.exists != 'true'
+        run: pnpm publish "${{ steps.candidate.outputs.path }}" --access public --provenance --no-git-checks
       - name: Retrieve and verify the published registry artifact
-        run: node scripts/verify-published-package.mjs
+        run: node scripts/verify-published-package.mjs "${{ steps.candidate.outputs.path }}"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: sdk-publication-attestation-${{ github.ref_name }}
@@ -44,4 +105,33 @@ jobs:
       - name: Attach immutable publication evidence to the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" publication-attestation.json --verify-tag --generate-notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release create "$GITHUB_REF_NAME" publication-attestation.json --verify-tag --generate-notes
+            exit 0
+          fi
+
+          asset_count="$(
+            gh release view "$GITHUB_REF_NAME" --json assets \
+              --jq '[.assets[] | select(.name == "publication-attestation.json")] | length'
+          )"
+          case "$asset_count" in
+            0)
+              gh release upload "$GITHUB_REF_NAME" publication-attestation.json
+              ;;
+            1)
+              evidence_dir="${RUNNER_TEMP}/existing-sdk-publication-evidence"
+              mkdir -p "$evidence_dir"
+              gh release download "$GITHUB_REF_NAME" \
+                --pattern publication-attestation.json --dir "$evidence_dir"
+              jq -S 'del(.retrievedAt)' publication-attestation.json > "${RUNNER_TEMP}/expected-attestation.json"
+              jq -S 'del(.retrievedAt)' "${evidence_dir}/publication-attestation.json" > "${RUNNER_TEMP}/existing-attestation.json"
+              cmp "${RUNNER_TEMP}/expected-attestation.json" "${RUNNER_TEMP}/existing-attestation.json"
+              ;;
+            *)
+              echo "::error::GitHub release contains duplicate publication attestation assets"
+              exit 1
+              ;;
+          esac

@@ -1,9 +1,10 @@
 {
   "schemaVersion": "1.0",
-  "contractVersion": "2026.07.mvp.002",
+  "contractVersion": "2026.07.mvp.004",
   "fixtures": {
-    "otp-round-trip.json": "sha256:46dbe56ae63b90f030a1c84e2930c9b6a0ce2f0ac49aa3a5e61221cc9c95dfb5",
-    "otp-webhook-round-trip.json": "sha256:ac906fa4812521b29d0d431be23c314defcaf23bece0ebcf5bac9c6af8f38500"
+    "otp-round-trip.json": "sha256:68e4e5704167eb26515a856530760cf234247e819097aaa8e7dcddc8b1abba15",
+    "shipping-round-trip.json": "sha256:da2323bad2e989f01c763eaf43f4a81096200122f51c0ab62b3c18ca2b794ecd",
+    "otp-webhook-round-trip.json": "sha256:1d266aaafd2faff0f7bc88d90010aced8ba4a5dd020b160a27c34054bc54233d"
   },
-  "aggregateDigest": "sha256:c8cf19861e3872bce3640d5bc862e392b0da8260b7532c7bec587df7002ecf2b"
+  "aggregateDigest": "sha256:76c7523bfc6c640ceafafaf194d6dbc4b14cd4b4a89190d18ecfbfe50ff75eba"
 }

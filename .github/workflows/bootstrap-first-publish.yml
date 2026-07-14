@@ -1,0 +1,110 @@
+name: Bootstrap first SDK publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type PUBLISH @wathba/sdk 0.1.0 ONCE
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: sdk-release-v0.1.0
+  cancel-in-progress: false
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    environment: npm-production
+    steps:
+      - name: Require main and exact one-time confirmation
+        shell: bash
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main" || {
+            echo "::error::first publication is restricted to refs/heads/main"
+            exit 1
+          }
+          test "$CONFIRMATION" = "PUBLISH @wathba/sdk 0.1.0 ONCE" || {
+            echo "::error::typed confirmation did not match"
+            exit 1
+          }
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Require the dispatched commit to be current origin/main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --no-tags
+          test "$GITHUB_SHA" = "$(git rev-parse origin/main)" || {
+            echo "::error::first publication must use the current origin/main commit"
+            exit 1
+          }
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - name: Require the unpublished 0.1.0 identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/check-release-tag.mjs v0.1.0
+          registry_path="$(node -e "const p=require('./package.json'); process.stdout.write(encodeURIComponent(p.name)+'/'+encodeURIComponent(p.version))")"
+          response="${RUNNER_TEMP}/wathba-sdk-registry-version.json"
+          status="$(
+            curl -sS -L --retry 3 --retry-all-errors --connect-timeout 10 \
+              -o "$response" -w '%{http_code}' \
+              "https://registry.npmjs.org/${registry_path}"
+          )"
+          case "$status" in
+            404) ;;
+            200) echo "::error::@wathba/sdk 0.1.0 already exists; bootstrap is permanently closed"; exit 1 ;;
+            *) echo "::error::npm registry availability check failed closed with HTTP ${status}"; exit 1 ;;
+          esac
+      - run: pnpm install --frozen-lockfile
+      - name: Verify exact generated release
+        run: pnpm verify
+      - name: Pack immutable release candidate
+        id: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          candidate_dir="${RUNNER_TEMP}/wathba-sdk-candidate"
+          mkdir -p "$candidate_dir"
+          pack_json="$(pnpm pack --json --pack-destination "$candidate_dir")"
+          candidate_path="$(jq -er 'select(.name == "@wathba/sdk" and .version == "0.1.0") | .filename' <<<"$pack_json")"
+          test -f "$candidate_path"
+          case "$candidate_path" in
+            "$candidate_dir"/*) ;;
+            *) echo "::error::packed candidate escaped the runner staging directory"; exit 1 ;;
+          esac
+          echo "path=${candidate_path}" >> "$GITHUB_OUTPUT"
+      - name: Publish once with short-lived bootstrap authority and provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$NODE_AUTH_TOKEN" || {
+            echo "::error::npm-production secret NPM_TOKEN is required for the one-time bootstrap"
+            exit 1
+          }
+          pnpm publish "${{ steps.candidate.outputs.path }}" --access public --provenance --no-git-checks
+      - name: Retrieve and verify the published registry artifact
+        run: node scripts/verify-published-package.mjs "${{ steps.candidate.outputs.path }}"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sdk-bootstrap-publication-attestation-v0.1.0
+          path: publication-attestation.json
+          if-no-files-found: error
+          retention-days: 90

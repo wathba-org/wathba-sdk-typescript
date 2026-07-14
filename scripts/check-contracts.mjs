@@ -59,24 +59,54 @@ for (const fixture of fixtures) {
   if (typeof value.operationId !== 'string') {
     throw new Error(`unsupported_fixture_schema:${fixture.name}`);
   }
+  const operation = declaredOperation(value.operationId, fixture.name);
+  if (fixture.name === 'shipping-round-trip.json') {
+    assertShippingFixture(value, operation, fixture.name);
+    continue;
+  }
+  for (const outcome of ['success', 'problem']) {
+    assertDeclaredResponse(operation, value[outcome], fixture.name, outcome);
+  }
+}
+
+function assertShippingFixture(value, createOperation, name) {
+  if (
+    value.operationId !== 'createShipment' ||
+    value.statusOperationId !== 'getShipmentExecutionStatus' ||
+    typeof value.request?.path?.projectId !== 'string' ||
+    typeof value.request?.idempotencyKey !== 'string' ||
+    typeof value.request?.body !== 'object' ||
+    value.request.body === null ||
+    typeof value.statusRequest?.path?.projectId !== 'string' ||
+    typeof value.statusRequest?.path?.executionId !== 'string'
+  ) {
+    throw new Error(`unsupported_fixture_schema:${name}`);
+  }
+  const statusOperation = declaredOperation(value.statusOperationId, name);
+  assertDeclaredResponse(createOperation, value.pending, name, 'pending');
+  assertDeclaredResponse(createOperation, value.problem, name, 'problem');
+  assertDeclaredResponse(statusOperation, value.resolved, name, 'resolved');
+}
+
+function declaredOperation(operationId, name) {
   const operations = [];
   for (const pathItem of Object.values(document.paths ?? {})) {
     for (const method of ['delete', 'get', 'patch', 'post', 'put']) {
       const operation = pathItem?.[method];
-      if (operation?.operationId === value.operationId) operations.push(operation);
+      if (operation?.operationId === operationId) operations.push(operation);
     }
   }
-  if (operations.length !== 1) throw new Error(`fixture_operation_mismatch:${fixture.name}`);
-  const operation = operations[0];
-  for (const outcome of ['success', 'problem']) {
-    const response = value[outcome];
-    if (
-      typeof response?.status !== 'number' ||
-      typeof response.contentType !== 'string' ||
-      operation.responses?.[String(response.status)]?.content?.[response.contentType] === undefined
-    ) {
-      throw new Error(`fixture_response_mismatch:${fixture.name}:${outcome}`);
-    }
+  if (operations.length !== 1) throw new Error(`fixture_operation_mismatch:${name}`);
+  return operations[0];
+}
+
+function assertDeclaredResponse(operation, response, name, outcome) {
+  if (
+    typeof response?.status !== 'number' ||
+    typeof response.contentType !== 'string' ||
+    operation.responses?.[String(response.status)]?.content?.[response.contentType] === undefined
+  ) {
+    throw new Error(`fixture_response_mismatch:${name}:${outcome}`);
   }
 }
 
