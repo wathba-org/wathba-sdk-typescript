@@ -43,6 +43,17 @@ function assertPackageMetadata(manifest) {
   if (manifest.name !== '@wathba/sdk' || manifest.license !== 'MIT') {
     throw new Error('invalid_package_identity');
   }
+  if (
+    manifest.repository?.type !== 'git' ||
+    manifest.repository?.url !==
+      'git+https://github.com/wathba-org/wathba-sdk-typescript.git' ||
+    manifest.homepage !==
+      'https://github.com/wathba-org/wathba-sdk-typescript#readme' ||
+    manifest.bugs?.url !==
+      'https://github.com/wathba-org/wathba-sdk-typescript/issues'
+  ) {
+    throw new Error('invalid_package_repository_identity');
+  }
   if (manifest.engines?.node !== '>=24') throw new Error('invalid_node_engine');
   if (manifest.browser !== './dist/esm/browser-unsupported.js') {
     throw new Error('legacy_browser_entry_not_rejected');

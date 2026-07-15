@@ -6,8 +6,8 @@
     "version": "7.13.0"
   },
   "openApiDigest": "sha256:4462bcdd537bf45d0a0486a91b585bd0b8e8e260daed5e5e32ac28236fa387d0",
-  "protocolAggregateDigest": "sha256:8b59c673097fb4b28e2c47edcfa65b9dd0277dba4ac8510c9b0ce8128ed43bec",
-  "protocolSetDigest": "sha256:983616c51117fbc4b1006875d90ecfe062ccfd57b3b37f00e18ba0c511c87445",
+  "protocolAggregateDigest": "sha256:af10a84cf4edbdc489989da3930404b6234cba9de6ed180044b913d0bfe9913f",
+  "protocolSetDigest": "sha256:2fd7c51af1c347d9fd4c4e34af099be615c65dc6c5af01cade6a1cb7c655f3dc",
   "protocolVersion": "1.0",
   "schemaVersion": "wathba.sdk-release.v1",
   "sdkPackage": "@wathba/sdk",

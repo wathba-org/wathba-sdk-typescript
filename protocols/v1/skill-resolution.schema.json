@@ -326,6 +326,10 @@
                       "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
                       "type": "string"
                     },
+                    "payloadFormat": {
+                      "const": "wathba.sha256-digest.v1",
+                      "type": "string"
+                    },
                     "publisherId": {
                       "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
                       "type": "string"
@@ -552,6 +556,10 @@
                       "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
                       "type": "string"
                     },
+                    "payloadFormat": {
+                      "const": "wathba.sha256-digest.v1",
+                      "type": "string"
+                    },
                     "publisherId": {
                       "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
                       "type": "string"
@@ -618,6 +626,10 @@
                     },
                     "keyId": {
                       "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
+                      "type": "string"
+                    },
+                    "payloadFormat": {
+                      "const": "wathba.sha256-digest.v1",
                       "type": "string"
                     },
                     "publisherId": {
@@ -811,6 +823,10 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
           "type": "string"
         },
+        "payloadFormat": {
+          "const": "wathba.sha256-digest.v1",
+          "type": "string"
+        },
         "publisherId": {
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
           "type": "string"
@@ -864,6 +880,10 @@
             },
             "keyId": {
               "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,159}$",
+              "type": "string"
+            },
+            "payloadFormat": {
+              "const": "wathba.sha256-digest.v1",
               "type": "string"
             },
             "publisherId": {
