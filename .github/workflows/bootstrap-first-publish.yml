@@ -8,18 +8,19 @@ on:
         required: true
         type: string
 
-permissions:
-  contents: read
-  id-token: write
+permissions: {}
 
 concurrency:
   group: sdk-release-v0.1.0
   cancel-in-progress: false
 
 jobs:
-  bootstrap:
+  candidate:
     runs-on: ubuntu-latest
-    environment: npm-production
+    permissions:
+      contents: read
+    outputs:
+      source_commit: ${{ steps.source.outputs.commit }}
     steps:
       - name: Require main and exact one-time confirmation
         shell: bash
@@ -39,27 +40,41 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Require the dispatched commit to be current origin/main
+      - name: Require the dispatched commit to be reachable from origin/main
         shell: bash
         run: |
           set -euo pipefail
-          git fetch origin main --no-tags
-          test "$GITHUB_SHA" = "$(git rev-parse origin/main)" || {
-            echo "::error::first publication must use the current origin/main commit"
+          git fetch --force origin \
+            +refs/heads/main:refs/remotes/origin/main --no-tags
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || {
+            echo "::error::bootstrap commit must remain reachable from origin/main"
             exit 1
           }
-      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
-          cache: pnpm
-          registry-url: https://registry.npmjs.org
-      - name: Require the unpublished 0.1.0 identity
+      - name: Require the supported npm publishing client
         shell: bash
         run: |
           set -euo pipefail
-          node scripts/check-release-tag.mjs v0.1.0
-          registry_path="$(node -e "const p=require('./package.json'); process.stdout.write(encodeURIComponent(p.name)+'/'+encodeURIComponent(p.version))")"
+          npm_version="$(npm --version)"
+          node -e '
+            const actual = process.argv[1].split(".").map(Number);
+            const required = [11, 5, 1];
+            const comparison = required.reduce(
+              (result, part, index) => result || Math.sign(actual[index] - part),
+              0,
+            );
+            if (actual.length < required.length || actual.some(Number.isNaN) || comparison < 0) {
+              throw new Error(`npm 11.5.1 or later is required; received ${process.argv[1]}`);
+            }
+          ' "$npm_version"
+      - name: Detect the exact 0.1.0 registry state
+        id: registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          registry_path="$(node -e "process.stdout.write(encodeURIComponent('@wathba/sdk')+'/'+encodeURIComponent('0.1.0'))")"
           response="${RUNNER_TEMP}/wathba-sdk-registry-version.json"
           status="$(
             curl -sS -L --retry 3 --retry-all-errors --connect-timeout 10 \
@@ -67,15 +82,58 @@ jobs:
               "https://registry.npmjs.org/${registry_path}"
           )"
           case "$status" in
-            404) ;;
-            200) echo "::error::@wathba/sdk 0.1.0 already exists; bootstrap is permanently closed"; exit 1 ;;
-            *) echo "::error::npm registry availability check failed closed with HTTP ${status}"; exit 1 ;;
+            200)
+              jq -e \
+                '.name == "@wathba/sdk" and .version == "0.1.0"' \
+                "$response" >/dev/null
+              echo "exists=true" >> "$GITHUB_OUTPUT"
+              ;;
+            404)
+              echo "exists=false" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "::error::npm registry availability check failed closed with HTTP ${status}"
+              exit 1
+              ;;
           esac
+      - name: Resolve and authorize the immutable publication source
+        id: source
+        env:
+          REGISTRY_EXISTS: ${{ steps.registry.outputs.exists }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$REGISTRY_EXISTS" = "true" ]; then
+            source_commit="$(node scripts/resolve-published-source-commit.mjs)"
+          else
+            source_commit="$GITHUB_SHA"
+            test "$source_commit" = "$(git rev-parse origin/main)" || {
+              echo "::error::first publication must use the current origin/main commit"
+              exit 1
+            }
+          fi
+          [[ "$source_commit" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "::error::published provenance source commit is invalid"
+            exit 1
+          }
+          git cat-file -e "${source_commit}^{commit}"
+          git merge-base --is-ancestor "$source_commit" origin/main || {
+            echo "::error::published provenance source commit is not reachable from origin/main"
+            exit 1
+          }
+          echo "commit=${source_commit}" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ steps.source.outputs.commit }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - name: Require the exact bootstrap release identity
+        run: node scripts/check-release-tag.mjs v0.1.0
       - run: pnpm install --frozen-lockfile
       - name: Verify exact generated release
         run: pnpm verify
       - name: Pack immutable release candidate
-        id: candidate
         shell: bash
         run: |
           set -euo pipefail
@@ -86,12 +144,124 @@ jobs:
           test -f "$candidate_path"
           case "$candidate_path" in
             "$candidate_dir"/*) ;;
-            *) echo "::error::packed candidate escaped the runner staging directory"; exit 1 ;;
+            *)
+              echo "::error::packed candidate escaped the runner staging directory"
+              exit 1
+              ;;
           esac
-          echo "path=${candidate_path}" >> "$GITHUB_OUTPUT"
+          mv "$candidate_path" "$candidate_dir/candidate.tgz"
+          (
+            cd "$candidate_dir"
+            sha512sum candidate.tgz > candidate.sha512
+          )
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sdk-bootstrap-candidate-v0.1.0
+          path: |
+            ${{ runner.temp }}/wathba-sdk-candidate/candidate.tgz
+            ${{ runner.temp }}/wathba-sdk-candidate/candidate.sha512
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    needs: candidate
+    runs-on: ubuntu-latest
+    environment: npm-production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ needs.candidate.outputs.source_commit }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Require the supported npm publishing client
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm_version="$(npm --version)"
+          node -e '
+            const actual = process.argv[1].split(".").map(Number);
+            const required = [11, 5, 1];
+            const comparison = required.reduce(
+              (result, part, index) => result || Math.sign(actual[index] - part),
+              0,
+            );
+            if (actual.length < required.length || actual.some(Number.isNaN) || comparison < 0) {
+              throw new Error(`npm 11.5.1 or later is required; received ${process.argv[1]}`);
+            }
+          ' "$npm_version"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: sdk-bootstrap-candidate-v0.1.0
+          path: ${{ runner.temp }}/wathba-sdk-candidate
+      - name: Validate the downloaded release candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          candidate_dir="${RUNNER_TEMP}/wathba-sdk-candidate"
+          candidate_path="${candidate_dir}/candidate.tgz"
+          checksum_path="${candidate_dir}/candidate.sha512"
+          test -f "$candidate_path"
+          test ! -L "$candidate_path"
+          test -f "$checksum_path"
+          test ! -L "$checksum_path"
+          [[ "$(cat "$checksum_path")" =~ ^[0-9a-f]{128}[[:space:]][[:space:]]candidate\.tgz$ ]] || {
+            echo "::error::candidate checksum manifest is invalid"
+            exit 1
+          }
+          (
+            cd "$candidate_dir"
+            sha512sum --check --strict candidate.sha512
+          )
+          manifest_path="${RUNNER_TEMP}/wathba-sdk-candidate-package.json"
+          manifest_count="$(tar -tzf "$candidate_path" | awk '$0 == "package/package.json" { count += 1 } END { print count + 0 }')"
+          test "$manifest_count" = "1"
+          tar -xOf "$candidate_path" package/package.json > "$manifest_path"
+          node - "$manifest_path" <<'NODE'
+          const { readFileSync } = require('node:fs');
+          const manifest = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+          if (manifest.name !== '@wathba/sdk' || manifest.version !== '0.1.0') {
+            throw new Error('bootstrap_candidate_identity_invalid');
+          }
+          NODE
+      - name: Detect the exact 0.1.0 registry state
+        id: registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          registry_path="$(node -e "process.stdout.write(encodeURIComponent('@wathba/sdk')+'/'+encodeURIComponent('0.1.0'))")"
+          response="${RUNNER_TEMP}/wathba-sdk-registry-version.json"
+          status="$(
+            curl -sS -L --retry 3 --retry-all-errors --connect-timeout 10 \
+              -o "$response" -w '%{http_code}' \
+              "https://registry.npmjs.org/${registry_path}"
+          )"
+          case "$status" in
+            200)
+              jq -e \
+                '.name == "@wathba/sdk" and .version == "0.1.0"' \
+                "$response" >/dev/null
+              echo "exists=true" >> "$GITHUB_OUTPUT"
+              ;;
+            404)
+              echo "exists=false" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "::error::npm registry availability check failed closed with HTTP ${status}"
+              exit 1
+              ;;
+          esac
       - name: Publish once with short-lived bootstrap authority and provenance
+        if: steps.registry.outputs.exists != 'true'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PUBLISHED_SOURCE_COMMIT: ${{ needs.candidate.outputs.source_commit }}
         shell: bash
         run: |
           set -euo pipefail
@@ -99,12 +269,218 @@ jobs:
             echo "::error::npm-production secret NPM_TOKEN is required for the one-time bootstrap"
             exit 1
           }
-          pnpm publish "${{ steps.candidate.outputs.path }}" --access public --provenance --no-git-checks
+          [[ "$PUBLISHED_SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$PUBLISHED_SOURCE_COMMIT"
+          git fetch --force origin \
+            +refs/heads/main:refs/remotes/origin/main --no-tags
+          test "$PUBLISHED_SOURCE_COMMIT" = "$(git rev-parse origin/main)" || {
+            echo "::error::first publication source is no longer current origin/main"
+            exit 1
+          }
+          npm publish "${RUNNER_TEMP}/wathba-sdk-candidate/candidate.tgz" \
+            --access public --provenance
+
+  attest:
+    needs: [candidate, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ needs.candidate.outputs.source_commit }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Require the supported npm provenance-auditing client
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm_version="$(npm --version)"
+          node -e '
+            const actual = process.argv[1].split(".").map(Number);
+            const required = [11, 5, 1];
+            const comparison = required.reduce(
+              (result, part, index) => result || Math.sign(actual[index] - part),
+              0,
+            );
+            if (actual.length < required.length || actual.some(Number.isNaN) || comparison < 0) {
+              throw new Error(`npm 11.5.1 or later is required; received ${process.argv[1]}`);
+            }
+          ' "$npm_version"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: sdk-bootstrap-candidate-v0.1.0
+          path: ${{ runner.temp }}/wathba-sdk-candidate
+      - name: Verify the candidate artifact checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          candidate_dir="${RUNNER_TEMP}/wathba-sdk-candidate"
+          [[ "$(cat "$candidate_dir/candidate.sha512")" =~ ^[0-9a-f]{128}[[:space:]][[:space:]]candidate\.tgz$ ]]
+          (
+            cd "$candidate_dir"
+            sha512sum --check --strict candidate.sha512
+          )
       - name: Retrieve and verify the published registry artifact
-        run: node scripts/verify-published-package.mjs "${{ steps.candidate.outputs.path }}"
+        env:
+          WATHBA_SDK_EXPECTED_SOURCE_COMMIT: ${{ needs.candidate.outputs.source_commit }}
+        run: node scripts/verify-published-package.mjs "${RUNNER_TEMP}/wathba-sdk-candidate/candidate.tgz"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: sdk-bootstrap-publication-attestation-v0.1.0
           path: publication-attestation.json
           if-no-files-found: error
           retention-days: 90
+
+  release:
+    needs: [candidate, attest]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ needs.candidate.outputs.source_commit }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: sdk-bootstrap-publication-attestation-v0.1.0
+          path: ${{ runner.temp }}/wathba-sdk-publication-attestation
+      - name: Attach append-only publication evidence to the v0.1.0 release
+        id: release_evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PUBLISHED_SOURCE_COMMIT: ${{ needs.candidate.outputs.source_commit }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          release_tag="v0.1.0"
+          attestation_path="${RUNNER_TEMP}/wathba-sdk-publication-attestation/publication-attestation.json"
+          test -f "$attestation_path"
+          test ! -L "$attestation_path"
+          [[ "$PUBLISHED_SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$PUBLISHED_SOURCE_COMMIT"
+
+          authorize_source_on_main() {
+            git fetch --force origin \
+              +refs/heads/main:refs/remotes/origin/main --no-tags
+            git merge-base --is-ancestor "$PUBLISHED_SOURCE_COMMIT" origin/main || {
+              echo "::error::published source is no longer reachable from current origin/main"
+              exit 1
+            }
+          }
+
+          tag_exists=false
+          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${release_tag}" >/dev/null 2>&1; then
+            tag_exists=true
+            tag_commit="$(
+              gh api "repos/${GITHUB_REPOSITORY}/commits/${release_tag}" --jq '.sha'
+            )"
+            test "$tag_commit" = "$PUBLISHED_SOURCE_COMMIT" || {
+              echo "::error::existing bootstrap tag does not bind the published commit"
+              exit 1
+            }
+          fi
+
+          release_exists=false
+          if gh release view "$release_tag" >/dev/null 2>&1; then
+            release_exists=true
+            test "$tag_exists" = "true" || {
+              echo "::error::bootstrap release exists without its immutable tag"
+              exit 1
+            }
+            gh release view "$release_tag" \
+              --json tagName,name,isDraft,isPrerelease \
+              --jq '.tagName == "v0.1.0" and .name == "@wathba/sdk 0.1.0" and .isDraft == false and .isPrerelease == false' \
+              | grep -qx true || {
+                echo "::error::existing bootstrap release identity is invalid"
+                exit 1
+              }
+          fi
+
+          evidence_state=created
+          if [ "$release_exists" = "false" ]; then
+            authorize_source_on_main
+            if [ "$tag_exists" = "true" ]; then
+              gh release create "$release_tag" "$attestation_path" \
+                --verify-tag \
+                --title "@wathba/sdk 0.1.0" \
+                --generate-notes
+            else
+              gh release create "$release_tag" "$attestation_path" \
+                --target "$PUBLISHED_SOURCE_COMMIT" \
+                --title "@wathba/sdk 0.1.0" \
+                --generate-notes
+            fi
+          else
+            asset_count="$(
+              gh release view "$release_tag" --json assets \
+                --jq '[.assets[] | select(.name == "publication-attestation.json")] | length'
+            )"
+            case "$asset_count" in
+              0)
+                authorize_source_on_main
+                gh release upload "$release_tag" "$attestation_path"
+                ;;
+              1)
+                evidence_state=existing
+                ;;
+              *)
+                echo "::error::bootstrap release contains duplicate publication attestation assets"
+                exit 1
+                ;;
+            esac
+          fi
+
+          tag_commit="$(
+            gh api "repos/${GITHUB_REPOSITORY}/commits/${release_tag}" --jq '.sha'
+          )"
+          test "$tag_commit" = "$PUBLISHED_SOURCE_COMMIT" || {
+            echo "::error::bootstrap release tag does not bind the published commit"
+            exit 1
+          }
+          gh release view "$release_tag" \
+            --json tagName,name,isDraft,isPrerelease \
+            --jq '.tagName == "v0.1.0" and .name == "@wathba/sdk 0.1.0" and .isDraft == false and .isPrerelease == false' \
+            | grep -qx true || {
+              echo "::error::bootstrap release identity is invalid"
+              exit 1
+            }
+          asset_count="$(
+            gh release view "$release_tag" --json assets \
+              --jq '[.assets[] | select(.name == "publication-attestation.json")] | length'
+          )"
+          test "$asset_count" = "1" || {
+            echo "::error::bootstrap release must contain exactly one publication attestation"
+            exit 1
+          }
+          evidence_dir="${RUNNER_TEMP}/bootstrap-sdk-publication-evidence"
+          mkdir -p "$evidence_dir"
+          gh release download "$release_tag" \
+            --pattern publication-attestation.json --dir "$evidence_dir"
+          echo "state=${evidence_state}" >> "$GITHUB_OUTPUT"
+      - name: Validate the durable publication evidence without a write token
+        env:
+          EVIDENCE_STATE: ${{ steps.release_evidence.outputs.state }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          attestation_path="${RUNNER_TEMP}/wathba-sdk-publication-attestation/publication-attestation.json"
+          existing_evidence="${RUNNER_TEMP}/bootstrap-sdk-publication-evidence/publication-attestation.json"
+          case "$EVIDENCE_STATE" in
+            created)
+              cmp "$attestation_path" "$existing_evidence"
+              ;;
+            existing)
+              node scripts/verify-publication-attestation-asset.mjs \
+                "$attestation_path" "$existing_evidence"
+              ;;
+            *)
+              echo "::error::bootstrap publication evidence state is invalid"
+              exit 1
+              ;;
+          esac

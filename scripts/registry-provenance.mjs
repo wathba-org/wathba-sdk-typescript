@@ -29,6 +29,8 @@ export function readGitHubReleaseContext(environment, expected) {
     environment.GITHUB_REPOSITORY !== expected.repositorySlug ||
     typeof environment.GITHUB_SHA !== 'string' ||
     !/^[0-9a-f]{40}$/.test(environment.GITHUB_SHA) ||
+    (expected.sourceCommit !== undefined &&
+      !/^[0-9a-f]{40}$/.test(expected.sourceCommit)) ||
     currentWorkflow === undefined
   ) {
     throw new Error('local_sdk_release_github_context_invalid');
@@ -36,6 +38,7 @@ export function readGitHubReleaseContext(environment, expected) {
   return {
     repository: `https://github.com/${environment.GITHUB_REPOSITORY}`,
     githubSha: environment.GITHUB_SHA,
+    sourceCommit: expected.sourceCommit ?? environment.GITHUB_SHA,
     workflowRefs,
   };
 }
@@ -182,10 +185,17 @@ export function readRegistryProvenanceAttestation(document, expected) {
     statement?.predicate?.buildDefinition?.resolvedDependencies;
   const sourceDependencies = Array.isArray(dependencies) && workflowIdentity !== undefined
     ? dependencies.filter(
-        (dependency) =>
-          dependency?.digest?.gitCommit === expected.githubSha &&
-          dependency?.uri ===
-            `git+${expected.repository}@${workflowIdentity.ref}`,
+        (dependency) => {
+          const sourceCommit = dependency?.digest?.gitCommit;
+          return (
+            typeof sourceCommit === 'string' &&
+            /^[0-9a-f]{40}$/.test(sourceCommit) &&
+            (expected.sourceCommit === undefined ||
+              sourceCommit === expected.sourceCommit) &&
+            dependency?.uri ===
+              `git+${expected.repository}@${workflowIdentity.ref}`
+          );
+        },
       )
     : [];
   const sourceCommit =
