@@ -4,18 +4,17 @@ on:
   push:
     tags: ["v*"]
 
-permissions:
-  contents: write
-  id-token: write
+permissions: {}
 
 concurrency:
   group: sdk-release-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
-  publish:
+  candidate:
     runs-on: ubuntu-latest
-    environment: npm-production
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
@@ -25,7 +24,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git fetch origin main --no-tags
+          git fetch --force origin \
+            +refs/heads/main:refs/remotes/origin/main --no-tags
           test "$(git rev-parse "${GITHUB_REF_NAME}^{commit}")" = "$GITHUB_SHA"
           git merge-base --is-ancestor "$GITHUB_SHA" origin/main || {
             echo "::error::SDK release tag must point to a commit reachable from origin/main"
@@ -35,15 +35,12 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
-          cache: pnpm
-          registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
       - name: Require tag and package version to match
         run: node scripts/check-release-tag.mjs "${GITHUB_REF_NAME}"
       - name: Verify exact generated release
         run: pnpm verify
       - name: Pack immutable release candidate
-        id: candidate
         shell: bash
         run: |
           set -euo pipefail
@@ -60,17 +57,100 @@ jobs:
           test -f "$candidate_path"
           case "$candidate_path" in
             "$candidate_dir"/*) ;;
-            *) echo "::error::packed candidate escaped the runner staging directory"; exit 1 ;;
+            *)
+              echo "::error::packed candidate escaped the runner staging directory"
+              exit 1
+              ;;
           esac
-          echo "path=${candidate_path}" >> "$GITHUB_OUTPUT"
+          mv "$candidate_path" "$candidate_dir/candidate.tgz"
+          (
+            cd "$candidate_dir"
+            sha512sum candidate.tgz > candidate.sha512
+          )
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sdk-release-candidate
+          path: |
+            ${{ runner.temp }}/wathba-sdk-candidate/candidate.tgz
+            ${{ runner.temp }}/wathba-sdk-candidate/candidate.sha512
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    needs: candidate
+    runs-on: ubuntu-latest
+    environment: npm-production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Require the supported npm trusted-publishing client
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm_version="$(npm --version)"
+          node -e '
+            const actual = process.argv[1].split(".").map(Number);
+            const required = [11, 5, 1];
+            const comparison = required.reduce(
+              (result, part, index) => result || Math.sign(actual[index] - part),
+              0,
+            );
+            if (actual.length < required.length || actual.some(Number.isNaN) || comparison < 0) {
+              throw new Error(`npm 11.5.1 or later is required; received ${process.argv[1]}`);
+            }
+          ' "$npm_version"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: sdk-release-candidate
+          path: ${{ runner.temp }}/wathba-sdk-candidate
+      - name: Validate the downloaded release candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          candidate_dir="${RUNNER_TEMP}/wathba-sdk-candidate"
+          candidate_path="${candidate_dir}/candidate.tgz"
+          checksum_path="${candidate_dir}/candidate.sha512"
+          expected_version="${GITHUB_REF_NAME#v}"
+          test -f "$candidate_path"
+          test ! -L "$candidate_path"
+          test -f "$checksum_path"
+          test ! -L "$checksum_path"
+          [[ "$(cat "$checksum_path")" =~ ^[0-9a-f]{128}[[:space:]][[:space:]]candidate\.tgz$ ]] || {
+            echo "::error::candidate checksum manifest is invalid"
+            exit 1
+          }
+          (
+            cd "$candidate_dir"
+            sha512sum --check --strict candidate.sha512
+          )
+          manifest_path="${RUNNER_TEMP}/wathba-sdk-candidate-package.json"
+          manifest_count="$(tar -tzf "$candidate_path" | awk '$0 == "package/package.json" { count += 1 } END { print count + 0 }')"
+          test "$manifest_count" = "1"
+          tar -xOf "$candidate_path" package/package.json > "$manifest_path"
+          node - "$manifest_path" "$expected_version" <<'NODE'
+          const { readFileSync } = require('node:fs');
+          const manifest = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+          if (manifest.name !== '@wathba/sdk' || manifest.version !== process.argv[3]) {
+            throw new Error('release_candidate_identity_invalid');
+          }
+          NODE
       - name: Detect an existing immutable registry version
         id: registry
         shell: bash
         run: |
           set -euo pipefail
-          package_name="$(node -p "require('./package.json').name")"
-          package_version="$(node -p "require('./package.json').version")"
-          registry_path="$(node -e "const p=require('./package.json'); process.stdout.write(encodeURIComponent(p.name)+'/'+encodeURIComponent(p.version))")"
+          package_name="@wathba/sdk"
+          package_version="${GITHUB_REF_NAME#v}"
+          registry_path="$(node -e "process.stdout.write(encodeURIComponent(process.argv[1])+'/'+encodeURIComponent(process.argv[2]))" "$package_name" "$package_version")"
           response="${RUNNER_TEMP}/wathba-sdk-registry-version.json"
           status="$(
             curl -sS -L --retry 3 --retry-all-errors --connect-timeout 10 \
@@ -93,45 +173,162 @@ jobs:
           esac
       - name: Publish with npm provenance
         if: steps.registry.outputs.exists != 'true'
-        run: pnpm publish "${{ steps.candidate.outputs.path }}" --access public --provenance --no-git-checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --force origin \
+            +refs/heads/main:refs/remotes/origin/main --no-tags
+          test "$(git rev-parse "${GITHUB_REF_NAME}^{commit}")" = "$GITHUB_SHA"
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || {
+            echo "::error::SDK release tag is no longer reachable from current origin/main"
+            exit 1
+          }
+          npm publish "${RUNNER_TEMP}/wathba-sdk-candidate/candidate.tgz" \
+            --access public --provenance
+
+  attest:
+    needs: [candidate, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Require the supported npm provenance-auditing client
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm_version="$(npm --version)"
+          node -e '
+            const actual = process.argv[1].split(".").map(Number);
+            const required = [11, 5, 1];
+            const comparison = required.reduce(
+              (result, part, index) => result || Math.sign(actual[index] - part),
+              0,
+            );
+            if (actual.length < required.length || actual.some(Number.isNaN) || comparison < 0) {
+              throw new Error(`npm 11.5.1 or later is required; received ${process.argv[1]}`);
+            }
+          ' "$npm_version"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: sdk-release-candidate
+          path: ${{ runner.temp }}/wathba-sdk-candidate
+      - name: Verify the candidate artifact checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          candidate_dir="${RUNNER_TEMP}/wathba-sdk-candidate"
+          [[ "$(cat "$candidate_dir/candidate.sha512")" =~ ^[0-9a-f]{128}[[:space:]][[:space:]]candidate\.tgz$ ]]
+          (
+            cd "$candidate_dir"
+            sha512sum --check --strict candidate.sha512
+          )
       - name: Retrieve and verify the published registry artifact
-        run: node scripts/verify-published-package.mjs "${{ steps.candidate.outputs.path }}"
+        run: node scripts/verify-published-package.mjs "${RUNNER_TEMP}/wathba-sdk-candidate/candidate.tgz"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: sdk-publication-attestation-${{ github.ref_name }}
+          name: sdk-publication-attestation
           path: publication-attestation.json
           if-no-files-found: error
           retention-days: 90
+
+  release:
+    needs: attest
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: sdk-publication-attestation
+          path: ${{ runner.temp }}/wathba-sdk-publication-attestation
       - name: Attach immutable publication evidence to the GitHub release
+        id: release_evidence
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
+          attestation_path="${RUNNER_TEMP}/wathba-sdk-publication-attestation/publication-attestation.json"
+          test -f "$attestation_path"
+          test ! -L "$attestation_path"
+
+          authorize_tag_on_main() {
+            git fetch --force origin \
+              +refs/heads/main:refs/remotes/origin/main --no-tags
+            test "$(git rev-parse "${GITHUB_REF_NAME}^{commit}")" = "$GITHUB_SHA"
+            git merge-base --is-ancestor "$GITHUB_SHA" origin/main || {
+              echo "::error::SDK release tag is no longer reachable from current origin/main"
+              exit 1
+            }
+          }
+
+          evidence_state=created
           if ! gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release create "$GITHUB_REF_NAME" publication-attestation.json --verify-tag --generate-notes
-            exit 0
+            authorize_tag_on_main
+            gh release create "$GITHUB_REF_NAME" "$attestation_path" \
+              --verify-tag --generate-notes
+          else
+            asset_count="$(
+              gh release view "$GITHUB_REF_NAME" --json assets \
+                --jq '[.assets[] | select(.name == "publication-attestation.json")] | length'
+            )"
+            case "$asset_count" in
+              0)
+                authorize_tag_on_main
+                gh release upload "$GITHUB_REF_NAME" "$attestation_path"
+                ;;
+              1)
+                evidence_state=existing
+                ;;
+              *)
+                echo "::error::GitHub release contains duplicate publication attestation assets"
+                exit 1
+                ;;
+            esac
           fi
 
           asset_count="$(
             gh release view "$GITHUB_REF_NAME" --json assets \
               --jq '[.assets[] | select(.name == "publication-attestation.json")] | length'
           )"
-          case "$asset_count" in
-            0)
-              gh release upload "$GITHUB_REF_NAME" publication-attestation.json
+          test "$asset_count" = "1" || {
+            echo "::error::GitHub release must contain exactly one publication attestation"
+            exit 1
+          }
+          evidence_dir="${RUNNER_TEMP}/existing-sdk-publication-evidence"
+          mkdir -p "$evidence_dir"
+          gh release download "$GITHUB_REF_NAME" \
+            --pattern publication-attestation.json --dir "$evidence_dir"
+          echo "state=${evidence_state}" >> "$GITHUB_OUTPUT"
+      - name: Validate the durable publication evidence without a write token
+        env:
+          EVIDENCE_STATE: ${{ steps.release_evidence.outputs.state }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          attestation_path="${RUNNER_TEMP}/wathba-sdk-publication-attestation/publication-attestation.json"
+          existing_evidence="${RUNNER_TEMP}/existing-sdk-publication-evidence/publication-attestation.json"
+          case "$EVIDENCE_STATE" in
+            created)
+              cmp "$attestation_path" "$existing_evidence"
               ;;
-            1)
-              evidence_dir="${RUNNER_TEMP}/existing-sdk-publication-evidence"
-              mkdir -p "$evidence_dir"
-              gh release download "$GITHUB_REF_NAME" \
-                --pattern publication-attestation.json --dir "$evidence_dir"
-              jq -S 'del(.retrievedAt)' publication-attestation.json > "${RUNNER_TEMP}/expected-attestation.json"
-              jq -S 'del(.retrievedAt)' "${evidence_dir}/publication-attestation.json" > "${RUNNER_TEMP}/existing-attestation.json"
-              cmp "${RUNNER_TEMP}/expected-attestation.json" "${RUNNER_TEMP}/existing-attestation.json"
+            existing)
+              node scripts/verify-publication-attestation-asset.mjs \
+                "$attestation_path" "$existing_evidence"
               ;;
             *)
-              echo "::error::GitHub release contains duplicate publication attestation assets"
+              echo "::error::publication evidence state is invalid"
               exit 1
               ;;
           esac

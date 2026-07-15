@@ -4,13 +4,12 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import { promisify } from 'node:util';
-import { readRegistryDistribution } from './registry-distribution.mjs';
 import {
-  readGitHubReleaseContext,
-  readNpmAuditVerifiedProvenance,
-  readRegistryProvenanceAttestation,
-  readRegistryProvenanceDescriptor,
-} from './registry-provenance.mjs';
+  createNpmRegistryMetadata,
+  npmRegistryMetadataDigest,
+} from './npm-registry-metadata.mjs';
+import { readPublishedPackageProvenance } from './published-package-provenance.mjs';
+import { readGitHubReleaseContext } from './registry-provenance.mjs';
 
 const execute = promisify(execFile);
 const candidatePath = process.argv[2];
@@ -31,37 +30,22 @@ if (
 const sourceRepositorySlug = 'wathba-org/wathba-sdk-typescript';
 const {
   repository: sourceRepository,
-  githubSha,
+  sourceCommit,
   workflowRefs,
 } = readGitHubReleaseContext(process.env, {
   repositorySlug: sourceRepositorySlug,
   version: manifest.version,
+  sourceCommit: process.env.WATHBA_SDK_EXPECTED_SOURCE_COMMIT,
 });
 
 const spec = `${manifest.name}@${manifest.version}`;
-const view = await retry(async () => {
-  const { stdout } = await execute(
-    'npm',
-    [
-      'view',
-      spec,
-      'name',
-      'version',
-      'dist.integrity',
-      'dist.tarball',
-      'dist.attestations',
-      '--json',
-    ],
-    { maxBuffer: 1 << 20 },
-  );
-  const candidate = JSON.parse(stdout);
-  readRegistryProvenanceDescriptor(candidate, spec);
-  return candidate;
+const { distribution, npmProvenance } = await readPublishedPackageProvenance({
+  name: manifest.name,
+  version: manifest.version,
+  repository: sourceRepository,
+  workflowRefs,
+  sourceCommit,
 });
-if (view.name !== manifest.name || view.version !== manifest.version) {
-  throw new Error('published_sdk_registry_metadata_invalid');
-}
-const distribution = readRegistryDistribution(view);
 const candidateDigest = createHash('sha512')
   .update(await readFile(candidatePath))
   .digest();
@@ -69,29 +53,9 @@ const candidateIntegrity = `sha512-${candidateDigest.toString('base64')}`;
 if (candidateIntegrity !== distribution.integrity) {
   throw new Error('published_sdk_candidate_integrity_mismatch');
 }
-const provenanceDescriptor = readRegistryProvenanceDescriptor(view, spec);
-const provenanceDocument = await retry(() =>
-  auditPublishedPackageSignatures({
-    name: manifest.name,
-    version: manifest.version,
-    spec,
-    location: `node_modules/${manifest.name}`,
-    registryUri: provenanceDescriptor.registryUri,
-  }),
-);
-const npmProvenance = {
-  cryptographicallyVerified: true,
-  verificationMethod:
-    'npm audit signatures --json --include-attestations',
-  registryUri: provenanceDescriptor.registryUri,
-  ...readRegistryProvenanceAttestation(provenanceDocument, {
-    spec,
-    candidateSha512: candidateDigest.toString('hex'),
-    repository: sourceRepository,
-    workflowRefs,
-    githubSha,
-  }),
-};
+if (npmProvenance.subjectSha512 !== candidateDigest.toString('hex')) {
+  throw new Error('published_sdk_candidate_integrity_mismatch');
+}
 
 const directory = await mkdtemp(join(tmpdir(), 'wathba-sdk-publication-'));
 try {
@@ -134,24 +98,22 @@ try {
   const releaseMetadataDigest = `sha256:${createHash('sha256')
     .update(releaseSource)
     .digest('hex')}`;
-  const registryMetadata = {
+  const registryMetadata = createNpmRegistryMetadata({
     package: manifest.name,
     version: manifest.version,
-    distIntegrity: distribution.integrity,
     registryUri: distribution.tarball,
-    npmProvenance,
-  };
-  const registryMetadataDigest = `sha256:${createHash('sha256')
-    .update(JSON.stringify(registryMetadata))
-    .digest('hex')}`;
+    distIntegrity: distribution.integrity,
+  });
+  const registryMetadataDigest = npmRegistryMetadataDigest(registryMetadata);
   const attestation = {
     schemaVersion: 'wathba.sdk-publication-attestation.v1',
     package: manifest.name,
     version: manifest.version,
     registryUri: distribution.tarball,
     distIntegrity: distribution.integrity,
-    npmProvenance,
+    registryMetadata,
     registryMetadataDigest,
+    npmProvenance,
     retrievedAt: new Date().toISOString(),
     releaseMetadataDigest,
     openApiDigest: release.openApiDigest,
@@ -159,63 +121,9 @@ try {
     protocolAggregateDigest: release.protocolAggregateDigest,
     fixtureSetDigest: release.fixtureSetDigest,
     githubRepository: sourceRepositorySlug,
-    githubSha,
+    githubSha: sourceCommit,
   };
   await writeFile('publication-attestation.json', `${JSON.stringify(attestation, null, 2)}\n`, { mode: 0o644 });
 } finally {
   await rm(directory, { recursive: true, force: true });
-}
-
-async function auditPublishedPackageSignatures(expected) {
-  const directory = await mkdtemp(join(tmpdir(), 'wathba-sdk-signature-audit-'));
-  try {
-    await writeFile(
-      join(directory, 'package.json'),
-      `${JSON.stringify({ private: true })}\n`,
-      { mode: 0o644 },
-    );
-    await execute(
-      'npm',
-      [
-        'install',
-        '--ignore-scripts',
-        '--save-exact',
-        '--no-audit',
-        '--no-fund',
-        '--registry=https://registry.npmjs.org/',
-        expected.spec,
-      ],
-      { cwd: directory, maxBuffer: 8 << 20 },
-    );
-    const { stdout } = await execute(
-      'npm',
-      [
-        'audit',
-        'signatures',
-        '--json',
-        '--include-attestations',
-      ],
-      { cwd: directory, maxBuffer: 64 << 20 },
-    );
-    return readNpmAuditVerifiedProvenance(JSON.parse(stdout), expected);
-  } catch {
-    throw new Error('published_sdk_registry_provenance_verification_failed');
-  } finally {
-    await rm(directory, { recursive: true, force: true });
-  }
-}
-
-async function retry(operation) {
-  let lastError;
-  for (let attempt = 0; attempt < 12; attempt += 1) {
-    try {
-      return await operation();
-    } catch (error) {
-      lastError = error;
-      if (attempt < 11) {
-        await new Promise((resolve) => setTimeout(resolve, 5_000));
-      }
-    }
-  }
-  throw lastError;
 }

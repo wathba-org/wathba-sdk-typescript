@@ -39,6 +39,7 @@ test('accepts only the two exact GitHub workflow and ref contexts', () => {
       {
         repository,
         githubSha,
+        sourceCommit: githubSha,
         workflowRefs: [
           {
             path: '.github/workflows/bootstrap-first-publish.yml',
@@ -88,6 +89,51 @@ test('accepts only the two exact GitHub workflow and ref contexts', () => {
       /local_sdk_release_github_context_invalid/,
     );
   }
+  assert.throws(
+    () =>
+      readGitHubReleaseContext(
+        {
+          GITHUB_REPOSITORY: expected.repositorySlug,
+          GITHUB_SHA: githubSha,
+          GITHUB_REF: 'refs/heads/main',
+          GITHUB_WORKFLOW_REF:
+            `${expected.repositorySlug}/${workflowPath}@refs/heads/main`,
+        },
+        { ...expected, sourceCommit: 'not-a-commit' },
+      ),
+    /local_sdk_release_github_context_invalid/,
+  );
+});
+
+test('recovery binds verification to the signed source after main advances', () => {
+  const currentMainCommit = 'c'.repeat(40);
+  const expected = {
+    repositorySlug: 'wathba-org/wathba-sdk-typescript',
+    version: '0.1.0',
+    sourceCommit: githubSha,
+  };
+  const context = readGitHubReleaseContext(
+    {
+      GITHUB_REPOSITORY: expected.repositorySlug,
+      GITHUB_SHA: currentMainCommit,
+      GITHUB_REF: 'refs/heads/main',
+      GITHUB_WORKFLOW_REF:
+        `${expected.repositorySlug}/${workflowPath}@refs/heads/main`,
+    },
+    expected,
+  );
+  assert.equal(context.githubSha, currentMainCommit);
+  assert.equal(context.sourceCommit, githubSha);
+
+  const derivationExpected = expectedProvenance();
+  delete derivationExpected.sourceCommit;
+  assert.equal(
+    readRegistryProvenanceAttestation(
+      provenanceDocument(),
+      derivationExpected,
+    ).sourceCommit,
+    githubSha,
+  );
 });
 
 test('requires the exact npm SLSA provenance descriptor for the package version', () => {
@@ -295,6 +341,21 @@ test('rejects missing, wrong-digest, or wrong-source provenance', () => {
       readRegistryProvenanceAttestation(wrongSource, expectedProvenance()),
     /published_sdk_registry_provenance_invalid/,
   );
+
+  const wrongCommit = provenanceDocument();
+  const wrongCommitStatement = statement();
+  wrongCommitStatement.predicate.buildDefinition.resolvedDependencies[0]
+    .digest.gitCommit = 'd'.repeat(40);
+  wrongCommit.attestations[0].bundle.dsseEnvelope.payload =
+    encodeStatement(wrongCommitStatement);
+  assert.throws(
+    () =>
+      readRegistryProvenanceAttestation(
+        wrongCommit,
+        expectedProvenance(),
+      ),
+    /published_sdk_registry_provenance_invalid/,
+  );
 });
 
 function expectedProvenance() {
@@ -309,7 +370,7 @@ function expectedProvenance() {
         ref: 'refs/tags/v0.1.0',
       },
     ],
-    githubSha,
+    sourceCommit: githubSha,
   };
 }
 
