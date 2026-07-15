@@ -50,10 +50,10 @@
     "webhook-readiness-action-read.schema.json": "sha256:6edfbc57c9498f577f8c406a06b2fabe83c708cdac152369c74f6876e67f26b0",
     "webhook-readiness-action-status.schema.json": "sha256:0b9cdcabc9cf3b5d40b50906a7aa0a1d3d4debd03eec61dae29090a2f84b7837",
     "member-webhook-event.schema.json": "sha256:aeddfa4a8da438d9325a2326bf98cd567b0a7844a2e2b0a9b3b10f85f9edd9d2",
-    "capability-integration-manifest.schema.json": "sha256:152c053d62a3389f7e6ad532cba8968016707e541b38ce4727f7bf07960cffb1",
+    "capability-integration-manifest.schema.json": "sha256:067190fc25d0ecfb4ef9d953eaf670a402c0dadbb64fe05b298e3c56ae1af452",
     "artifact-trust-document.schema.json": "sha256:2f0074ef36e51f81f716646bcec1d13aec8717e1471ef57f2ac450a08afc8938",
     "skill-bundle-manifest.schema.json": "sha256:c9d6a973383403439851701a5d62918c3dbbe36ea0170cacf30df85665f8b060",
-    "skill-resolution.schema.json": "sha256:5940473a9091fb677b5b4b5390a8d435321accd412da31efc1fbb82eaef0931e",
+    "skill-resolution.schema.json": "sha256:7c0fcc7b55077335e8bd71eb26618d629fbda203da03db875eca786d8ae69ca9",
     "project-capability-lifecycle.operations.json": "sha256:52b3f1c082a883d2339f6619b41d566f588b519ca12b2c7441eff3e68ea6b791",
     "production-promotion-action.operations.json": "sha256:e45af9034dddabb4b182b794480d3d09965f0132677a0ea6fe193936d678d930",
     "credential-destination-inventory.operations.json": "sha256:f7dca01a0f7c4ac0b669943fe16daf9db5ea28516680dcbb66dea6424d8aeba0",
@@ -64,5 +64,5 @@
     "capability-wallet-facts.operations.json": "sha256:c9df6840f53585aaf86733c541baef8a5918a4102c48e393255b400f2cb040d5",
     "webhook-readiness-action.operations.json": "sha256:1920970e37de928c69bcfa2e5ae2c43e731cb0aa928fa927a5f7083929c69b44"
   },
-  "aggregateDigest": "sha256:8b59c673097fb4b28e2c47edcfa65b9dd0277dba4ac8510c9b0ce8128ed43bec"
+  "aggregateDigest": "sha256:af10a84cf4edbdc489989da3930404b6234cba9de6ed180044b913d0bfe9913f"
 }
