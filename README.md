@@ -74,23 +74,21 @@ switch (outcome.kind) {
 
 ## External-service onboarding is not an SDK operation
 
-This SDK starts at the member-app runtime boundary, after a human has connected or registered the external shipping account, completed pickup-address and wallet readiness, activated `logistics.shipping`, and installed a scoped Wathba app credential through Wathba CLI and hosted member actions. It deliberately exposes no provider install/login, password, pickup-address, wallet-funding, activation, or key-minting method. Never add those provider or control-plane calls to member application code.
+This SDK starts at the member-app runtime boundary, after a human has connected or registered the external shipping account, completed pickup-address and wallet readiness, activated `logistics.shipping`, created the exact test or production project key in the Wathba portal, and configured it in the server runtime outside the coding agent's view. It deliberately exposes no provider install/login, password, pickup-address, wallet-funding, activation, or key-minting method. Never add those provider or control-plane calls to member application code.
 
-For a non-production Wathba origin, bind both sides to the same exact HTTPS origin. Changing only `baseUrl` correctly makes the GCP credential provider fail closed:
+For a non-production Wathba origin, configure the test-environment key and the exact development API origin together in the server runtime:
 
 ```ts
 const apiOrigin = 'https://apidev.wathba.info';
-const credentialProvider = createGcpSecretManagerCredentialProvider({
-  secretVersionResource:
-    'projects/123456789012/secrets/wathba-app-dev/versions/7',
-  allowedApiOrigin: apiOrigin,
-  allowedCapabilities: ['logistics.shipping'],
-  allowedScopes: ['shipments:create', 'tools:execute'],
-});
-
 const devWathba = new WathbaClient({
   baseUrl: apiOrigin,
-  credentialProvider,
+  credentialProvider: {
+    async resolve() {
+      const apiKey = process.env.WATHBA_API_KEY;
+      if (!apiKey) throw new Error('WATHBA_API_KEY is not configured');
+      return { apiKey };
+    },
+  },
 });
 ```
 
@@ -98,27 +96,13 @@ const devWathba = new WathbaClient({
 
 Keep an idempotency key with the logical command and reuse it for retries. Create a new key only for a new intent. Resolve the Wathba credential inside the trusted server runtime; never pass it to browser code, an AI agent, logs, or source control.
 
-For the certified GCP destination, use the exact numeric secret-version resource returned by the Wathba binding. The provider rejects aliases such as `latest`, a different API origin, capabilities outside the approved binding, and scopes outside the approved binding. It uses the workload identity metadata service by default and verifies Secret Manager's CRC32C checksum before returning the credential to the in-process client:
-
-```ts
-import {
-  WathbaClient,
-  createGcpSecretManagerCredentialProvider,
-} from '@wathba/sdk';
-
-const credentialProvider = createGcpSecretManagerCredentialProvider({
-  secretVersionResource:
-    'projects/123456789012/secrets/wathba-app/versions/7',
-  allowedCapabilities: ['messaging.otp'],
-  allowedScopes: ['otp:send'],
-});
-
-const wathba = new WathbaClient({ credentialProvider });
-```
-
-The GCP runtime identity must be certified by Wathba for only that exact numeric version. Do not grant or request `latest`, and do not pass service-account keys to this provider.
-
-The credential provider receives only safe selection facts—API origin, canonical operation ID, capability code, and required Wathba scopes. It never receives the request body. Provider failures and transport failures are returned as sanitized `WathbaSdkError` values. Stable API problems are returned as `WathbaApiError` with the exact generated `WathbaProblem` shape.
+Wathba does not require a member cloud account, credential destination, or GCP
+adapter. The SDK credential provider is an application-owned callback. Keep the
+member-configured key in server-only configuration and return it only to the
+SDK call in memory; never expose it to browser code, an AI agent, logs, source
+control, or an SDK response. Provider failures and transport failures are
+returned as sanitized `WathbaSdkError` values. Stable API problems are returned
+as `WathbaApiError` with the exact generated `WathbaProblem` shape.
 
 Both ESM and CommonJS are exported. Browser-condition imports resolve to a rejecting module and browser-condition TypeScript builds expose no client exports. Node.js 24 or newer is required.
 

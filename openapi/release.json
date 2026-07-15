@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
   "mediaType": "application/vnd.oai.openapi+json;version=3.1",
-  "contractVersion": "2026.07.mvp.004",
+  "contractVersion": "2026.07.mvp.005",
   "artifact": "wathba-public.openapi.json",
   "digestAlgorithm": "sha256",
-  "digest": "sha256:4462bcdd537bf45d0a0486a91b585bd0b8e8e260daed5e5e32ac28236fa387d0"
+  "digest": "sha256:67d7b13215fe29b192a84c5d71d89a12f50531eef93ad6ba9f53a02d6212f90c"
 }

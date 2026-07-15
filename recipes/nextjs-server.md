@@ -4,25 +4,30 @@ Construct the client only in a server-only module, then call that module from a 
 
 ```ts
 import 'server-only';
-import {
-  WathbaClient,
-  createGcpSecretManagerCredentialProvider,
-} from '@wathba/sdk';
+import { WathbaClient } from '@wathba/sdk';
 
 export const wathba = new WathbaClient({
-  credentialProvider: createGcpSecretManagerCredentialProvider({
-    secretVersionResource:
-      'projects/123456789012/secrets/wathba-app/versions/7',
-    allowedCapabilities: ['messaging.otp'],
-    allowedScopes: ['otp:send'],
-  }),
+  credentialProvider: {
+    async resolve() {
+      const apiKey = process.env.WATHBA_API_KEY;
+      if (!apiKey) throw new Error('WATHBA_API_KEY is not configured');
+      return { apiKey };
+    },
+  },
 });
 ```
 
-The CLI replaces the example binding facts with the exact active numeric version and approved capability/scopes. Never use `latest`. Never import the SDK from a Client Component. Never serialize the client, credential, error object, or request payload into React props. The package's browser export rejects accidental browser bundling, but the server-only module boundary remains part of the app's design.
+The authorized member creates the test or production key in the Wathba portal
+and configures it outside the agent's view. Never import the SDK from a Client
+Component. Never serialize the client, credential, error object, or request
+payload into React props. The package's browser export rejects accidental
+browser bundling, but the server-only module boundary remains part of the
+app's design.
 
-For development or test, use one exact HTTPS value for both `WathbaClient({ baseUrl })` and the provider's `allowedApiOrigin`. A mismatch fails closed before secret access.
+For development or test, set `baseUrl` to
+`https://apidev.wathba.info` and configure a test-environment key. Production
+uses a separate production key and `https://api.wathba.info`.
 
 If an operation returns `action_required`, pass only the validated member-safe action URL or a server-owned reference to the UI. Keep the Wathba credential, raw problem object, and correlation details on the server.
 
-Do not put external-service registration/login, pickup-address submission, wallet funding, activation, or key issuance in a Route Handler or Server Action. Those are CLI and hosted-member setup actions. See [Shipping](./shipping.md) for the runtime-only staging request.
+Do not put external-service registration/login, pickup-address submission, wallet funding, activation, or key issuance in a Route Handler or Server Action. Those are hosted member-portal actions. See [Shipping](./shipping.md) for the runtime-only staging request.

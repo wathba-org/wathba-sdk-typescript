@@ -384,10 +384,7 @@ export const runtimeSchemas = {
         "type": "array"
       },
       "mode": {
-        "enum": [
-          "preselected_courier",
-          "order_first"
-        ],
+        "const": "order_first",
         "type": "string"
       },
       "orderReference": {
@@ -494,6 +491,7 @@ export const runtimeSchemas = {
     },
     "required": [
       "environmentId",
+      "mode",
       "amountMinor",
       "recipient",
       "items",
@@ -591,10 +589,6 @@ export const runtimeSchemas = {
         "minLength": 3,
         "type": "string"
       },
-      "labelUrl": {
-        "format": "uri",
-        "type": "string"
-      },
       "message": {
         "type": "string"
       },
@@ -624,10 +618,6 @@ export const runtimeSchemas = {
         "type": "integer"
       },
       "trackingStatus": {
-        "type": "string"
-      },
-      "trackingUrl": {
-        "format": "uri",
         "type": "string"
       }
     },

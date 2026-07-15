@@ -1,76 +1,32 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "oneOf": [
-    {
-      "additionalProperties": false,
-      "properties": {
-        "bindingId": {
-          "not": {}
-        },
-        "mode": {
-          "const": "local_mock_contract",
-          "type": "string"
-        },
-        "profileId": {
-          "maxLength": 240,
-          "minLength": 3,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$",
-          "type": "string"
-        },
-        "profileVersion": {
-          "exclusiveMinimum": 0,
-          "maximum": 9007199254740991,
-          "type": "integer"
-        },
-        "protocolVersion": {
-          "const": "1.0",
-          "type": "string"
-        }
-      },
-      "required": [
-        "protocolVersion",
-        "profileId",
-        "profileVersion",
-        "mode"
-      ],
-      "type": "object"
+  "additionalProperties": false,
+  "properties": {
+    "mode": {
+      "const": "local_mock_contract",
+      "type": "string"
     },
-    {
-      "additionalProperties": false,
-      "properties": {
-        "bindingId": {
-          "maxLength": 160,
-          "minLength": 3,
-          "type": "string"
-        },
-        "mode": {
-          "const": "external_authenticated_probe",
-          "type": "string"
-        },
-        "profileId": {
-          "maxLength": 240,
-          "minLength": 3,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$",
-          "type": "string"
-        },
-        "profileVersion": {
-          "exclusiveMinimum": 0,
-          "maximum": 9007199254740991,
-          "type": "integer"
-        },
-        "protocolVersion": {
-          "const": "1.0",
-          "type": "string"
-        }
-      },
-      "required": [
-        "protocolVersion",
-        "profileId",
-        "profileVersion",
-        "mode",
-        "bindingId"
-      ],
-      "type": "object"
+    "profileId": {
+      "maxLength": 240,
+      "minLength": 3,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$",
+      "type": "string"
+    },
+    "profileVersion": {
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991,
+      "type": "integer"
+    },
+    "protocolVersion": {
+      "const": "1.0",
+      "type": "string"
     }
-  ]
+  },
+  "required": [
+    "protocolVersion",
+    "profileId",
+    "profileVersion",
+    "mode"
+  ],
+  "type": "object"
 }

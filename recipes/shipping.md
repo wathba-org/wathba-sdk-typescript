@@ -1,35 +1,31 @@
 # Shipping recipe
 
-Use this recipe only in a trusted Node.js 24+ server after Wathba CLI reports `logistics.shipping` active and its human-owned setup actions complete. External-service registration/login, pickup-address submission, wallet funding, capability activation, and app-key issuance belong to Wathba CLI and hosted member pages. They are not SDK or member-app responsibilities.
+Use this recipe only in a trusted Node.js 24+ server after Wathba CLI reports `logistics.shipping` active and its human-owned setup actions complete. External-service registration/login, pickup-address submission, wallet funding, capability activation, and project-key issuance belong to hosted member pages. They are not SDK or member-app responsibilities.
 
-## Bind the credential to the runtime origin
+## Configure the test project key
 
-The API client origin and the credential binding origin must be identical. This is especially important in development and test environments:
+The authorized member creates the exact test-environment key in the Wathba
+portal and configures it in the server runtime outside the coding agent's view:
 
 ```ts
-import {
-  WathbaClient,
-  createGcpSecretManagerCredentialProvider,
-} from '@wathba/sdk';
+import { WathbaClient } from '@wathba/sdk';
 
 const apiOrigin = 'https://apidev.wathba.info';
 
-const credentialProvider = createGcpSecretManagerCredentialProvider({
-  secretVersionResource:
-    'projects/123456789012/secrets/wathba-app-dev/versions/7',
-  allowedApiOrigin: apiOrigin,
-  allowedCapabilities: ['logistics.shipping'],
-  allowedScopes: ['shipments:create', 'tools:execute'],
-});
-
 export const wathba = new WathbaClient({
   baseUrl: apiOrigin,
-  credentialProvider,
+  credentialProvider: {
+    async resolve() {
+      const apiKey = process.env.WATHBA_API_KEY;
+      if (!apiKey) throw new Error('WATHBA_API_KEY is not configured');
+      return { apiKey };
+    },
+  },
   retry: { maximumAttempts: 2, delayMs: 100 },
 });
 ```
 
-The SDK re-resolves the credential for each bounded attempt. A mutation retry replays the exact URL, body bytes, and `Idempotency-Key`; it never creates a replacement key. Persist that key with the application’s logical shipment command so process restarts can do the same.
+The SDK re-resolves the configured key for each bounded attempt. A mutation retry replays the exact URL, body bytes, and `Idempotency-Key`; it never creates a replacement key. Persist the idempotency key with the application’s logical shipment command so process restarts can do the same. Never persist the Wathba API key in that command record.
 
 ## Create one capped sandbox shipment
 

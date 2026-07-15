@@ -1,13 +1,13 @@
 {
-  "contractVersion": "2026.07.mvp.004",
-  "fixtureSetDigest": "sha256:76c7523bfc6c640ceafafaf194d6dbc4b14cd4b4a89190d18ecfbfe50ff75eba",
+  "contractVersion": "2026.07.mvp.005",
+  "fixtureSetDigest": "sha256:239c2818d65b31ecd2af39984e1e79a940648faa87b0dc69507fdb7179aab1c3",
   "generator": {
     "name": "openapi-typescript",
     "version": "7.13.0"
   },
-  "openApiDigest": "sha256:4462bcdd537bf45d0a0486a91b585bd0b8e8e260daed5e5e32ac28236fa387d0",
-  "protocolAggregateDigest": "sha256:af10a84cf4edbdc489989da3930404b6234cba9de6ed180044b913d0bfe9913f",
-  "protocolSetDigest": "sha256:2fd7c51af1c347d9fd4c4e34af099be615c65dc6c5af01cade6a1cb7c655f3dc",
+  "openApiDigest": "sha256:67d7b13215fe29b192a84c5d71d89a12f50531eef93ad6ba9f53a02d6212f90c",
+  "protocolAggregateDigest": "sha256:64e8975c07292ee6795f1143c1ca8e218463b6bcc8996155a4c1e0065e7db13d",
+  "protocolSetDigest": "sha256:ce8c8c46133bdeaeaab5180775c524769fbdecb772cc18a3a2cabf4e1a35e81c",
   "protocolVersion": "1.0",
   "schemaVersion": "wathba.sdk-release.v1",
   "sdkPackage": "@wathba/sdk",

@@ -69,7 +69,6 @@
               },
               "category": {
                 "enum": [
-                  "credential_destination",
                   "provider_readiness",
                   "budget_controls",
                   "webhook_readiness",
@@ -202,7 +201,6 @@
               },
               "owner": {
                 "enum": [
-                  "application_access_and_keys",
                   "provider_connections",
                   "budget_controls",
                   "billing_wallet",
@@ -475,18 +473,6 @@
               "minLength": 3,
               "type": "string"
             },
-            "credentialDestinations": {
-              "items": {
-                "enum": [
-                  "local_mock",
-                  "gcp_secret_manager",
-                  "external_authenticated_probe"
-                ],
-                "type": "string"
-              },
-              "minItems": 1,
-              "type": "array"
-            },
             "frameworks": {
               "items": {
                 "enum": [
@@ -518,8 +504,7 @@
             "agentHosts",
             "operatingSystems",
             "architectures",
-            "frameworks",
-            "credentialDestinations"
+            "frameworks"
           ],
           "type": "object"
         },
