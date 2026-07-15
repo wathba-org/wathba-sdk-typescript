@@ -355,8 +355,8 @@ export interface components {
                 sku?: string;
                 weightGrams?: number;
             }[];
-            /** @enum {string} */
-            mode?: "preselected_courier" | "order_first";
+            /** @constant */
+            mode: "order_first";
             orderReference?: string;
             parcel: {
                 heightCm?: number;
@@ -397,8 +397,6 @@ export interface components {
             capability: string;
             currency: string;
             executionId: string;
-            /** Format: uri */
-            labelUrl?: string;
             message: string;
             operationCode: string;
             /** Format: uri */
@@ -408,8 +406,6 @@ export interface components {
             state: "succeeded" | "failed" | "pending" | "blocked" | "closed";
             statusCode: number;
             trackingStatus?: string;
-            /** Format: uri */
-            trackingUrl?: string;
         };
         PaymentLink: {
             amountMinor: number;

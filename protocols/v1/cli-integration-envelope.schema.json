@@ -312,8 +312,6 @@
         "activated",
         "bundle_installed",
         "patched",
-        "credential_binding_pending",
-        "credential_bound",
         "verifying",
         "maintenance",
         "complete"

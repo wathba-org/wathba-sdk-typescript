@@ -1,13 +1,11 @@
 # NestJS with Fastify recipe
 
-Register a singleton client and inject the deployment's server-side credential destination adapter.
+Register a singleton client and read the member-configured project key only in
+the server process.
 
 ```ts
 import { Module } from '@nestjs/common';
-import {
-  WathbaClient,
-  createGcpSecretManagerCredentialProvider,
-} from '@wathba/sdk';
+import { WathbaClient } from '@wathba/sdk';
 
 @Module({
   providers: [
@@ -15,12 +13,15 @@ import {
       provide: WathbaClient,
       useFactory: () =>
         new WathbaClient({
-          credentialProvider: createGcpSecretManagerCredentialProvider({
-            secretVersionResource:
-              'projects/123456789012/secrets/wathba-app/versions/7',
-            allowedCapabilities: ['messaging.otp'],
-            allowedScopes: ['otp:send'],
-          }),
+          credentialProvider: {
+            async resolve() {
+              const apiKey = process.env.WATHBA_API_KEY;
+              if (!apiKey) {
+                throw new Error('WATHBA_API_KEY is not configured');
+              }
+              return { apiKey };
+            },
+          },
         }),
     },
   ],
@@ -31,10 +32,12 @@ export class WathbaSdkModule {}
 
 Controllers call an application use case; they do not resolve, read, log, or return the credential. Keep idempotency identity in the app's durable command record so retries reuse the same key.
 
-The CLI replaces the example with the active binding's exact numeric version and approved capability/scopes. The provider uses the runtime workload identity, rejects `latest`, and fails closed outside that binding; do not inject a service-account key or credential value into Nest configuration.
-
-For development or test, use one exact HTTPS value for both `WathbaClient({ baseUrl })` and the provider's `allowedApiOrigin`. A mismatched origin fails closed before the secret is resolved.
+The authorized member creates a test or production project key in the portal
+and configures it outside the agent's view. Keep it in server-only runtime
+configuration. Do not add it to a Nest config response, log line, source file,
+or browser bundle. Development uses the test key with
+`https://apidev.wathba.info`; production uses its separate key and origin.
 
 Model `final`, `pending`, and `action_required` explicitly in the application layer. Schedule only safe read operations for convergence; do not turn a pending provider outcome into an HTTP success claim or replay a mutation with a fresh key.
 
-External shipping-account setup remains a CLI and hosted-member workflow, never a Nest controller concern. See [Shipping](./shipping.md) for the complete sandbox `order_first` request.
+External shipping-account setup remains a hosted member-portal workflow, never a Nest controller concern. See [Shipping](./shipping.md) for the complete sandbox `order_first` request.

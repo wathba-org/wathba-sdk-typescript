@@ -1,7 +1,6 @@
 import {
   WathbaClient,
   asIdempotencyKey,
-  createGcpSecretManagerCredentialProvider,
   type CreatePaymentProductInput,
   type CreatePaymentProductResult,
   type CreateShipmentInput,
@@ -78,14 +77,6 @@ void linkQuery;
 
 const billingEffect: WathbaProblem['billingEffect'] = 'none';
 void billingEffect;
-
-const gcpCredentialProvider = createGcpSecretManagerCredentialProvider({
-  secretVersionResource:
-    'projects/123456789012/secrets/wathba-app/versions/7',
-  allowedCapabilities: ['messaging.otp'],
-  allowedScopes: ['otp:send'],
-});
-void gcpCredentialProvider;
 
 // @ts-expect-error OTP is send-only in the pinned launch contract.
 client.otp.verify(otp);

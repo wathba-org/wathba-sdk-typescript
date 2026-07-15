@@ -62,11 +62,6 @@ export {
   type WathbaCredentialRequest,
 } from './raw-client.js';
 export {
-  createGcpSecretManagerCredentialProvider,
-  type GcpSecretManagerCredentialProviderOptions,
-  type GcpWorkloadAccessTokenProvider,
-} from './gcp-secret-manager-credential-provider.js';
-export {
   asIdempotencyKey,
   createIdempotencyKey,
   type IdempotencyKey,
