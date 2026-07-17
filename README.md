@@ -72,6 +72,8 @@ switch (outcome.kind) {
 
 `order_first` is a capped sandbox certification path, not a production courier-selection guarantee. `amountMinor` is the maximum SAR exposure authorized for the logical shipment; item `amountMinor` values describe the provider-opaque order total. Recipient email, a non-empty item list, and parcel weight are required. Production stays fail closed until Wathba can prove the chosen courier and maximum cost before the provider write.
 
+The typed SDK surface is release-time compatibility, not a live service catalog. Do not use the presence of `wathba.shipping` or another typed client as evidence that the service is currently offered. When an operator globally disables a service, discovery omits it and an in-flight or direct execution fails closed with a terminal `blocked` value whose message is `service_globally_disabled`; the SDK does not classify that response as pending or replay the mutation.
+
 ## External-service onboarding is not an SDK operation
 
 This SDK starts at the member-app runtime boundary, after a human has connected or registered the external shipping account, completed pickup-address and wallet readiness, activated `logistics.shipping`, created the exact test or production project key in the Wathba portal, and configured it in the server runtime outside the coding agent's view. It deliberately exposes no provider install/login, password, pickup-address, wallet-funding, activation, or key-minting method. Never add those provider or control-plane calls to member application code.

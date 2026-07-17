@@ -66,19 +66,33 @@ test('captureWathbaOutcome returns a typed action without retrying a mutation', 
   assert.equal(outcome.correlationId, 'corr_sdk_action_001');
 });
 
-test('operation execution classification never turns pending into final', () => {
+test('operation execution classification polls only genuinely pending work', () => {
   assert.equal(
     classifyOperationExecution({ state: 'pending' }),
     'pending',
   );
   assert.equal(
     classifyOperationExecution({ state: 'blocked' }),
-    'pending',
+    'final',
   );
   assert.equal(
     classifyOperationExecution({ state: 'succeeded' }),
     'final',
   );
+});
+
+test('a globally disabled execution is a terminal blocked outcome', async () => {
+  const execution = {
+    state: 'blocked',
+    message: 'service_globally_disabled',
+  };
+
+  const outcome = await captureWathbaOutcome(
+    async () => execution,
+    classifyOperationExecution,
+  );
+
+  assert.deepEqual(outcome, { kind: 'final', value: execution });
 });
 
 test('safe polling repeats only pending reads and stops on the first final result', async () => {
