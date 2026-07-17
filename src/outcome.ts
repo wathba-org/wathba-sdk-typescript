@@ -39,9 +39,7 @@ export async function captureWathbaOutcome<Value>(
 export function classifyOperationExecution(
   execution: Pick<OperationResponseMap['createShipment'], 'state'>,
 ): WathbaOutcomeClassification {
-  return execution.state === 'pending' || execution.state === 'blocked'
-    ? 'pending'
-    : 'final';
+  return execution.state === 'pending' ? 'pending' : 'final';
 }
 
 export interface WathbaPollOptions {
