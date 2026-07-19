@@ -94,7 +94,7 @@ const devWathba = new WathbaClient({
 });
 ```
 
-`pollWathbaOutcome` is bounded and accepts a caller-supplied safe read operation only. It never replays a mutation. Payments expose every published product, hosted-link, payment-read, and refund operation through typed ergonomic methods; shipping exposes the published create operation and its read-only execution-status operation. The raw client exposes every published operation without inventing unsupported aliases.
+`pollWathbaOutcome` is bounded and accepts a caller-supplied safe read operation only. It never replays a mutation. Payments expose every published product, hosted-link, payment-read, and refund operation through typed ergonomic methods; shipping exposes the published create operation and its read-only execution-status operation. The raw client exposes every published operation without inventing unsupported aliases. Payment amounts (`amountMinor`) are in the smallest currency unit, with a provider minimum of 100 (e.g. 100 halalas = 1.00 SAR) and no documented maximum; the server owns amount validation.
 
 Keep an idempotency key with the logical command and reuse it for retries. Create a new key only for a new intent. Resolve the Wathba credential inside the trusted server runtime; never pass it to browser code, an AI agent, logs, or source control.
 
