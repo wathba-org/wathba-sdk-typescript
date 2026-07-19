@@ -27,6 +27,13 @@ type RequestRefundOperation = OperationInputMap['requestPaymentRefund'];
 type GetRefundOperation = OperationInputMap['getPaymentRefund'];
 type ListRefundsOperation = OperationInputMap['listPaymentRefunds'];
 
+/**
+ * All payment amounts (`amountMinor`) are expressed in the smallest currency
+ * unit — e.g. halalas for SAR, so `100` = 1.00 SAR. The payment provider
+ * enforces a minimum of `100` minor units per amount; no maximum is
+ * documented. The server validates amounts — the SDK performs no client-side
+ * validation.
+ */
 export type CreatePaymentProductInput = Readonly<
   CreateProductOperation['body'] & {
     readonly projectId: CreateProductOperation['path']['projectId'];
@@ -36,6 +43,12 @@ export type CreatePaymentProductInput = Readonly<
 export type CreatePaymentProductResult =
   OperationResponseMap['createPaymentProduct'];
 
+/**
+ * Payment amounts (`amountMinor`) are in the smallest currency unit with a
+ * provider minimum of `100` (e.g. `100` halalas = 1.00 SAR) and no documented
+ * maximum. See {@link CreatePaymentProductInput}. Validation happens
+ * server-side.
+ */
 export type CreatePaymentLinkInput = Readonly<
   CreateLinkOperation['body'] & {
     readonly projectId: CreateLinkOperation['path']['projectId'];
