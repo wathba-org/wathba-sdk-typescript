@@ -74,9 +74,15 @@ export {
 } from './errors.js';
 export { wathbaSdkRelease, type WathbaSdkRelease } from './generated/release.js';
 export {
+  parseWebhookEvent,
   verifyWathbaWebhook,
+  verifyWebhookSignature,
   WathbaWebhookVerificationError,
+  type ParsedWebhookEvent,
   type VerifiedWathbaWebhook,
+  type VerifiedWebhookSignature,
+  type VerifyWebhookSignatureInput,
+  type WathbaWebhookSecret,
   type VerifyWathbaWebhookInput,
   type WathbaWebhookEvent,
   type WathbaWebhookHeaderReader,

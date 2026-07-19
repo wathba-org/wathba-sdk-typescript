@@ -103,16 +103,7 @@ export async function verifyWathbaWebhook(
   const signature = parseSignature(headers['x-wathba-signature']);
   const rawBody = rawBodyBytes(input.rawBody);
   const secret = await resolveSecret(input.secretResolver, secretVersion);
-  const expected = createHmac('sha256', secret)
-    .update(headers['x-wathba-timestamp'])
-    .update('.')
-    .update(rawBody)
-    .digest();
-  if (signature.length !== expected.length || !timingSafeEqual(signature, expected)) {
-    throw new WathbaWebhookVerificationError(
-      'wathba_webhook_invalid_signature',
-    );
-  }
+  assertSignature(headers['x-wathba-timestamp'], rawBody, secret, signature);
 
   const event = parseEvent(rawBody);
   if (event.eventId !== headers['x-wathba-event-id']) {
@@ -132,6 +123,122 @@ export async function verifyWathbaWebhook(
     attemptTimestamp,
     secretVersion,
   };
+}
+
+export type WathbaWebhookSecret =
+  | string
+  | Uint8Array
+  | Readonly<Record<string, string | Uint8Array>>;
+
+export interface VerifyWebhookSignatureInput {
+  readonly payload: string | Uint8Array;
+  readonly headers: WathbaWebhookHeaders | WathbaWebhookHeaderReader;
+  readonly secret: WathbaWebhookSecret;
+  readonly toleranceSeconds?: number;
+  readonly now?: () => Date;
+}
+
+export interface VerifiedWebhookSignature {
+  readonly eventId: string;
+  readonly timestamp: number;
+  readonly secretVersion: number;
+}
+
+export interface ParsedWebhookEvent extends VerifiedWebhookSignature {
+  readonly event: WathbaWebhookEvent;
+}
+
+export function verifyWebhookSignature(
+  input: VerifyWebhookSignatureInput,
+): VerifiedWebhookSignature {
+  const { headers, timestamp, secretVersion } = verifySignedPayload(input);
+  return { eventId: headers['x-wathba-event-id'], timestamp, secretVersion };
+}
+
+export function parseWebhookEvent(
+  input: VerifyWebhookSignatureInput,
+): ParsedWebhookEvent {
+  const { headers, rawBody, timestamp, secretVersion } =
+    verifySignedPayload(input);
+  const event = parseEvent(rawBody);
+  if (event.eventId !== headers['x-wathba-event-id']) {
+    throw new WathbaWebhookVerificationError(
+      'wathba_webhook_event_id_mismatch',
+    );
+  }
+  return { event, eventId: event.eventId, timestamp, secretVersion };
+}
+
+function verifySignedPayload(input: VerifyWebhookSignatureInput): {
+  readonly headers: Record<(typeof REQUIRED_HEADERS)[number], string>;
+  readonly rawBody: Buffer;
+  readonly timestamp: number;
+  readonly secretVersion: number;
+} {
+  const headers = requiredHeaders(input.headers);
+  const timestamp = parseTimestamp(headers['x-wathba-timestamp']);
+  assertFresh(
+    timestamp,
+    (input.now ?? (() => new Date()))(),
+    input.toleranceSeconds ?? 300,
+  );
+  const secretVersion = parseSecretVersion(
+    headers['x-wathba-signature-version'],
+  );
+  const signature = parseSignature(headers['x-wathba-signature']);
+  const rawBody = rawBodyBytes(input.payload);
+  assertSignature(
+    headers['x-wathba-timestamp'],
+    rawBody,
+    staticSecret(input.secret, secretVersion),
+    signature,
+  );
+  return { headers, rawBody, timestamp, secretVersion };
+}
+
+function staticSecret(
+  secret: WathbaWebhookSecret,
+  secretVersion: number,
+): string | Uint8Array {
+  const selected =
+    typeof secret === 'string' || secret instanceof Uint8Array
+      ? secret
+      : secret[String(secretVersion)];
+  if (selected === undefined) {
+    throw new WathbaWebhookVerificationError(
+      'wathba_webhook_unknown_secret_version',
+    );
+  }
+  if (
+    (typeof selected === 'string' && selected.length === 0) ||
+    (selected instanceof Uint8Array && selected.byteLength === 0)
+  ) {
+    throw new WathbaWebhookVerificationError(
+      'wathba_webhook_secret_unavailable',
+    );
+  }
+  return selected;
+}
+
+function assertSignature(
+  timestampHeader: string,
+  rawBody: Buffer,
+  secret: string | Uint8Array,
+  signature: Buffer,
+): void {
+  const expected = createHmac('sha256', secret)
+    .update(timestampHeader)
+    .update('.')
+    .update(rawBody)
+    .digest();
+  if (
+    signature.length !== expected.length ||
+    !timingSafeEqual(signature, expected)
+  ) {
+    throw new WathbaWebhookVerificationError(
+      'wathba_webhook_invalid_signature',
+    );
+  }
 }
 
 function requiredHeaders(

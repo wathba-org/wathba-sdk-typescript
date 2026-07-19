@@ -3,7 +3,9 @@ import { createHmac } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import {
+  parseWebhookEvent,
   verifyWathbaWebhook,
+  verifyWebhookSignature,
   WathbaWebhookVerificationError,
 } from '../dist/esm/index.js';
 
@@ -192,3 +194,172 @@ function signedHeaders({ timestamp = TIMESTAMP, secret = SECRET } = {}) {
     'x-wathba-signature-version': String(FIXTURE.secretVersion),
   };
 }
+
+test('verifyWebhookSignature accepts a valid static-secret signature', () => {
+  for (const payload of [RAW_BODY, Buffer.from(RAW_BODY, 'utf8')]) {
+    const result = verifyWebhookSignature({
+      payload,
+      headers: signedHeaders(),
+      secret: SECRET,
+      now: () => NOW,
+    });
+    assert.deepEqual(result, {
+      eventId: EVENT.eventId,
+      timestamp: Number(TIMESTAMP),
+      secretVersion: FIXTURE.secretVersion,
+    });
+  }
+});
+
+test('parseWebhookEvent verifies then returns the typed envelope', () => {
+  const result = parseWebhookEvent({
+    payload: RAW_BODY,
+    headers: signedHeaders(),
+    secret: SECRET,
+    now: () => NOW,
+  });
+  assert.deepEqual(result.event, EVENT);
+  assert.equal(result.eventId, EVENT.eventId);
+  assert.equal(result.timestamp, Number(TIMESTAMP));
+  assert.equal(result.secretVersion, FIXTURE.secretVersion);
+});
+
+for (const [name, build, code] of [
+  [
+    'tampered payload',
+    () => ({ payload: `${RAW_BODY} `, headers: signedHeaders(), secret: SECRET }),
+    'wathba_webhook_invalid_signature',
+  ],
+  [
+    'wrong secret',
+    () => ({ payload: RAW_BODY, headers: signedHeaders(), secret: 'not-the-secret' }),
+    'wathba_webhook_invalid_signature',
+  ],
+  [
+    'empty secret',
+    () => ({ payload: RAW_BODY, headers: signedHeaders(), secret: '' }),
+    'wathba_webhook_secret_unavailable',
+  ],
+  [
+    'expired timestamp',
+    () => ({
+      payload: RAW_BODY,
+      headers: signedHeaders({ timestamp: String(Number(TIMESTAMP) - 301) }),
+      secret: SECRET,
+    }),
+    'wathba_webhook_timestamp_outside_tolerance',
+  ],
+  [
+    'malformed signature header',
+    () => ({
+      payload: RAW_BODY,
+      headers: { ...signedHeaders(), 'x-wathba-signature': 'v1=zz' },
+      secret: SECRET,
+    }),
+    'wathba_webhook_invalid_signature',
+  ],
+  [
+    'truncated hex signature',
+    () => ({
+      payload: RAW_BODY,
+      headers: {
+        ...signedHeaders(),
+        'x-wathba-signature': `v1=${'a'.repeat(63)}`,
+      },
+      secret: SECRET,
+    }),
+    'wathba_webhook_invalid_signature',
+  ],
+  [
+    'unsupported signature version',
+    () => ({
+      payload: RAW_BODY,
+      headers: {
+        ...signedHeaders(),
+        'x-wathba-signature': `v2=${'0'.repeat(64)}`,
+      },
+      secret: SECRET,
+    }),
+    'wathba_webhook_unsupported_signature_version',
+  ],
+  [
+    'missing signature header',
+    () => {
+      const { 'x-wathba-signature': _dropped, ...headers } = signedHeaders();
+      return { payload: RAW_BODY, headers, secret: SECRET };
+    },
+    'wathba_webhook_missing_header',
+  ],
+]) {
+  test(`verifyWebhookSignature fails closed for ${name}`, () => {
+    assert.throws(
+      () => verifyWebhookSignature({ ...build(), now: () => NOW }),
+      (error) =>
+        error instanceof WathbaWebhookVerificationError && error.code === code,
+    );
+  });
+}
+
+test('verifyWebhookSignature honours a tighter tolerance window', () => {
+  const skewed = String(Number(TIMESTAMP) - 11);
+  assert.throws(
+    () =>
+      verifyWebhookSignature({
+        payload: RAW_BODY,
+        headers: signedHeaders({ timestamp: skewed }),
+        secret: SECRET,
+        toleranceSeconds: 10,
+        now: () => NOW,
+      }),
+    (error) =>
+      error instanceof WathbaWebhookVerificationError &&
+      error.code === 'wathba_webhook_timestamp_outside_tolerance',
+  );
+  const inside = String(Number(TIMESTAMP) - 10);
+  const result = verifyWebhookSignature({
+    payload: RAW_BODY,
+    headers: signedHeaders({ timestamp: inside }),
+    secret: SECRET,
+    toleranceSeconds: 10,
+    now: () => NOW,
+  });
+  assert.equal(result.timestamp, Number(inside));
+});
+
+test('parseWebhookEvent rejects an envelope whose eventId contradicts the header', () => {
+  assert.throws(
+    () =>
+      parseWebhookEvent({
+        payload: RAW_BODY,
+        headers: { ...signedHeaders(), 'x-wathba-event-id': 'evt_other_1' },
+        secret: SECRET,
+        now: () => NOW,
+      }),
+    (error) =>
+      error instanceof WathbaWebhookVerificationError &&
+      error.code === 'wathba_webhook_event_id_mismatch',
+  );
+});
+
+test('secret map selects the exact declared version and never falls back', () => {
+  const result = verifyWebhookSignature({
+    payload: RAW_BODY,
+    headers: signedHeaders(),
+    secret: { [String(FIXTURE.secretVersion)]: SECRET },
+    now: () => NOW,
+  });
+  assert.equal(result.secretVersion, FIXTURE.secretVersion);
+
+  assert.throws(
+    () =>
+      verifyWebhookSignature({
+        payload: RAW_BODY,
+        headers: signedHeaders(),
+        secret: { [String(FIXTURE.secretVersion + 1)]: SECRET },
+        now: () => NOW,
+      }),
+    (error) =>
+      error instanceof WathbaWebhookVerificationError &&
+      error.code === 'wathba_webhook_unknown_secret_version',
+  );
+});
