@@ -1,5 +1,11 @@
 export { WathbaClient } from './client.js';
-export { WathbaOtpClient, type SendOtpInput, type SendOtpResult } from './otp.js';
+export {
+  WathbaOtpClient,
+  type SendOtpInput,
+  type SendOtpResult,
+  type VerifyOtpInput,
+  type VerifyOtpResult,
+} from './otp.js';
 export {
   WathbaPaymentsClient,
   type ArchivePaymentProductInput,

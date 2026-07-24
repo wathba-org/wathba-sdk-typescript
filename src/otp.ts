@@ -17,6 +17,17 @@ export type SendOtpInput = Readonly<
 
 export type SendOtpResult = OperationResponseMap['sendOtp'];
 
+type VerifyOtpOperationInput = OperationInputMap['verifyOtp'];
+
+export type VerifyOtpInput = Readonly<
+  VerifyOtpOperationInput['body'] & {
+    readonly projectId: VerifyOtpOperationInput['path']['projectId'];
+    readonly idempotencyKey: VerifyOtpOperationInput['idempotencyKey'];
+  }
+>;
+
+export type VerifyOtpResult = OperationResponseMap['verifyOtp'];
+
 export class WathbaOtpClient {
   constructor(private readonly raw: RawWathbaClient) {}
 
@@ -29,6 +40,22 @@ export class WathbaOtpClient {
             environmentId: input.environmentId,
             email: input.email.trim().toLowerCase(),
             ...(input.purpose === undefined ? {} : { purpose: input.purpose }),
+          },
+          idempotencyKey: input.idempotencyKey,
+        }),
+      classifyOperationExecution,
+    );
+  }
+
+  verify(input: VerifyOtpInput): Promise<WathbaOutcome<VerifyOtpResult>> {
+    return captureWathbaOutcome(
+      () =>
+        this.raw.execute('verifyOtp', {
+          path: { projectId: input.projectId },
+          body: {
+            environmentId: input.environmentId,
+            email: input.email.trim().toLowerCase(),
+            otp: input.otp.trim(),
           },
           idempotencyKey: input.idempotencyKey,
         }),
