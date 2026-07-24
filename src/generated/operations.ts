@@ -757,6 +757,39 @@ export const operationSpecs = {
         "schema": "PaymentProduct"
       }
     }
+  },
+  "verifyOtp": {
+    "operationId": "verifyOtp",
+    "method": "POST",
+    "path": "/v1/platform/projects/{projectId}/otp/verify",
+    "capability": "messaging.otp",
+    "idempotency": "required",
+    "safeProbe": "sandbox_non_spend",
+    "requiredScopes": [
+      "otp:verify"
+    ],
+    "pathParameters": {
+      "projectId": {
+        "required": true,
+        "schema": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        }
+      }
+    },
+    "queryParameters": {},
+    "requestSchema": "VerifyOtpRequest",
+    "successResponses": {
+      "201": {
+        "contentType": "application/json",
+        "schema": "OperationExecution"
+      },
+      "202": {
+        "contentType": "application/json",
+        "schema": "OperationExecution"
+      }
+    }
   }
 } as const;
 
@@ -783,6 +816,7 @@ export interface OperationInputMap {
   "sendOtp": { path: operations["sendOtp"]["parameters"]["path"]; body: operations["sendOtp"]["requestBody"]["content"]["application/json"]; idempotencyKey: IdempotencyKey };
   "updatePaymentLink": { path: operations["updatePaymentLink"]["parameters"]["path"]; body: operations["updatePaymentLink"]["requestBody"]["content"]["application/json"]; idempotencyKey: IdempotencyKey };
   "updatePaymentProduct": { path: operations["updatePaymentProduct"]["parameters"]["path"]; body: operations["updatePaymentProduct"]["requestBody"]["content"]["application/json"]; idempotencyKey: IdempotencyKey };
+  "verifyOtp": { path: operations["verifyOtp"]["parameters"]["path"]; body: operations["verifyOtp"]["requestBody"]["content"]["application/json"]; idempotencyKey: IdempotencyKey };
 }
 
 export interface OperationResponseMap {
@@ -806,4 +840,5 @@ export interface OperationResponseMap {
   "sendOtp": operations["sendOtp"]["responses"][201]["content"]["application/json"] | operations["sendOtp"]["responses"][202]["content"]["application/json"];
   "updatePaymentLink": operations["updatePaymentLink"]["responses"][200]["content"]["application/json"];
   "updatePaymentProduct": operations["updatePaymentProduct"]["responses"][200]["content"]["application/json"];
+  "verifyOtp": operations["verifyOtp"]["responses"][201]["content"]["application/json"] | operations["verifyOtp"]["responses"][202]["content"]["application/json"];
 }

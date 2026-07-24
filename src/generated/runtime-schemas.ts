@@ -2281,6 +2281,32 @@ export const runtimeSchemas = {
     },
     "type": "object"
   },
+  "VerifyOtpRequest": {
+    "additionalProperties": false,
+    "properties": {
+      "email": {
+        "format": "email",
+        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+        "type": "string"
+      },
+      "environmentId": {
+        "maxLength": 160,
+        "minLength": 3,
+        "type": "string"
+      },
+      "otp": {
+        "maxLength": 12,
+        "minLength": 4,
+        "type": "string"
+      }
+    },
+    "required": [
+      "environmentId",
+      "email",
+      "otp"
+    ],
+    "type": "object"
+  },
   "WathbaPayment": {
     "additionalProperties": false,
     "properties": {

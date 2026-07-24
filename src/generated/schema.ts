@@ -38,6 +38,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/platform/projects/{projectId}/otp/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify an OTP code */
+        post: operations["verifyOtp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/platform/projects/{projectId}/payment-links": {
         parameters: {
             query?: never;
@@ -702,6 +719,12 @@ export interface components {
             taxBehavior?: "inclusive" | "exclusive" | "exempt";
             unitAmountMinor?: number;
         };
+        VerifyOtpRequest: {
+            /** Format: email */
+            email: string;
+            environmentId: string;
+            otp: string;
+        };
         WathbaPayment: {
             amountMinor: number;
             attemptId: string;
@@ -920,6 +943,114 @@ export interface operations {
                  *     }
                  */
                 "application/json": components["schemas"]["SendOtpRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperationExecution"];
+                };
+            };
+            /** @description Accepted and pending */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperationExecution"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    verifyOtp: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Stable identity for one logical status-changing command. */
+                "Idempotency-Key": string;
+            };
+            path: {
+                projectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "email": "user@example.com",
+                 *       "environmentId": "env_123",
+                 *       "otp": "123456"
+                 *     }
+                 */
+                "application/json": components["schemas"]["VerifyOtpRequest"];
             };
         };
         responses: {

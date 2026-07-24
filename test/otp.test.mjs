@@ -57,6 +57,103 @@ test('OTP sends the canonical shared-fixture request with one resolved credentia
   assert.deepEqual(JSON.parse(requests[0].init.body), fixture.request.body);
 });
 
+test('OTP verify sends the canonical verify request with one resolved credential', async () => {
+  const requests = [];
+  const credentialRequests = [];
+  let resolutions = 0;
+  const client = new WathbaClient({
+    baseUrl: 'https://api.test.wathba.info',
+    credentialProvider: {
+      async resolve(request) {
+        resolutions += 1;
+        credentialRequests.push(request);
+        return { apiKey: 'wth_test_key' };
+      },
+    },
+    fetch: async (url, init) => {
+      requests.push({ url: String(url), init });
+      return Response.json(fixture.success.body, { status: fixture.success.status });
+    },
+  });
+
+  const outcome = await client.otp.verify({
+    projectId: fixture.request.path.projectId,
+    environmentId: fixture.request.body.environmentId,
+    email: ' User@Example.COM ',
+    otp: ' 012345 ',
+    idempotencyKey: asIdempotencyKey('idem_otp_verify_123'),
+  });
+
+  assert.equal(outcome.kind, 'final');
+  assert.deepEqual(outcome.value, fixture.success.body);
+  assert.equal(resolutions, 1);
+  assert.deepEqual(credentialRequests, [{
+    apiOrigin: 'https://api.test.wathba.info',
+    capability: 'messaging.otp',
+    operationId: 'verifyOtp',
+    requiredScopes: ['otp:verify'],
+  }]);
+  assert.equal(
+    requests[0].url,
+    `https://api.test.wathba.info/v1/platform/projects/${fixture.request.path.projectId}/otp/verify`,
+  );
+  assert.equal(requests[0].init.headers.get('x-api-key'), 'wth_test_key');
+  assert.equal(requests[0].init.headers.get('idempotency-key'), 'idem_otp_verify_123');
+  assert.equal(requests[0].init.redirect, 'error');
+  assert.equal(requests[0].init.credentials, 'omit');
+  assert.deepEqual(JSON.parse(requests[0].init.body), {
+    environmentId: fixture.request.body.environmentId,
+    email: 'user@example.com',
+    otp: '012345',
+  });
+});
+
+test('OTP verify surfaces stable problem responses as typed errors without request material', async () => {
+  const client = new WathbaClient({
+    credentialProvider: { async resolve() { return { apiKey: 'wth_test_key' }; } },
+    fetch: async () => Response.json(fixture.problem.body, {
+      status: fixture.problem.status,
+      headers: { 'content-type': fixture.problem.contentType },
+    }),
+  });
+
+  await assert.rejects(
+    client.otp.verify({
+      projectId: fixture.request.path.projectId,
+      environmentId: fixture.request.body.environmentId,
+      email: fixture.request.body.email,
+      otp: '012345',
+      idempotencyKey: asIdempotencyKey('idem_otp_verify_invalid_123'),
+    }),
+    (error) => {
+      assert.ok(error instanceof WathbaApiError);
+      assert.equal(error.problem.code, 'validation_failed');
+      assert.doesNotMatch(error.message, /012345|wth_test_key/);
+      return true;
+    },
+  );
+});
+
+test('OTP verify rejects a malformed email before resolving a credential', async () => {
+  let resolutions = 0;
+  const client = new WathbaClient({
+    credentialProvider: { async resolve() { resolutions += 1; return { apiKey: 'wth_test_key' }; } },
+    fetch: async () => Response.json(fixture.success.body, { status: fixture.success.status }),
+  });
+
+  await assert.rejects(
+    client.otp.verify({
+      projectId: fixture.request.path.projectId,
+      environmentId: fixture.request.body.environmentId,
+      email: 'not-an-email',
+      otp: '012345',
+      idempotencyKey: asIdempotencyKey('idem_otp_verify_bad_email_123'),
+    }),
+    (error) => error.code === 'wathba_invalid_request',
+  );
+  assert.equal(resolutions, 0);
+});
+
 test('OTP preserves a declared pending execution in the ergonomic outcome', async () => {
   const client = new WathbaClient({
     credentialProvider: { async resolve() { return { apiKey: 'wth_test_key' }; } },

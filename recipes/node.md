@@ -29,7 +29,23 @@ export async function sendLoginOtp(email: string) {
     idempotencyKey: createIdempotencyKey(),
   });
 }
+
+export async function verifyLoginOtp(email: string, code: string) {
+  return wathba.otp.verify({
+    projectId: project.id,
+    environmentId: project.environmentId,
+    email,
+    otp: code,
+    idempotencyKey: createIdempotencyKey(),
+  });
+}
 ```
+
+Wathba emails the code to the member's end user; `verifyLoginOtp` checks the
+code they enter. Together they are one login flow: call `sendLoginOtp` when the
+user submits their email, then `verifyLoginOtp` when they submit the code. Only a
+`final` outcome confirms the code — treat everything else as not-yet-verified and
+never auto-retry the verify with a fresh idempotency key.
 
 Use the test key only with `https://apidev.wathba.info` and the production key
 only with `https://api.wathba.info`. Test and production keys are separate.
