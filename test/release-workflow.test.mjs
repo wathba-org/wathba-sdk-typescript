@@ -132,7 +132,7 @@ test('bootstrap preserves advanced-main recovery without ambient authority', asy
   const source = await workflow('bootstrap-first-publish.yml');
   const resolver = await script('resolve-published-source-commit.mjs');
   assertLeastPrivilegeJobs(source);
-  assert.match(source, /PUBLISH @wathba\/sdk 0\.1\.0 ONCE/);
+  assert.match(source, /PUBLISH @wathba-cli\/sdk 0\.1\.0 ONCE/);
   assert.match(source, /test "\$GITHUB_REF" = "refs\/heads\/main"/);
   assert.match(source, /group: sdk-release-v0\.1\.0/);
   assert.match(source, /git merge-base --is-ancestor "\$GITHUB_SHA" origin\/main/);
@@ -179,7 +179,7 @@ test('bootstrap preserves advanced-main recovery without ambient authority', asy
   assert.match(release, /commits\/\$\{release_tag\}/);
   assert.match(release, /test "\$tag_commit" = "\$PUBLISHED_SOURCE_COMMIT"/);
   assert.match(release, /--json tagName,name,isDraft,isPrerelease/);
-  assert.match(release, /\.name == "@wathba\/sdk 0\.1\.0"/);
+  assert.match(release, /\.name == "@wathba-cli\/sdk 0\.1\.0"/);
   assert.match(release, /existing bootstrap release identity is invalid/);
   assert.match(release, /evidence_state=existing/);
   assert.match(release, /cmp "\$attestation_path" "\$existing_evidence"/);

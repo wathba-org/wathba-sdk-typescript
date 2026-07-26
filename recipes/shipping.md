@@ -8,7 +8,7 @@ The authorized member creates the exact test-environment key in the Wathba
 portal and configures it in the server runtime outside the coding agent's view:
 
 ```ts
-import { WathbaClient } from '@wathba/sdk';
+import { WathbaClient } from '@wathba-cli/sdk';
 
 const apiOrigin = 'https://apidev.wathba.info';
 
@@ -35,7 +35,7 @@ Staging currently certifies `order_first`: the external service may select and c
 import {
   createIdempotencyKey,
   pollWathbaOutcome,
-} from '@wathba/sdk';
+} from '@wathba-cli/sdk';
 import { wathba } from './wathba.js';
 
 const outcome = await wathba.shipping.create({

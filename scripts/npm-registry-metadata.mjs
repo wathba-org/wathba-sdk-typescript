@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-const SDK_PACKAGE = '@wathba/sdk';
+const SDK_PACKAGE = '@wathba-cli/sdk';
 const SCHEMA_VERSION = 'wathba.npm-registry-metadata.v1';
 const VERSION_PATTERN =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?$/;
@@ -33,7 +33,7 @@ export function createNpmRegistryMetadata(input) {
     typeof version !== 'string' ||
     !VERSION_PATTERN.test(version) ||
     registryUri !==
-      `https://registry.npmjs.org/@wathba/sdk/-/sdk-${version}.tgz` ||
+      `https://registry.npmjs.org/@wathba-cli/sdk/-/sdk-${version}.tgz` ||
     typeof distIntegrity !== 'string' ||
     !SHA512_INTEGRITY_PATTERN.test(distIntegrity)
   ) {

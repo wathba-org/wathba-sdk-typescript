@@ -5,7 +5,7 @@ import {
   captureWathbaOutcome,
   classifyOperationExecution,
   pollWathbaOutcome,
-} from '@wathba/sdk';
+} from '@wathba-cli/sdk';
 
 const actionRef = {
   protocolVersion: '1.0',

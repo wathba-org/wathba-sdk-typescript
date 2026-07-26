@@ -1,5 +1,5 @@
 {
-  "name": "@wathba/sdk",
+  "name": "@wathba-cli/sdk",
   "version": "0.1.0",
   "description": "Server-side TypeScript SDK for Wathba capabilities",
   "license": "MIT",

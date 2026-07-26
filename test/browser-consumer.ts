@@ -1,3 +1,3 @@
-import { WathbaClient } from '@wathba/sdk';
+import { WathbaClient } from '@wathba-cli/sdk';
 
 void WathbaClient;

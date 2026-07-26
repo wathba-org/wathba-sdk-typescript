@@ -13,8 +13,8 @@ import {
   type VerifyOtpResult,
   type WathbaOutcome,
   type WathbaProblem,
-} from '@wathba/sdk';
-import type { OperationInputMap } from '@wathba/sdk/raw';
+} from '@wathba-cli/sdk';
+import type { OperationInputMap } from '@wathba-cli/sdk/raw';
 
 declare const client: WathbaClient;
 

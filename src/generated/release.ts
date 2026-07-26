@@ -7,11 +7,11 @@ export const wathbaSdkRelease = {
     "version": "7.13.0"
   },
   "openApiDigest": "sha256:67d7b13215fe29b192a84c5d71d89a12f50531eef93ad6ba9f53a02d6212f90c",
-  "protocolAggregateDigest": "sha256:870894ea115d22a29dc4cca151a1973aede74a5fbc59abf9285d0a194383ead0",
-  "protocolSetDigest": "sha256:754a68c9c6480fa2cd0131bd6432060cf5c72db6b529e7c0c34de31a9195df14",
+  "protocolAggregateDigest": "sha256:f7d56ae00e014daafe8d2c5fc352b760d9c8360a5e356b4b2cd295f3287976ef",
+  "protocolSetDigest": "sha256:828f1cad5ff710aad7ade001026b61fb7db6e2208129aa4184609eb235399b4a",
   "protocolVersion": "1.0",
   "schemaVersion": "wathba.sdk-release.v1",
-  "sdkPackage": "@wathba/sdk",
+  "sdkPackage": "@wathba-cli/sdk",
   "sdkVersion": "0.1.0"
 } as const;
 

@@ -4,7 +4,7 @@ Construct the client only in a server-only module, then call that module from a 
 
 ```ts
 import 'server-only';
-import { WathbaClient } from '@wathba/sdk';
+import { WathbaClient } from '@wathba-cli/sdk';
 
 export const wathba = new WathbaClient({
   credentialProvider: {

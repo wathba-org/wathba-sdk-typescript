@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { RawWathbaClient } from '@wathba/sdk/raw';
+import { RawWathbaClient } from '@wathba-cli/sdk/raw';
 
 test('raw client rejects query values outside the generated operation contract before credentials', async () => {
   let credentialResolutions = 0;
