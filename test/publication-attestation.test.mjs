@@ -8,11 +8,11 @@ import {
 
 const attestation = {
   schemaVersion: 'wathba.sdk-publication-attestation.v1',
-  package: '@wathba/sdk',
+  package: '@wathba-cli/sdk',
   version: '0.1.0',
   registryMetadata: {
     schemaVersion: 'wathba.npm-registry-metadata.v1',
-    package: '@wathba/sdk',
+    package: '@wathba-cli/sdk',
     version: '0.1.0',
   },
   retrievedAt: '2026-07-15T08:00:00.000Z',
@@ -49,8 +49,8 @@ test('rejects duplicate keys even when JSON.parse would keep the expected value'
   const source = serialize(attestation);
   const duplicates = [
     source.replace(
-      '  "package": "@wathba/sdk",\n',
-      '  "package": "@wathba/sdk",\n  "package": "@wathba/sdk",\n',
+      '  "package": "@wathba-cli/sdk",\n',
+      '  "package": "@wathba-cli/sdk",\n  "package": "@wathba-cli/sdk",\n',
     ),
     source.replace(
       '    "version": "0.1.0"\n',
@@ -59,7 +59,7 @@ test('rejects duplicate keys even when JSON.parse would keep the expected value'
   ];
 
   for (const duplicate of duplicates) {
-    assert.equal(JSON.parse(duplicate).package, '@wathba/sdk');
+    assert.equal(JSON.parse(duplicate).package, '@wathba-cli/sdk');
     assert.throws(
       () =>
         verifyExistingPublicationAttestation(source, duplicate, {

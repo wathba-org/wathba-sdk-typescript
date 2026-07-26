@@ -139,7 +139,7 @@ jobs:
           node - "$manifest_path" "$expected_version" <<'NODE'
           const { readFileSync } = require('node:fs');
           const manifest = JSON.parse(readFileSync(process.argv[2], 'utf8'));
-          if (manifest.name !== '@wathba/sdk' || manifest.version !== process.argv[3]) {
+          if (manifest.name !== '@wathba-cli/sdk' || manifest.version !== process.argv[3]) {
             throw new Error('release_candidate_identity_invalid');
           }
           NODE
@@ -148,7 +148,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          package_name="@wathba/sdk"
+          package_name="@wathba-cli/sdk"
           package_version="${GITHUB_REF_NAME#v}"
           registry_path="$(node -e "process.stdout.write(encodeURIComponent(process.argv[1])+'/'+encodeURIComponent(process.argv[2]))" "$package_name" "$package_version")"
           response="${RUNNER_TEMP}/wathba-sdk-registry-version.json"

@@ -263,7 +263,10 @@
                   "type": "string"
                 },
                 "package": {
-                  "const": "@wathba/sdk",
+                  "enum": [
+                    "@wathba/sdk",
+                    "@wathba-cli/sdk"
+                  ],
                   "type": "string"
                 },
                 "releaseMetadataDigest": {

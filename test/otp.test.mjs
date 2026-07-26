@@ -5,7 +5,7 @@ import {
   WathbaApiError,
   WathbaClient,
   asIdempotencyKey,
-} from '@wathba/sdk';
+} from '@wathba-cli/sdk';
 
 const fixture = JSON.parse(
   await readFile(new URL('../fixtures/v1/otp-round-trip.json', import.meta.url), 'utf8'),

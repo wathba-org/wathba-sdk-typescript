@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { WathbaClient, WathbaPaymentsClient, asIdempotencyKey } from '@wathba/sdk';
+import { WathbaClient, WathbaPaymentsClient, asIdempotencyKey } from '@wathba-cli/sdk';
 
 const shippingFixture = JSON.parse(
   await readFile(

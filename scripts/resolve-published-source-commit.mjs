@@ -3,7 +3,7 @@ import { readPublishedPackageProvenance } from './published-package-provenance.m
 const repository =
   'https://github.com/wathba-org/wathba-sdk-typescript';
 const { npmProvenance } = await readPublishedPackageProvenance({
-  name: '@wathba/sdk',
+  name: '@wathba-cli/sdk',
   version: '0.1.0',
   repository,
   workflowRefs: [

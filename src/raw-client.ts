@@ -262,11 +262,11 @@ export class RawWathbaClient {
 
 function assertServerRuntime(): void {
   if (Object.hasOwn(globalThis, 'window')) {
-    throw new Error('@wathba/sdk cannot run in a browser');
+    throw new Error('@wathba-cli/sdk cannot run in a browser');
   }
   const nodeMajor = Number.parseInt(process.versions.node.split('.')[0] ?? '', 10);
   if (!Number.isSafeInteger(nodeMajor) || nodeMajor < 24) {
-    throw new Error('@wathba/sdk requires Node.js 24 or newer');
+    throw new Error('@wathba-cli/sdk requires Node.js 24 or newer');
   }
 }
 

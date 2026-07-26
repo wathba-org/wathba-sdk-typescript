@@ -9,9 +9,9 @@ import {
 } from '../scripts/npm-registry-metadata.mjs';
 
 const input = {
-  package: '@wathba/sdk',
+  package: '@wathba-cli/sdk',
   version: '0.1.0',
-  registryUri: 'https://registry.npmjs.org/@wathba/sdk/-/sdk-0.1.0.tgz',
+  registryUri: 'https://registry.npmjs.org/@wathba-cli/sdk/-/sdk-0.1.0.tgz',
   distIntegrity: `sha512-${'A'.repeat(86)}==`,
 };
 
@@ -20,10 +20,10 @@ test('builds the exact strict Catalog-007 npm registry metadata subset', () => {
 
   assert.deepEqual(metadata, {
     schemaVersion: 'wathba.npm-registry-metadata.v1',
-    package: '@wathba/sdk',
+    package: '@wathba-cli/sdk',
     version: '0.1.0',
     registryUri:
-      'https://registry.npmjs.org/@wathba/sdk/-/sdk-0.1.0.tgz',
+      'https://registry.npmjs.org/@wathba-cli/sdk/-/sdk-0.1.0.tgz',
     distIntegrity: `sha512-${'A'.repeat(86)}==`,
   });
   assert.deepEqual(Object.keys(metadata), [
@@ -39,8 +39,8 @@ test('digests RFC 8785 canonical bytes without provenance', () => {
   const metadata = createNpmRegistryMetadata(input);
   const canonical =
     `{"distIntegrity":"sha512-${'A'.repeat(86)}==",` +
-    '"package":"@wathba/sdk",' +
-    '"registryUri":"https://registry.npmjs.org/@wathba/sdk/-/sdk-0.1.0.tgz",' +
+    '"package":"@wathba-cli/sdk",' +
+    '"registryUri":"https://registry.npmjs.org/@wathba-cli/sdk/-/sdk-0.1.0.tgz",' +
     '"schemaVersion":"wathba.npm-registry-metadata.v1",' +
     '"version":"0.1.0"}';
 

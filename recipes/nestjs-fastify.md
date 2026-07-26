@@ -5,7 +5,7 @@ the server process.
 
 ```ts
 import { Module } from '@nestjs/common';
-import { WathbaClient } from '@wathba/sdk';
+import { WathbaClient } from '@wathba-cli/sdk';
 
 @Module({
   providers: [

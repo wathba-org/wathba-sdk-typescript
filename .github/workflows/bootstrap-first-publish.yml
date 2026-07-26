@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       confirmation:
-        description: Type PUBLISH @wathba/sdk 0.1.0 ONCE
+        description: Type PUBLISH @wathba-cli/sdk 0.1.0 ONCE
         required: true
         type: string
 
@@ -32,7 +32,7 @@ jobs:
             echo "::error::first publication is restricted to refs/heads/main"
             exit 1
           }
-          test "$CONFIRMATION" = "PUBLISH @wathba/sdk 0.1.0 ONCE" || {
+          test "$CONFIRMATION" = "PUBLISH @wathba-cli/sdk 0.1.0 ONCE" || {
             echo "::error::typed confirmation did not match"
             exit 1
           }
@@ -74,7 +74,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          registry_path="$(node -e "process.stdout.write(encodeURIComponent('@wathba/sdk')+'/'+encodeURIComponent('0.1.0'))")"
+          registry_path="$(node -e "process.stdout.write(encodeURIComponent('@wathba-cli/sdk')+'/'+encodeURIComponent('0.1.0'))")"
           response="${RUNNER_TEMP}/wathba-sdk-registry-version.json"
           status="$(
             curl -sS -L --retry 3 --retry-all-errors --connect-timeout 10 \
@@ -84,7 +84,7 @@ jobs:
           case "$status" in
             200)
               jq -e \
-                '.name == "@wathba/sdk" and .version == "0.1.0"' \
+                '.name == "@wathba-cli/sdk" and .version == "0.1.0"' \
                 "$response" >/dev/null
               echo "exists=true" >> "$GITHUB_OUTPUT"
               ;;
@@ -140,7 +140,7 @@ jobs:
           candidate_dir="${RUNNER_TEMP}/wathba-sdk-candidate"
           mkdir -p "$candidate_dir"
           pack_json="$(pnpm pack --json --pack-destination "$candidate_dir")"
-          candidate_path="$(jq -er 'select(.name == "@wathba/sdk" and .version == "0.1.0") | .filename' <<<"$pack_json")"
+          candidate_path="$(jq -er 'select(.name == "@wathba-cli/sdk" and .version == "0.1.0") | .filename' <<<"$pack_json")"
           test -f "$candidate_path"
           case "$candidate_path" in
             "$candidate_dir"/*) ;;
@@ -226,7 +226,7 @@ jobs:
           node - "$manifest_path" <<'NODE'
           const { readFileSync } = require('node:fs');
           const manifest = JSON.parse(readFileSync(process.argv[2], 'utf8'));
-          if (manifest.name !== '@wathba/sdk' || manifest.version !== '0.1.0') {
+          if (manifest.name !== '@wathba-cli/sdk' || manifest.version !== '0.1.0') {
             throw new Error('bootstrap_candidate_identity_invalid');
           }
           NODE
@@ -235,7 +235,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          registry_path="$(node -e "process.stdout.write(encodeURIComponent('@wathba/sdk')+'/'+encodeURIComponent('0.1.0'))")"
+          registry_path="$(node -e "process.stdout.write(encodeURIComponent('@wathba-cli/sdk')+'/'+encodeURIComponent('0.1.0'))")"
           response="${RUNNER_TEMP}/wathba-sdk-registry-version.json"
           status="$(
             curl -sS -L --retry 3 --retry-all-errors --connect-timeout 10 \
@@ -245,7 +245,7 @@ jobs:
           case "$status" in
             200)
               jq -e \
-                '.name == "@wathba/sdk" and .version == "0.1.0"' \
+                '.name == "@wathba-cli/sdk" and .version == "0.1.0"' \
                 "$response" >/dev/null
               echo "exists=true" >> "$GITHUB_OUTPUT"
               ;;
@@ -395,7 +395,7 @@ jobs:
             }
             gh release view "$release_tag" \
               --json tagName,name,isDraft,isPrerelease \
-              --jq '.tagName == "v0.1.0" and .name == "@wathba/sdk 0.1.0" and .isDraft == false and .isPrerelease == false' \
+              --jq '.tagName == "v0.1.0" and .name == "@wathba-cli/sdk 0.1.0" and .isDraft == false and .isPrerelease == false' \
               | grep -qx true || {
                 echo "::error::existing bootstrap release identity is invalid"
                 exit 1
@@ -408,12 +408,12 @@ jobs:
             if [ "$tag_exists" = "true" ]; then
               gh release create "$release_tag" "$attestation_path" \
                 --verify-tag \
-                --title "@wathba/sdk 0.1.0" \
+                --title "@wathba-cli/sdk 0.1.0" \
                 --generate-notes
             else
               gh release create "$release_tag" "$attestation_path" \
                 --target "$PUBLISHED_SOURCE_COMMIT" \
-                --title "@wathba/sdk 0.1.0" \
+                --title "@wathba-cli/sdk 0.1.0" \
                 --generate-notes
             fi
           else
@@ -445,7 +445,7 @@ jobs:
           }
           gh release view "$release_tag" \
             --json tagName,name,isDraft,isPrerelease \
-            --jq '.tagName == "v0.1.0" and .name == "@wathba/sdk 0.1.0" and .isDraft == false and .isPrerelease == false' \
+            --jq '.tagName == "v0.1.0" and .name == "@wathba-cli/sdk 0.1.0" and .isDraft == false and .isPrerelease == false' \
             | grep -qx true || {
               echo "::error::bootstrap release identity is invalid"
               exit 1

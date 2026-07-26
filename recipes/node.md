@@ -8,7 +8,7 @@ server runtime outside the coding agent's view.
 import {
   WathbaClient,
   createIdempotencyKey,
-} from '@wathba/sdk';
+} from '@wathba-cli/sdk';
 
 const wathba = new WathbaClient({
   credentialProvider: {

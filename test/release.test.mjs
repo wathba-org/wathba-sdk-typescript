@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { wathbaSdkRelease } from '@wathba/sdk';
+import { wathbaSdkRelease } from '@wathba-cli/sdk';
 
 test('canonical and runtime release metadata bind the exact SDK artifact set', async () => {
   const [packageJson, sdkRelease, openApiRelease, fixtureSet, protocolSet, protocolSetSource] = await Promise.all([

@@ -8,13 +8,13 @@ import {
   readRegistryProvenanceDescriptor,
 } from '../scripts/registry-provenance.mjs';
 
-const spec = '@wathba/sdk@0.1.0';
+const spec = '@wathba-cli/sdk@0.1.0';
 const candidateSha512 = 'a'.repeat(128);
 const githubSha = 'b'.repeat(40);
 const repository = 'https://github.com/wathba-org/wathba-sdk-typescript';
 const workflowPath = '.github/workflows/bootstrap-first-publish.yml';
 const registryUri =
-  'https://registry.npmjs.org/-/npm/v1/attestations/@wathba%2fsdk@0.1.0';
+  'https://registry.npmjs.org/-/npm/v1/attestations/@wathba-cli%2fsdk@0.1.0';
 
 test('accepts only the two exact GitHub workflow and ref contexts', () => {
   const expected = {
@@ -156,15 +156,15 @@ test('requires the exact npm SLSA provenance descriptor for the package version'
   for (const descriptor of [
     undefined,
     {
-      url: 'https://example.invalid/-/npm/v1/attestations/@wathba%2fsdk@0.1.0',
+      url: 'https://example.invalid/-/npm/v1/attestations/@wathba-cli%2fsdk@0.1.0',
       provenance: { predicateType: 'https://slsa.dev/provenance/v1' },
     },
     {
-      url: 'https://registry.npmjs.org/-/npm/v1/attestations/@wathba%2fsdk@0.1.1',
+      url: 'https://registry.npmjs.org/-/npm/v1/attestations/@wathba-cli%2fsdk@0.1.1',
       provenance: { predicateType: 'https://slsa.dev/provenance/v1' },
     },
     {
-      url: 'https://registry.npmjs.org/-/npm/v1/attestations/@wathba%2fsdk@0.1.0',
+      url: 'https://registry.npmjs.org/-/npm/v1/attestations/@wathba-cli%2fsdk@0.1.0',
       provenance: { predicateType: 'https://example.invalid/provenance' },
     },
   ]) {
@@ -187,8 +187,8 @@ test('selects only the exact package entry from successful npm cryptographic aud
   );
 
   for (const invalid of [
-    { ...audit, invalid: [{ name: '@wathba/sdk', version: '0.1.0' }] },
-    { ...audit, missing: [{ name: '@wathba/sdk', version: '0.1.0' }] },
+    { ...audit, invalid: [{ name: '@wathba-cli/sdk', version: '0.1.0' }] },
+    { ...audit, missing: [{ name: '@wathba-cli/sdk', version: '0.1.0' }] },
     { ...audit, verified: [] },
     {
       ...audit,
@@ -232,7 +232,7 @@ test('parses identity only after npm audit has cryptographically verified the bu
     readRegistryProvenanceAttestation(document, expectedProvenance()),
     {
       predicateType: 'https://slsa.dev/provenance/v1',
-      subjectName: 'pkg:npm/%40wathba/sdk@0.1.0',
+      subjectName: 'pkg:npm/%40wathba-cli/sdk@0.1.0',
       subjectSha512: candidateSha512,
       sourceRepository: repository,
       sourceWorkflow: workflowPath,
@@ -272,7 +272,7 @@ test('binds the normalized workflow path to its one exact allowed ref', () => {
     readRegistryProvenanceAttestation(release, expectedProvenance()),
     {
       predicateType: 'https://slsa.dev/provenance/v1',
-      subjectName: 'pkg:npm/%40wathba/sdk@0.1.0',
+      subjectName: 'pkg:npm/%40wathba-cli/sdk@0.1.0',
       subjectSha512: candidateSha512,
       sourceRepository: repository,
       sourceWorkflow: '.github/workflows/release.yml',
@@ -320,7 +320,7 @@ test('rejects missing, wrong-digest, or wrong-source provenance', () => {
     ...statement(),
     subject: [
       {
-        name: 'pkg:npm/%40wathba/sdk@0.1.0',
+        name: 'pkg:npm/%40wathba-cli/sdk@0.1.0',
         digest: { sha512: 'c'.repeat(128) },
       },
     ],
@@ -376,10 +376,10 @@ function expectedProvenance() {
 
 function expectedAudit() {
   return {
-    name: '@wathba/sdk',
+    name: '@wathba-cli/sdk',
     version: '0.1.0',
     spec,
-    location: 'node_modules/@wathba/sdk',
+    location: 'node_modules/@wathba-cli/sdk',
     registryUri,
   };
 }
@@ -390,9 +390,9 @@ function npmAuditDocument() {
     missing: [],
     verified: [
       {
-        name: '@wathba/sdk',
+        name: '@wathba-cli/sdk',
         version: '0.1.0',
-        location: 'node_modules/@wathba/sdk',
+        location: 'node_modules/@wathba-cli/sdk',
         registry: 'https://registry.npmjs.org/',
         attestations: {
           url: registryUri,
@@ -430,7 +430,7 @@ function statement() {
     _type: 'https://in-toto.io/Statement/v1',
     subject: [
       {
-        name: 'pkg:npm/%40wathba/sdk@0.1.0',
+        name: 'pkg:npm/%40wathba-cli/sdk@0.1.0',
         digest: { sha512: candidateSha512 },
       },
     ],

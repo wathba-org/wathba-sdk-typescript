@@ -40,7 +40,7 @@ if (violations.length > 0) {
 }
 
 function assertPackageMetadata(manifest) {
-  if (manifest.name !== '@wathba/sdk' || manifest.license !== 'MIT') {
+  if (manifest.name !== '@wathba-cli/sdk' || manifest.license !== 'MIT') {
     throw new Error('invalid_package_identity');
   }
   if (

@@ -13,9 +13,9 @@ if (tsc.status === 0 || !/has no exported member ['"]WathbaClient['"]/.test(diag
 
 const runtime = spawnSync(
   process.execPath,
-  ['--conditions=browser', '--input-type=module', '--eval', "await import('@wathba/sdk')"],
+  ['--conditions=browser', '--input-type=module', '--eval', "await import('@wathba-cli/sdk')"],
   { encoding: 'utf8' },
 );
-if (runtime.status === 0 || !runtime.stderr.includes('@wathba/sdk is server-only')) {
+if (runtime.status === 0 || !runtime.stderr.includes('@wathba-cli/sdk is server-only')) {
   throw new Error('browser_runtime_boundary_not_rejected');
 }
