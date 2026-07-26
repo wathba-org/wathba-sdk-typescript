@@ -279,6 +279,8 @@
                   "traffic_policy",
                   "provider_readiness",
                   "budget_policy",
+                  "deployment_permission",
+                  "provider_effect_policy",
                   "wallet_facts",
                   "webhook_readiness",
                   "capability_verification"
@@ -313,6 +315,7 @@
                   "traffic_control",
                   "provider_connections",
                   "budget_controls",
+                  "platform_configuration",
                   "billing_wallet",
                   "member_notifications",
                   "verification"

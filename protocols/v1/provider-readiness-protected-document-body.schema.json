@@ -1,7 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "contentEncoding": "binary",
-  "maxLength": 10485760,
-  "minLength": 1,
-  "type": "string"
-}

@@ -8,12 +8,31 @@ import { WathbaSdkError } from './errors.js';
 import { asIdempotencyKey } from './idempotency.js';
 import { isWathbaProblem, WathbaApiError } from './problem.js';
 import { matchesGeneratedSchema, matchesJsonSchema } from './schema-validation.js';
+import {
+  runtimeExtensionOperationSpecs,
+  type RuntimeExtensionOperationId,
+  type RuntimeExtensionOperationInputMap,
+  type RuntimeExtensionOperationResponseMap,
+} from './runtime-extensions.js';
 
 export type {
   OperationId,
   OperationInputMap,
   OperationResponseMap,
 } from './generated/operations.js';
+
+export type WathbaOperationId = OperationId | RuntimeExtensionOperationId;
+export interface WathbaOperationInputMap
+  extends OperationInputMap,
+    RuntimeExtensionOperationInputMap {}
+export interface WathbaOperationResponseMap
+  extends OperationResponseMap,
+    RuntimeExtensionOperationResponseMap {}
+
+const wathbaOperationSpecs = {
+  ...operationSpecs,
+  ...runtimeExtensionOperationSpecs,
+} as const;
 
 export interface WathbaCredential {
   readonly apiKey: string;
@@ -23,7 +42,7 @@ export interface WathbaCredential {
 export interface WathbaCredentialRequest {
   readonly apiOrigin: string;
   readonly capability: string;
-  readonly operationId: OperationId;
+  readonly operationId: WathbaOperationId;
   readonly requiredScopes: readonly string[];
 }
 
@@ -85,11 +104,11 @@ export class RawWathbaClient {
     this.retry = { maximumAttempts, delayMs };
   }
 
-  async execute<Id extends OperationId>(
+  async execute<Id extends WathbaOperationId>(
     operationId: Id,
-    input: OperationInputMap[Id],
-  ): Promise<OperationResponseMap[Id]> {
-    const spec = operationSpecs[operationId];
+    input: WathbaOperationInputMap[Id],
+  ): Promise<WathbaOperationResponseMap[Id]> {
+    const spec = wathbaOperationSpecs[operationId];
     let path: string = spec.path;
     if (!isRecord(input.path)) throw new WathbaSdkError('wathba_invalid_request');
     const pathInput: Readonly<Record<string, unknown>> = input.path;
@@ -128,11 +147,19 @@ export class RawWathbaClient {
 
     let body: string | undefined;
     if ('body' in input) {
-      if (spec.requestSchema === null || !matchesGeneratedSchema(spec.requestSchema, input.body)) {
+      const validRequest =
+        'requestJsonSchema' in spec
+          ? matchesJsonSchema(spec.requestJsonSchema, input.body)
+          : spec.requestSchema !== null &&
+            matchesGeneratedSchema(spec.requestSchema, input.body);
+      if (!validRequest) {
         throw new WathbaSdkError('wathba_invalid_request');
       }
       body = JSON.stringify(input.body);
-    } else if (spec.requestSchema !== null) {
+    } else if (
+      spec.requestSchema !== null ||
+      'requestJsonSchema' in spec
+    ) {
       throw new WathbaSdkError('wathba_invalid_request');
     }
     if (spec.idempotency === 'required') {
@@ -199,14 +226,14 @@ export class RawWathbaClient {
       if (!matchesGeneratedSchema(success.schema, payload)) {
         throw new WathbaSdkError('wathba_invalid_success_response');
       }
-      return payload as OperationResponseMap[Id];
+      return payload as WathbaOperationResponseMap[Id];
     }
     throw new WathbaSdkError('wathba_transport_unavailable');
   }
 
   private async resolveCredential(
-    operationId: OperationId,
-    spec: (typeof operationSpecs)[OperationId],
+    operationId: WathbaOperationId,
+    spec: (typeof wathbaOperationSpecs)[WathbaOperationId],
   ): Promise<WathbaCredential> {
     let credential: WathbaCredential;
     try {

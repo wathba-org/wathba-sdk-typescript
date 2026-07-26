@@ -9,6 +9,8 @@ import {
   type GetShipmentExecutionStatusResult,
   type SendOtpInput,
   type SendOtpResult,
+  type VerifyOtpInput,
+  type VerifyOtpResult,
   type WathbaOutcome,
   type WathbaProblem,
 } from '@wathba/sdk';
@@ -25,6 +27,17 @@ const otp: SendOtpInput = {
 };
 const result: Promise<WathbaOutcome<SendOtpResult>> = client.otp.send(otp);
 void result;
+
+const otpVerification: VerifyOtpInput = {
+  projectId: 'prj_types',
+  environmentId: 'env_types',
+  email: 'user@example.com',
+  otp: '482913',
+  idempotencyKey: asIdempotencyKey('idem_types_otp_verify'),
+};
+const verificationResult: Promise<WathbaOutcome<VerifyOtpResult>> =
+  client.otp.verify(otpVerification);
+void verificationResult;
 
 const paymentProduct: CreatePaymentProductInput = {
   projectId: 'prj_types',
@@ -78,7 +91,7 @@ void linkQuery;
 const billingEffect: WathbaProblem['billingEffect'] = 'none';
 void billingEffect;
 
-// @ts-expect-error OTP is send-only in the pinned launch contract.
+// @ts-expect-error OTP verification requires the code supplied by the member.
 client.otp.verify(otp);
 
 // @ts-expect-error Idempotency strings must be validated and branded first.
