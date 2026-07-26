@@ -3,7 +3,10 @@
   "additionalProperties": false,
   "properties": {
     "mode": {
-      "const": "local_mock_contract",
+      "enum": [
+        "local_mock_contract",
+        "real_sandbox_send"
+      ],
       "type": "string"
     },
     "profileId": {

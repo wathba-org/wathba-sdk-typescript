@@ -5,9 +5,9 @@
     "name": "openapi-typescript",
     "version": "7.13.0"
   },
-  "openApiDigest": "sha256:940fd1828e89fd2c06c1349d590aac2337e3de2cdd1ab07b75246a1873afa732",
-  "protocolAggregateDigest": "sha256:64e8975c07292ee6795f1143c1ca8e218463b6bcc8996155a4c1e0065e7db13d",
-  "protocolSetDigest": "sha256:ce8c8c46133bdeaeaab5180775c524769fbdecb772cc18a3a2cabf4e1a35e81c",
+  "openApiDigest": "sha256:67d7b13215fe29b192a84c5d71d89a12f50531eef93ad6ba9f53a02d6212f90c",
+  "protocolAggregateDigest": "sha256:870894ea115d22a29dc4cca151a1973aede74a5fbc59abf9285d0a194383ead0",
+  "protocolSetDigest": "sha256:754a68c9c6480fa2cd0131bd6432060cf5c72db6b529e7c0c34de31a9195df14",
   "protocolVersion": "1.0",
   "schemaVersion": "wathba.sdk-release.v1",
   "sdkPackage": "@wathba/sdk",

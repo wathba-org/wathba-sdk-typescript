@@ -5,6 +5,10 @@ import {
   type WathbaOutcome,
 } from './outcome.js';
 import { RawWathbaClient } from './raw-client.js';
+import type {
+  RuntimeExtensionOperationInputMap,
+  RuntimeExtensionOperationResponseMap,
+} from './runtime-extensions.js';
 
 type SendOtpOperationInput = OperationInputMap['sendOtp'];
 
@@ -17,7 +21,7 @@ export type SendOtpInput = Readonly<
 
 export type SendOtpResult = OperationResponseMap['sendOtp'];
 
-type VerifyOtpOperationInput = OperationInputMap['verifyOtp'];
+type VerifyOtpOperationInput = RuntimeExtensionOperationInputMap['verifyOtp'];
 
 export type VerifyOtpInput = Readonly<
   VerifyOtpOperationInput['body'] & {
@@ -26,7 +30,8 @@ export type VerifyOtpInput = Readonly<
   }
 >;
 
-export type VerifyOtpResult = OperationResponseMap['verifyOtp'];
+export type VerifyOtpResult =
+  RuntimeExtensionOperationResponseMap['verifyOtp'];
 
 export class WathbaOtpClient {
   constructor(private readonly raw: RawWathbaClient) {}
