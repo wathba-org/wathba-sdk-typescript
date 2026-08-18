@@ -1,5 +1,5 @@
 overrides:
-  brace-expansion: 5.0.8
-  js-yaml: ^4.3.0
+  brace-expansion: 5.0.9
+  js-yaml: ^4.3.1
 patchedDependencies:
   minimatch@5.1.9: patches/minimatch@5.1.9.patch

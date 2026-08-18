@@ -1,5 +1,5 @@
 {
-  "contractVersion": "2026.07.mvp.005",
+  "contractVersion": "2026.08.mvp.017",
   "operationId": "createShipment",
   "pending": {
     "body": {

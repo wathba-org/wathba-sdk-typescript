@@ -4,6 +4,91 @@
  */
 
 export interface paths {
+    "/checkout/{sessionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Render the universal Wathba checkout */
+        get: operations["renderCheckoutSession"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/checkout/{sessionId}/return": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Resume Wathba reconciliation after payer return */
+        get: operations["returnToCheckoutSession"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pay/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Render the Wathba hosted payment page */
+        get: operations["renderPublicPaymentLink"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pay/{slug}/return": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Resume Wathba status polling after payer return */
+        get: operations["returnToPublicPaymentLink"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cli/capabilities/{serviceCode}/operations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List cataloged provider operations for one service */
+        get: operations["listCatalogedProviderOperations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/platform/projects/{projectId}/executions/{executionId}": {
         parameters: {
             query?: never;
@@ -11,7 +96,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get the current status of a shipment execution */
+        /**
+         * Get the current status of a shipment execution
+         * @deprecated
+         * @description Deprecated 2026.07.mvp.005 compatibility alias. New integrations use /v1/platform/projects/{projectId}/services/{serviceCode}/operations/{operationCode}.
+         */
         get: operations["getShipmentExecutionStatus"];
         put?: never;
         post?: never;
@@ -30,8 +119,81 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Send an OTP email */
+        /**
+         * Send an OTP email
+         * @deprecated
+         * @description Deprecated 2026.07.mvp.005 compatibility alias. New integrations use /v1/platform/projects/{projectId}/services/{serviceCode}/operations/{operationCode}.
+         */
         post: operations["sendOtp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/platform/projects/{projectId}/payment-intents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List member-safe payment intents */
+        get: operations["listPaymentIntents"];
+        put?: never;
+        /** Create an immutable payment intent and initial checkout session */
+        post: operations["createPaymentIntent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/platform/projects/{projectId}/payment-intents/{paymentIntentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read authoritative payment-intent state */
+        get: operations["getPaymentIntent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/platform/projects/{projectId}/payment-intents/{paymentIntentId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel a non-terminal payment intent */
+        post: operations["cancelPaymentIntent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/platform/projects/{projectId}/payment-intents/{paymentIntentId}/checkout-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rotate a short-lived checkout session for a payment intent */
+        post: operations["createCheckoutSession"];
         delete?: never;
         options?: never;
         head?: never;
@@ -45,10 +207,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List hosted payment links */
+        /** List payment links */
         get: operations["listPaymentLinks"];
         put?: never;
-        /** Create a hosted payment link */
+        /** Create an authorized active one-time payment link */
         post: operations["createPaymentLink"];
         delete?: never;
         options?: never;
@@ -63,14 +225,14 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get a hosted payment link */
+        /** Read a payment link */
         get: operations["getPaymentLink"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Update a hosted payment link */
+        /** Update presentation or redirect fields */
         patch: operations["updatePaymentLink"];
         trace?: never;
     };
@@ -83,7 +245,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Deactivate a hosted payment link */
+        /** Deactivate a payment link */
         post: operations["deactivatePaymentLink"];
         delete?: never;
         options?: never;
@@ -100,62 +262,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Reactivate a hosted payment link */
+        /** Reactivate a link with fresh authorization when required */
         post: operations["reactivatePaymentLink"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/platform/projects/{projectId}/payment-products": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List payment products */
-        get: operations["listPaymentProducts"];
-        put?: never;
-        /** Create a payment product */
-        post: operations["createPaymentProduct"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/platform/projects/{projectId}/payment-products/{productId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a payment product */
-        get: operations["getPaymentProduct"];
-        put?: never;
-        post?: never;
-        /** Archive a payment product */
-        delete: operations["archivePaymentProduct"];
-        options?: never;
-        head?: never;
-        /** Update a payment product */
-        patch: operations["updatePaymentProduct"];
-        trace?: never;
-    };
-    "/v1/platform/projects/{projectId}/payment-products/{productId}/promote": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Promote a link-only payment product */
-        post: operations["promotePaymentProduct"];
         delete?: never;
         options?: never;
         head?: never;
@@ -169,7 +277,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Wathba payment records */
+        /** List member-safe payment records */
         get: operations["listPayments"];
         put?: never;
         post?: never;
@@ -186,7 +294,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get a Wathba payment record */
+        /** Read member-safe payment state */
         get: operations["getPayment"];
         put?: never;
         post?: never;
@@ -206,7 +314,7 @@ export interface paths {
         /** List refunds for a payment */
         get: operations["listPaymentRefunds"];
         put?: never;
-        /** Request a full payment refund */
+        /** Request one full payment refund */
         post: operations["requestPaymentRefund"];
         delete?: never;
         options?: never;
@@ -221,10 +329,27 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get a payment refund */
+        /** Read one refund */
         get: operations["getPaymentRefund"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/platform/projects/{projectId}/services/{serviceCode}/operations/{operationCode}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Execute one cataloged provider operation through Wathba */
+        post: operations["executeCatalogProviderOperation"];
         delete?: never;
         options?: never;
         head?: never;
@@ -240,8 +365,151 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Create a shipment */
+        /**
+         * Create a shipment
+         * @deprecated
+         * @description Deprecated 2026.07.mvp.005 compatibility alias. New integrations use /v1/platform/projects/{projectId}/services/{serviceCode}/operations/{operationCode}.
+         */
         post: operations["createShipment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/platform/projects/{projectId}/webhook-deliveries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List recent member webhook deliveries for one project
+         * @description Member event log for signed webhook deliveries. Requires a member browser session with the projects:read scope; results are always scoped to the authenticated member and the addressed project.
+         */
+        get: operations["listProjectWebhookDeliveries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/checkout-sessions/{sessionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read bounded payer-safe checkout status and method readiness */
+        get: operations["getPublicCheckoutSession"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/checkout-sessions/{sessionId}/apple-pay/merchant-session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request a bound Apple Pay merchant session through Wathba */
+        post: operations["requestCheckoutApplePayMerchantSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/checkout-sessions/{sessionId}/confirm-stc-pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm a pending STC Pay challenge */
+        post: operations["confirmCheckoutStcPay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/checkout-sessions/{sessionId}/exchange": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Exchange one short-lived checkout token for an HttpOnly payer session */
+        post: operations["exchangeCheckoutToken"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/checkout-sessions/{sessionId}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit one transient payment method from the Wathba payer page */
+        post: operations["submitCheckoutSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/payment-links/{slug}/attempts/{attemptId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read bounded payer-safe payment-link status */
+        get: operations["getPublicPaymentLinkAttempt"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/payment-links/{slug}/checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start one Wathba payment-link attempt */
+        post: operations["startPublicPaymentLinkCheckout"];
         delete?: never;
         options?: never;
         head?: never;
@@ -270,70 +538,675 @@ export interface webhooks {
 }
 export interface components {
     schemas: {
-        CreatePaymentLinkRequest: {
-            amountMinor?: number;
+        AuthentaOtpResult: {
+            /** @constant */
+            deliveryMethod: "email";
+        };
+        Catalog016CreatePaymentLinkRequest: {
+            amountMinor: number;
             checkoutDescription?: string;
             checkoutTitle?: string;
-            currency?: string;
-            description?: string;
+            /** @constant */
+            currency: "SAR";
             environmentId: string;
             /** Format: uri */
             failureRedirectUrl?: string;
-            items?: ({
-                productId: string;
+            humanApprovalGrantId: string;
+            items: {
+                /** @constant */
+                currency: "SAR";
+                description?: string | null;
+                name: string;
                 quantity: number;
-            } | {
-                inlineProduct: {
-                    amountMinor?: number;
-                    currency?: string;
-                    description?: string | null;
-                    metadata?: {
-                        [key: string]: string;
-                    };
-                    name: string;
-                    price?: {
-                        amountMinor: number;
-                        currency: string;
-                        /** @enum {string} */
-                        taxBehavior?: "inclusive" | "exclusive" | "exempt";
-                    };
-                    unitAmountMinor?: number;
-                };
-                quantity: number;
-                saveToCatalog?: boolean;
-            })[];
-            maxSuccessfulPayments?: number;
+                unitAmountMinor: number;
+            }[];
             merchantDisplayName?: string;
-            /** Format: uri */
-            merchantLogoUrl?: string;
             orderReference?: string;
-            productName?: string;
             /** Format: uri */
             successRedirectUrl?: string;
-            /** Format: date-time */
-            validUntil?: string;
+            validUntil?: string | null;
         };
-        CreatePaymentProductRequest: {
-            currency?: string;
-            description?: string;
-            environmentId?: string;
+        Catalog016Payment: {
+            amountMinor: number;
+            attemptId: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** @constant */
+            currency: "SAR";
+            environmentId: string;
+            failedAt: string | null;
+            linkId: string;
+            methodFamily: string | null;
+            orderReference: string | null;
+            paymentId: string;
+            projectId: string;
+            refundedAt: string | null;
+            /** @enum {string} */
+            status: "created" | "provider_pending" | "succeeded" | "failed" | "unknown" | "refunded";
+            succeededAt: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        Catalog016PaymentLink: {
+            amountMinor: number;
+            attempts: {
+                amountMinor: number;
+                attemptId: string;
+                /** Format: date-time */
+                createdAt: string;
+                /** @constant */
+                currency: "SAR";
+                paidAt: string | null;
+                /** @enum {string} */
+                status: "created" | "checkout_started" | "provider_pending" | "paid" | "failed" | "unknown" | "cancelled";
+                /** Format: date-time */
+                updatedAt: string;
+            }[];
+            /** Format: date-time */
+            createdAt: string;
+            /** @constant */
+            currency: "SAR";
+            description: string | null;
+            display: {
+                checkoutDescription: string | null;
+                checkoutTitle: string;
+                merchantDisplayName: string;
+                merchantLogoUrl: string | null;
+                orderReference: string | null;
+            };
+            environmentId: string;
+            items: {
+                /** @constant */
+                currency: "SAR";
+                description: string | null;
+                lineTotalMinor: number;
+                name: string;
+                quantity: number;
+                unitAmountMinor: number;
+            }[];
+            linkId: string;
+            /** @constant */
+            maxSuccessfulPayments: 1;
+            projectId: string;
+            publicUrl: string;
+            redirects: {
+                failureRedirectUrl: string | null;
+                successRedirectUrl: string | null;
+            };
+            /** @constant */
+            serviceCode: "payments.moyasar";
+            /** @enum {string} */
+            status: "draft" | "active" | "inactive" | "expired" | "completed";
+            successfulPaymentCount: number;
+            /** Format: date-time */
+            updatedAt: string;
+            validUntil: string | null;
+        };
+        Catalog016PaymentLinkList: {
+            amountMinor: number;
+            attempts: {
+                amountMinor: number;
+                attemptId: string;
+                /** Format: date-time */
+                createdAt: string;
+                /** @constant */
+                currency: "SAR";
+                paidAt: string | null;
+                /** @enum {string} */
+                status: "created" | "checkout_started" | "provider_pending" | "paid" | "failed" | "unknown" | "cancelled";
+                /** Format: date-time */
+                updatedAt: string;
+            }[];
+            /** Format: date-time */
+            createdAt: string;
+            /** @constant */
+            currency: "SAR";
+            description: string | null;
+            display: {
+                checkoutDescription: string | null;
+                checkoutTitle: string;
+                merchantDisplayName: string;
+                merchantLogoUrl: string | null;
+                orderReference: string | null;
+            };
+            environmentId: string;
+            items: {
+                /** @constant */
+                currency: "SAR";
+                description: string | null;
+                lineTotalMinor: number;
+                name: string;
+                quantity: number;
+                unitAmountMinor: number;
+            }[];
+            linkId: string;
+            /** @constant */
+            maxSuccessfulPayments: 1;
+            projectId: string;
+            publicUrl: string;
+            redirects: {
+                failureRedirectUrl: string | null;
+                successRedirectUrl: string | null;
+            };
+            /** @constant */
+            serviceCode: "payments.moyasar";
+            /** @enum {string} */
+            status: "draft" | "active" | "inactive" | "expired" | "completed";
+            successfulPaymentCount: number;
+            /** Format: date-time */
+            updatedAt: string;
+            validUntil: string | null;
+        }[];
+        Catalog016PaymentList: {
+            amountMinor: number;
+            attemptId: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** @constant */
+            currency: "SAR";
+            environmentId: string;
+            failedAt: string | null;
+            linkId: string;
+            methodFamily: string | null;
+            orderReference: string | null;
+            paymentId: string;
+            projectId: string;
+            refundedAt: string | null;
+            /** @enum {string} */
+            status: "created" | "provider_pending" | "succeeded" | "failed" | "unknown" | "refunded";
+            succeededAt: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+        }[];
+        Catalog016PaymentPageHtml: string;
+        Catalog016PublicAttemptStatus: {
+            amountMinor: number;
+            attemptId: string;
+            /** @enum {string} */
+            attemptStatus: "created" | "checkout_started" | "provider_pending" | "paid" | "failed" | "unknown" | "cancelled";
+            /** @constant */
+            currency: "SAR";
+            failed: boolean;
+            linkId: string;
+            /** @enum {string} */
+            linkStatus: "draft" | "active" | "inactive" | "expired" | "completed";
+            message: string;
+            paid: boolean;
+            redirect: {
+                kind: ("success" | "failure") | null;
+                url: string | null;
+            };
+        };
+        Catalog016PublicCheckout: {
+            attemptId: string;
+            message: string;
+            paymentUrl: string | null;
+            /** @enum {string} */
+            status: "provider_pending" | "unknown" | "failed" | "blocked";
+        };
+        Catalog016PublicCheckoutRequest: {
+            token: string;
+        };
+        Catalog016ReactivatePaymentLinkRequest: {
+            humanApprovalGrantId?: string;
+        };
+        Catalog016Refund: {
+            amountMinor: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** @constant */
+            currency: "SAR";
+            environmentId: string;
+            failedAt: string | null;
+            paymentId: string;
+            projectId: string;
+            reason: string | null;
+            refundId: string;
+            /** @enum {string} */
+            status: "requested" | "provider_pending" | "succeeded" | "failed" | "unknown" | "cancelled";
+            succeededAt: string | null;
+            unknownAt: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        Catalog016RefundList: {
+            amountMinor: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** @constant */
+            currency: "SAR";
+            environmentId: string;
+            failedAt: string | null;
+            paymentId: string;
+            projectId: string;
+            reason: string | null;
+            refundId: string;
+            /** @enum {string} */
+            status: "requested" | "provider_pending" | "succeeded" | "failed" | "unknown" | "cancelled";
+            succeededAt: string | null;
+            unknownAt: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+        }[];
+        Catalog016RequestPaymentRefund: {
+            /** @description Required for a fresh refund request. It may be omitted only when replaying the exact same logical refund with the same Idempotency-Key and Wathba has persisted historical approval evidence. */
+            humanApprovalGrantId?: string;
+            reason?: string;
+        };
+        Catalog016UpdatePaymentLinkRequest: {
+            checkoutDescription?: string | null;
+            checkoutTitle?: string | null;
+            failureRedirectUrl?: string | null;
+            merchantDisplayName?: string | null;
+            orderReference?: string | null;
+            successRedirectUrl?: string | null;
+        };
+        /** @description Opaque Apple merchant-session payload returned only to the same-origin Wathba payer page. */
+        Catalog017ApplePayMerchantSession: {
+            [key: string]: unknown;
+        };
+        Catalog017ApplePayMerchantSessionRequest: {
+            validationUrl: string;
+        };
+        Catalog017CancelPaymentIntentRequest: {
+            reason?: string | null;
+        };
+        Catalog017CheckoutHtml: string;
+        Catalog017CheckoutSessionExchange: {
+            /** Format: date-time */
+            expiresAt: string;
+            sessionId: string;
+            /** @constant */
+            status: "ready";
+        };
+        Catalog017CheckoutSubmission: {
+            action: ({
+                /** @constant */
+                kind: "redirect";
+                /** Format: uri */
+                url: string;
+            } | {
+                /** @constant */
+                kind: "stc_pay_otp";
+            }) | null;
+            message: string;
+            paymentIntentId: string;
+            sessionId: string;
+            /** @enum {string} */
+            status: "processing" | "requires_action" | "succeeded" | "failed" | "unknown";
+        };
+        Catalog017ConfirmCheckoutStcPayRequest: {
+            otp: string;
+        };
+        Catalog017CreateCheckoutSessionRequest: {
+            clientBinding: {
+                /** @constant */
+                kind: "web_origin";
+                /** Format: uri */
+                value: string;
+            } | {
+                /** @constant */
+                kind: "ios_app";
+                value: string;
+            } | {
+                /** @constant */
+                kind: "android_app";
+                value: string;
+            };
+        };
+        Catalog017CreatePaymentIntentRequest: {
+            allowedPaymentMethods?: ("card" | "apple_pay" | "stc_pay" | "samsung_pay")[];
+            amountMinor: number;
+            clientBinding: {
+                /** @constant */
+                kind: "web_origin";
+                /** Format: uri */
+                value: string;
+            } | {
+                /** @constant */
+                kind: "ios_app";
+                value: string;
+            } | {
+                /** @constant */
+                kind: "android_app";
+                value: string;
+            };
+            /** @constant */
+            currency: "SAR";
+            description?: string | null;
+            environmentId: string;
             metadata?: {
                 [key: string]: string;
             };
-            name: string;
-            prices?: {
-                amountMinor: number;
-                currency: string;
-                /** @enum {string} */
-                taxBehavior?: "inclusive" | "exclusive" | "exempt";
-            }[];
-            /** @enum {string} */
-            taxBehavior?: "inclusive" | "exclusive" | "exempt";
+            orderReference?: string | null;
+            returnUrl?: string | null;
+        };
+        Catalog017ExchangeCheckoutTokenRequest: {
+            token: string;
+        };
+        Catalog017PaymentIntent: {
+            amountMinor: number;
+            availablePaymentMethods: ("card" | "apple_pay" | "stc_pay" | "samsung_pay")[];
+            cancelledAt: string | null;
+            checkout: {
+                /** Format: date-time */
+                expiresAt: string;
+                sessionId: string;
+                token: string | null;
+                /** Format: uri */
+                url: string;
+            } | null;
+            /** Format: date-time */
+            createdAt: string;
             /** @constant */
-            type?: "one_off";
-            unitAmountMinor?: number;
+            currency: "SAR";
+            description: string | null;
+            environmentId: string;
+            failedAt: string | null;
+            metadata: {
+                [key: string]: string;
+            };
+            orderReference: string | null;
+            paymentId: string | null;
+            paymentIntentId: string;
+            paymentLinkId: string | null;
+            projectId: string;
+            requestedPaymentMethods: ("card" | "apple_pay" | "stc_pay" | "samsung_pay")[];
+            returnUrl: string | null;
             /** @enum {string} */
-            visibility?: "catalog" | "link_only";
+            status: "requires_payment_method" | "processing" | "requires_action" | "succeeded" | "failed" | "cancelled" | "unknown" | "reconciliation";
+            succeededAt: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        Catalog017PaymentIntentList: {
+            amountMinor: number;
+            availablePaymentMethods: ("card" | "apple_pay" | "stc_pay" | "samsung_pay")[];
+            cancelledAt: string | null;
+            checkout: {
+                /** Format: date-time */
+                expiresAt: string;
+                sessionId: string;
+                token: string | null;
+                /** Format: uri */
+                url: string;
+            } | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** @constant */
+            currency: "SAR";
+            description: string | null;
+            environmentId: string;
+            failedAt: string | null;
+            metadata: {
+                [key: string]: string;
+            };
+            orderReference: string | null;
+            paymentId: string | null;
+            paymentIntentId: string;
+            paymentLinkId: string | null;
+            projectId: string;
+            requestedPaymentMethods: ("card" | "apple_pay" | "stc_pay" | "samsung_pay")[];
+            returnUrl: string | null;
+            /** @enum {string} */
+            status: "requires_payment_method" | "processing" | "requires_action" | "succeeded" | "failed" | "cancelled" | "unknown" | "reconciliation";
+            succeededAt: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+        }[];
+        Catalog017PublicCheckoutSession: {
+            amountMinor: number;
+            /** @constant */
+            currency: "SAR";
+            description: string | null;
+            /** Format: date-time */
+            expiresAt: string;
+            methods: {
+                networks?: ("mada" | "visa" | "mastercard" | "amex" | "unionpay")[];
+                /** @enum {string} */
+                reason: "ready" | "not_requested" | "provider_activation_required" | "domain_registration_required" | "application_registration_required" | "unsupported_device" | "unsupported_browser" | "readiness_unknown";
+                /** @enum {string} */
+                status: "available" | "unavailable";
+                /** @enum {string} */
+                type: "card" | "apple_pay" | "stc_pay" | "samsung_pay";
+            }[];
+            orderReference: string | null;
+            paymentIntentId: string;
+            returnUrl: string | null;
+            sessionId: string;
+            /** @enum {string} */
+            status: "requires_payment_method" | "processing" | "requires_action" | "succeeded" | "failed" | "cancelled" | "unknown" | "reconciliation";
+        };
+        Catalog017SubmitCheckoutSessionRequest: {
+            providerInput: {
+                /** @constant */
+                kind: "card_token";
+                token: string;
+            } | {
+                /** @constant */
+                kind: "apple_pay";
+                token: unknown;
+            } | {
+                /** @constant */
+                kind: "stc_pay";
+                mobile: string;
+            } | {
+                /** @constant */
+                kind: "samsung_pay";
+                token: unknown;
+            };
+        };
+        CatalogedProviderOperation: {
+            /** @enum {string} */
+            adapter: "AuthentaOtpAdapter" | "WathbaOtpAdapter" | "TorodShippingAdapter";
+            /** @enum {string} */
+            capabilityCode: "messaging.otp" | "logistics.shipping";
+            capCodes: string[];
+            /** @enum {string} */
+            certification: "certified" | "development_preview";
+            /** @constant */
+            doorwayRequiredScopes: [
+                "tools:execute"
+            ];
+            eventType: string;
+            executionAvailability: {
+                allowedEnvironmentKinds: ("sandbox" | "production")[];
+                enablementFlag: string | null;
+                failClosedReason: string | null;
+                requiresExplicitEnablement: boolean;
+                /** @enum {string} */
+                stage: "general" | "dev_preview";
+            };
+            /** @constant */
+            executionPathTemplate: "/v1/platform/projects/{projectId}/services/{serviceCode}/operations/{operationCode}";
+            /** @constant */
+            exposure: "catalog_runtime";
+            /** @enum {string} */
+            humanApproval: "none" | "required";
+            humanApprovalBinding: {
+                action: string;
+                /** @constant */
+                grantField: "humanApprovalGrantId";
+                target: {
+                    canonicalization: string;
+                    /** @constant */
+                    digest: "sha256";
+                    fields: string[];
+                    prefix: string;
+                    version: string;
+                };
+            } | null;
+            /** @enum {string} */
+            idempotency: "none" | "required";
+            /** @constant */
+            invocation: "operation_execution_adapter";
+            memberSafeResultFields: string[];
+            /** @enum {string} */
+            operationCode: "sendOtp" | "verifyOtp" | "getRate" | "createShipment" | "getShipmentStatus" | "cancelShipment";
+            operationRequiredScopes: string[];
+            /** @enum {string} */
+            provider: "authenta" | "wathba" | "torod";
+            requestBody: {
+                example: unknown;
+                jsonSchema: {
+                    [key: string]: unknown;
+                };
+                schemaId: string;
+            };
+            requiredScopes: string[];
+            responseBody: {
+                example: unknown;
+                jsonSchema: {
+                    [key: string]: unknown;
+                };
+                schemaId: string;
+            };
+            /** @enum {string} */
+            riskClassification: "read_only" | "cost_bearing_write" | "status_changing_write" | "financial_reversal";
+            /** @enum {string} */
+            serviceCode: "messaging.otp.authenta" | "messaging.otp.wathba" | "shipping.torod";
+        };
+        CatalogOperation_messaging_otp_authenta_sendOtp: {
+            environmentId: string;
+            input: {
+                /** Format: email */
+                email: string;
+                purpose?: string;
+            };
+        };
+        CatalogOperation_messaging_otp_wathba_sendOtp: {
+            environmentId: string;
+            input: {
+                /** Format: email */
+                email: string;
+                purpose?: string;
+            };
+        };
+        CatalogOperation_messaging_otp_wathba_verifyOtp: {
+            environmentId: string;
+            input: {
+                /** Format: email */
+                email: string;
+                otp: string;
+            };
+        };
+        CatalogOperation_shipping_torod_cancelShipment: {
+            environmentId: string;
+            input: {
+                providerReference: string;
+                /** @enum {string} */
+                shippingType?: "straight" | "reverse";
+            };
+        };
+        CatalogOperation_shipping_torod_createShipment: {
+            environmentId: string;
+            input: {
+                addressId?: string;
+                amountMinor: number;
+                courierName?: string;
+                courierPartnerId?: string;
+                currency?: string;
+                /** Format: email */
+                customerEmail?: string;
+                customerName?: string;
+                customerPhone?: string;
+                destinationAddressLine?: string;
+                destinationCityId?: string;
+                items: {
+                    amountMinor?: number;
+                    name: string;
+                    quantity: number;
+                    sku?: string;
+                    weightGrams?: number;
+                }[];
+                /** @constant */
+                mode: "order_first";
+                orderReference?: string;
+                parcel: {
+                    heightCm?: number;
+                    lengthCm?: number;
+                    weightGrams: number;
+                    widthCm?: number;
+                };
+                paymentType?: string;
+                recipient: {
+                    address: {
+                        cityId: string;
+                        line: string;
+                        shortAddress?: string;
+                    };
+                    /** Format: email */
+                    email: string;
+                    name: string;
+                    phone: string;
+                };
+                /** @enum {string} */
+                shipmentType?: "normal" | "cold" | "quick";
+                warehouseCode?: string;
+                warehouseName?: string;
+            };
+        };
+        CatalogOperation_shipping_torod_getRate: {
+            environmentId: string;
+            input: {
+                amountMinor: number;
+                destinationCityId: string;
+                /** @enum {string} */
+                filterBy?: "cheapest" | "fastest";
+                isInsurance?: 0 | 1 | boolean;
+                parcel: {
+                    boxes?: number;
+                    heightCm?: number;
+                    lengthCm?: number;
+                    weightGrams?: number;
+                    weightKg?: number;
+                    widthCm?: number;
+                };
+                /** @enum {string} */
+                paymentType?: "COD" | "cash_on_delivery" | "Prepaid" | "paid" | "Bank";
+                /** @enum {string} */
+                shipmentType?: "normal" | "cold" | "quick" | "pudo";
+                shipperCityId?: string;
+                /** @enum {string} */
+                shippingType?: "straight" | "reverse";
+                warehouseCode?: string;
+            };
+        };
+        CatalogOperation_shipping_torod_getShipmentStatus: {
+            environmentId: string;
+            input: {
+                providerReference: string;
+                /** @enum {string} */
+                shippingType?: "straight" | "reverse";
+            };
+        };
+        CatalogProviderOperationExecution: {
+            amountMinor: number;
+            capability: string;
+            currency: string;
+            executionId: string;
+            message: string;
+            operationCode: string;
+            /** Format: uri */
+            paymentUrl?: string;
+            result?: components["schemas"]["AuthentaOtpResult"] | components["schemas"]["WathbaSendOtpResult"] | components["schemas"]["WathbaVerifyOtpResult"] | components["schemas"]["TorodRateResult"] | components["schemas"]["TorodShipmentResult"] | components["schemas"]["TorodShipmentStatusResult"] | components["schemas"]["TorodCancellationResult"];
+            shipmentReference?: string;
+            /** @enum {string} */
+            state: "succeeded" | "failed" | "pending" | "blocked" | "closed";
+            statusCode: number;
+            trackingStatus?: string;
+        };
+        CatalogProviderOperationRequest: components["schemas"]["CatalogOperation_messaging_otp_authenta_sendOtp"] | components["schemas"]["CatalogOperation_messaging_otp_wathba_sendOtp"] | components["schemas"]["CatalogOperation_messaging_otp_wathba_verifyOtp"] | components["schemas"]["CatalogOperation_shipping_torod_getRate"] | components["schemas"]["CatalogOperation_shipping_torod_createShipment"] | components["schemas"]["CatalogOperation_shipping_torod_getShipmentStatus"] | components["schemas"]["CatalogOperation_shipping_torod_cancelShipment"];
+        CliProviderOperationCatalogResponse: {
+            /** @constant */
+            contractVersion: "2026.07.mvp.010";
+            /** @constant */
+            executionPathTemplate: "/v1/platform/projects/{projectId}/services/{serviceCode}/operations/{operationCode}";
+            operations: components["schemas"]["CatalogedProviderOperation"][];
+            /** @constant */
+            schemaVersion: "wathba.cli.provider-operations.v1";
+            /** @enum {string} */
+            serviceCode: "messaging.otp.authenta" | "messaging.otp.wathba" | "shipping.torod";
         };
         CreateShipmentRequest: {
             addressId?: string;
@@ -407,341 +1280,76 @@ export interface components {
             statusCode: number;
             trackingStatus?: string;
         };
-        PaymentLink: {
-            amountMinor: number;
-            attempts: {
-                amountMinor: number;
-                attemptId: string;
-                /** Format: date-time */
-                createdAt: string;
-                currency: string;
-                executionId: string | null;
-                failureReason: string | null;
-                paidAt: string | null;
-                paymentUrl: string | null;
-                /** @enum {string} */
-                status: "created" | "checkout_started" | "provider_pending" | "paid" | "failed" | "unknown" | "cancelled";
-                /** Format: date-time */
-                updatedAt: string;
-            }[];
-            /** Format: date-time */
-            createdAt: string;
-            currency: string;
-            description: string | null;
-            display: {
-                checkoutDescription: string | null;
-                checkoutTitle: string;
-                merchantDisplayName: string;
-                merchantLogoUrl: string | null;
-                orderReference: string | null;
-            };
-            /** Format: uri */
-            embedUrl: string;
-            environmentId: string;
-            items: {
-                currency: string;
-                description: string | null;
-                itemId: string;
-                lineTotalMinor: number;
-                metadata: {
-                    [key: string]: string;
-                };
-                name: string;
-                priceId: string;
-                productId: string;
-                /** @enum {string} */
-                productOrigin: "member_created" | "inline_payment_link";
-                productVersion: number;
-                /** @enum {string} */
-                productVisibility: "catalog" | "link_only";
-                quantity: number;
-                /** @enum {string} */
-                taxBehavior: "inclusive" | "exclusive" | "exempt";
-                unitAmountMinor: number;
-            }[];
-            linkId: string;
-            maxSuccessfulPayments: number;
-            projectId: string;
-            /** Format: uri */
-            publicUrl: string;
-            redirects: {
-                failureRedirectUrl: string | null;
-                successRedirectUrl: string | null;
-            };
-            /** @constant */
-            serviceCode: "payments.wathba";
-            /** @enum {string} */
-            status: "draft" | "active" | "inactive" | "expired" | "completed";
-            successfulPaymentCount: number;
-            /** Format: date-time */
-            updatedAt: string;
-            validUntil: string | null;
-        };
-        PaymentLinkList: {
-            amountMinor: number;
-            attempts: {
-                amountMinor: number;
-                attemptId: string;
-                /** Format: date-time */
-                createdAt: string;
-                currency: string;
-                executionId: string | null;
-                failureReason: string | null;
-                paidAt: string | null;
-                paymentUrl: string | null;
-                /** @enum {string} */
-                status: "created" | "checkout_started" | "provider_pending" | "paid" | "failed" | "unknown" | "cancelled";
-                /** Format: date-time */
-                updatedAt: string;
-            }[];
-            /** Format: date-time */
-            createdAt: string;
-            currency: string;
-            description: string | null;
-            display: {
-                checkoutDescription: string | null;
-                checkoutTitle: string;
-                merchantDisplayName: string;
-                merchantLogoUrl: string | null;
-                orderReference: string | null;
-            };
-            /** Format: uri */
-            embedUrl: string;
-            environmentId: string;
-            items: {
-                currency: string;
-                description: string | null;
-                itemId: string;
-                lineTotalMinor: number;
-                metadata: {
-                    [key: string]: string;
-                };
-                name: string;
-                priceId: string;
-                productId: string;
-                /** @enum {string} */
-                productOrigin: "member_created" | "inline_payment_link";
-                productVersion: number;
-                /** @enum {string} */
-                productVisibility: "catalog" | "link_only";
-                quantity: number;
-                /** @enum {string} */
-                taxBehavior: "inclusive" | "exclusive" | "exempt";
-                unitAmountMinor: number;
-            }[];
-            linkId: string;
-            maxSuccessfulPayments: number;
-            projectId: string;
-            /** Format: uri */
-            publicUrl: string;
-            redirects: {
-                failureRedirectUrl: string | null;
-                successRedirectUrl: string | null;
-            };
-            /** @constant */
-            serviceCode: "payments.wathba";
-            /** @enum {string} */
-            status: "draft" | "active" | "inactive" | "expired" | "completed";
-            successfulPaymentCount: number;
-            /** Format: date-time */
-            updatedAt: string;
-            validUntil: string | null;
-        }[];
-        PaymentProduct: {
-            archivedAt: string | null;
-            autoCreatedForLinkId: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            currency: string;
-            description: string | null;
-            environmentId: string;
-            id: string;
-            linkedPaymentLinkId: string | null;
-            metadata: {
-                [key: string]: string;
-            };
-            name: string;
-            /** @enum {string} */
-            origin: "member_created" | "inline_payment_link";
-            prices: {
-                amountMinor: number;
-                currency: string;
-                id: string;
-                priceId: string;
-                /** @enum {string} */
-                status: "active" | "archived";
-                /** @enum {string} */
-                taxBehavior: "inclusive" | "exclusive" | "exempt";
-            }[];
-            productId: string;
-            projectId: string;
-            /** @enum {string} */
-            status: "active" | "archived";
-            /** @constant */
-            type: "one_off";
-            unitAmountMinor: number;
-            /** Format: date-time */
-            updatedAt: string;
-            version: number;
-            /** @enum {string} */
-            visibility: "catalog" | "link_only";
-        };
-        PaymentProductList: {
-            archivedAt: string | null;
-            autoCreatedForLinkId: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            currency: string;
-            description: string | null;
-            environmentId: string;
-            id: string;
-            linkedPaymentLinkId: string | null;
-            metadata: {
-                [key: string]: string;
-            };
-            name: string;
-            /** @enum {string} */
-            origin: "member_created" | "inline_payment_link";
-            prices: {
-                amountMinor: number;
-                currency: string;
-                id: string;
-                priceId: string;
-                /** @enum {string} */
-                status: "active" | "archived";
-                /** @enum {string} */
-                taxBehavior: "inclusive" | "exclusive" | "exempt";
-            }[];
-            productId: string;
-            projectId: string;
-            /** @enum {string} */
-            status: "active" | "archived";
-            /** @constant */
-            type: "one_off";
-            unitAmountMinor: number;
-            /** Format: date-time */
-            updatedAt: string;
-            version: number;
-            /** @enum {string} */
-            visibility: "catalog" | "link_only";
-        }[];
-        PaymentRefund: {
-            amountMinor: number;
-            /** Format: date-time */
-            createdAt: string;
-            currency: string;
-            environmentId: string;
-            failedAt: string | null;
-            paymentId: string;
-            projectId: string;
-            reason: string | null;
-            refundId: string;
-            /** @enum {string} */
-            status: "requested" | "provider_pending" | "succeeded" | "failed" | "unknown" | "cancelled";
-            succeededAt: string | null;
-            unknownAt: string | null;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        PaymentRefundList: {
-            amountMinor: number;
-            /** Format: date-time */
-            createdAt: string;
-            currency: string;
-            environmentId: string;
-            failedAt: string | null;
-            paymentId: string;
-            projectId: string;
-            reason: string | null;
-            refundId: string;
-            /** @enum {string} */
-            status: "requested" | "provider_pending" | "succeeded" | "failed" | "unknown" | "cancelled";
-            succeededAt: string | null;
-            unknownAt: string | null;
-            /** Format: date-time */
-            updatedAt: string;
-        }[];
-        RequestPaymentRefund: {
-            reason?: string;
-        };
         SendOtpRequest: {
             /** Format: email */
             email: string;
             environmentId: string;
             purpose?: string;
         };
-        UpdatePaymentLinkRequest: {
-            checkoutDescription?: string;
-            checkoutTitle?: string;
-            /** Format: uri */
-            failureRedirectUrl?: string;
-            maxSuccessfulPayments?: number;
-            merchantDisplayName?: string;
-            /** Format: uri */
-            merchantLogoUrl?: string;
-            orderReference?: string;
-            /** Format: uri */
-            successRedirectUrl?: string;
-            /** Format: date-time */
-            validUntil?: string;
+        TorodCancellationResult: {
+            /** @constant */
+            trackingStatus: "cancelled";
         };
-        UpdatePaymentProductRequest: {
-            currency?: string;
-            description?: string;
-            metadata?: {
-                [key: string]: string;
+        TorodCancelShipmentRequest: {
+            environmentId: string;
+            providerReference: string;
+            /** @enum {string} */
+            shippingType?: "straight" | "reverse";
+        };
+        TorodGetRateRequest: {
+            amountMinor: number;
+            destinationCityId: string;
+            environmentId: string;
+            /** @enum {string} */
+            filterBy?: "cheapest" | "fastest";
+            isInsurance?: 0 | 1 | boolean;
+            parcel: {
+                boxes?: number;
+                heightCm?: number;
+                lengthCm?: number;
+                weightGrams?: number;
+                weightKg?: number;
+                widthCm?: number;
             };
-            name?: string;
-            prices?: {
-                amountMinor: number;
-                currency: string;
-                /** @enum {string} */
-                taxBehavior?: "inclusive" | "exclusive" | "exempt";
+            /** @enum {string} */
+            paymentType?: "COD" | "cash_on_delivery" | "Prepaid" | "paid" | "Bank";
+            /** @enum {string} */
+            shipmentType?: "normal" | "cold" | "quick" | "pudo";
+            shipperCityId?: string;
+            /** @enum {string} */
+            shippingType?: "straight" | "reverse";
+            warehouseCode?: string;
+        };
+        TorodGetShipmentStatusRequest: {
+            environmentId: string;
+            providerReference: string;
+            /** @enum {string} */
+            shippingType?: "straight" | "reverse";
+        };
+        TorodRateResult: {
+            courierOptions: {
+                costMinor: number | null;
+                courierPartnerId: string;
+                currency: string | null;
+                isOwn: 0 | 1;
+                name: string;
+                serviceType: string;
             }[];
-            /** @enum {string} */
-            taxBehavior?: "inclusive" | "exclusive" | "exempt";
-            unitAmountMinor?: number;
         };
-        WathbaPayment: {
-            amountMinor: number;
-            attemptId: string;
-            /** Format: date-time */
-            createdAt: string;
-            currency: string;
-            environmentId: string;
-            failedAt: string | null;
-            linkId: string;
-            methodFamily: string | null;
-            orderReference: string | null;
-            paymentId: string;
-            projectId: string;
-            refundedAt: string | null;
-            /** @enum {string} */
-            status: "created" | "provider_pending" | "succeeded" | "failed" | "unknown" | "refunded";
-            succeededAt: string | null;
-            /** Format: date-time */
-            updatedAt: string;
+        TorodShipmentResult: {
+            shipmentReference?: string;
+            trackingStatus: string;
         };
-        WathbaPaymentList: {
-            amountMinor: number;
-            attemptId: string;
-            /** Format: date-time */
-            createdAt: string;
-            currency: string;
+        TorodShipmentStatusResult: {
+            shipmentReference?: string;
+            trackingStatus: string;
+        };
+        VerifyOtpRequest: {
+            /** Format: email */
+            email: string;
             environmentId: string;
-            failedAt: string | null;
-            linkId: string;
-            methodFamily: string | null;
-            orderReference: string | null;
-            paymentId: string;
-            projectId: string;
-            refundedAt: string | null;
-            /** @enum {string} */
-            status: "created" | "provider_pending" | "succeeded" | "failed" | "unknown" | "refunded";
-            succeededAt: string | null;
-            /** Format: date-time */
-            updatedAt: string;
-        }[];
+            otp: string;
+        };
         WathbaProblem: {
             actionRef?: {
                 actionCode: string;
@@ -803,6 +1411,45 @@ export interface components {
                 path?: string;
             }[];
         };
+        WathbaSendOtpResult: {
+            /** @constant */
+            deliveryMethod: "email";
+        };
+        WathbaVerifyOtpResult: {
+            /** @constant */
+            verified: true;
+        };
+        WebhookDeliveryList: components["schemas"]["WebhookDeliveryStatus"][];
+        WebhookDeliveryStatus: {
+            attemptCount: number;
+            attempts: {
+                /** Format: date-time */
+                attemptedAt: string;
+                attemptId: string;
+                attemptOrdinal: number | null;
+                channel: string;
+                deliveryId: string | null;
+                responseClass: string | null;
+                responseStatus: number | null;
+                result: string | null;
+                state: string;
+                trafficDecisionId: string | null;
+            }[];
+            /** Format: date-time */
+            createdAt: string;
+            deliveryId: string;
+            endpointId: string | null;
+            eventId: string;
+            eventType: string;
+            /** Format: date-time */
+            lastAttemptAt: string | null;
+            lastResponseClass: string | null;
+            /** Format: date-time */
+            nextAttemptAt: string | null;
+            notificationId: string;
+            /** @enum {string} */
+            state: "scheduled" | "dispatched" | "retry_scheduled" | "dead_letter" | "replayed";
+        };
     };
     responses: never;
     parameters: never;
@@ -812,6 +1459,502 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    renderCheckoutSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": components["schemas"]["Catalog017CheckoutHtml"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    returnToCheckoutSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": components["schemas"]["Catalog017CheckoutHtml"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    renderPublicPaymentLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": components["schemas"]["Catalog016PaymentPageHtml"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    returnToPublicPaymentLink: {
+        parameters: {
+            query?: {
+                attemptId?: string;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": components["schemas"]["Catalog016PaymentPageHtml"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    listCatalogedProviderOperations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                serviceCode: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Cataloged provider operation inventory */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "contractVersion": "2026.07.mvp.010",
+                     *       "executionPathTemplate": "/v1/platform/projects/{projectId}/services/{serviceCode}/operations/{operationCode}",
+                     *       "operations": [
+                     *         {
+                     *           "adapter": "AuthentaOtpAdapter",
+                     *           "capabilityCode": "messaging.otp",
+                     *           "capCodes": [
+                     *             "otp_free_allowance",
+                     *             "otp_send_count"
+                     *           ],
+                     *           "certification": "certified",
+                     *           "doorwayRequiredScopes": [
+                     *             "tools:execute"
+                     *           ],
+                     *           "eventType": "OtpSendRequested",
+                     *           "executionAvailability": {
+                     *             "allowedEnvironmentKinds": [
+                     *               "sandbox",
+                     *               "production"
+                     *             ],
+                     *             "enablementFlag": null,
+                     *             "failClosedReason": null,
+                     *             "requiresExplicitEnablement": false,
+                     *             "stage": "general"
+                     *           },
+                     *           "executionPathTemplate": "/v1/platform/projects/{projectId}/services/{serviceCode}/operations/{operationCode}",
+                     *           "exposure": "catalog_runtime",
+                     *           "humanApproval": "none",
+                     *           "humanApprovalBinding": null,
+                     *           "idempotency": "required",
+                     *           "invocation": "operation_execution_adapter",
+                     *           "memberSafeResultFields": [
+                     *             "deliveryMethod"
+                     *           ],
+                     *           "operationCode": "sendOtp",
+                     *           "operationRequiredScopes": [
+                     *             "otp:send"
+                     *           ],
+                     *           "provider": "authenta",
+                     *           "requestBody": {
+                     *             "example": {
+                     *               "email": "user@example.com",
+                     *               "environmentId": "env_123",
+                     *               "purpose": "checkout_confirmation"
+                     *             },
+                     *             "jsonSchema": {
+                     *               "additionalProperties": false,
+                     *               "properties": {
+                     *                 "email": {
+                     *                   "format": "email",
+                     *                   "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+                     *                   "type": "string"
+                     *                 },
+                     *                 "environmentId": {
+                     *                   "maxLength": 160,
+                     *                   "minLength": 3,
+                     *                   "type": "string"
+                     *                 },
+                     *                 "purpose": {
+                     *                   "maxLength": 160,
+                     *                   "minLength": 1,
+                     *                   "type": "string"
+                     *                 }
+                     *               },
+                     *               "required": [
+                     *                 "environmentId",
+                     *                 "email"
+                     *               ],
+                     *               "type": "object"
+                     *             },
+                     *             "schemaId": "SendOtpRequest"
+                     *           },
+                     *           "requiredScopes": [
+                     *             "tools:execute",
+                     *             "otp:send"
+                     *           ],
+                     *           "responseBody": {
+                     *             "example": {
+                     *               "deliveryMethod": "email"
+                     *             },
+                     *             "jsonSchema": {
+                     *               "additionalProperties": false,
+                     *               "properties": {
+                     *                 "deliveryMethod": {
+                     *                   "const": "email",
+                     *                   "type": "string"
+                     *                 }
+                     *               },
+                     *               "required": [
+                     *                 "deliveryMethod"
+                     *               ],
+                     *               "type": "object"
+                     *             },
+                     *             "schemaId": "AuthentaOtpResult"
+                     *           },
+                     *           "riskClassification": "cost_bearing_write",
+                     *           "serviceCode": "messaging.otp.authenta"
+                     *         }
+                     *       ],
+                     *       "schemaVersion": "wathba.cli.provider-operations.v1",
+                     *       "serviceCode": "messaging.otp.authenta"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["CliProviderOperationCatalogResponse"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
     getShipmentExecutionStatus: {
         parameters: {
             query?: never;
@@ -1006,11 +2149,458 @@ export interface operations {
             };
         };
     };
-    listPaymentLinks: {
+    listPaymentIntents: {
         parameters: {
             query?: {
-                status?: "draft" | "active" | "inactive" | "expired" | "completed" | "all";
+                environmentId?: string;
+                status?: string;
             };
+            header?: never;
+            path: {
+                projectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalog017PaymentIntentList"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    createPaymentIntent: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                projectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Catalog017CreatePaymentIntentRequest"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalog017PaymentIntent"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    getPaymentIntent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+                paymentIntentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalog017PaymentIntent"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    cancelPaymentIntent: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                projectId: string;
+                paymentIntentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["Catalog017CancelPaymentIntentRequest"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalog017PaymentIntent"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    createCheckoutSession: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                projectId: string;
+                paymentIntentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Catalog017CreateCheckoutSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalog017PaymentIntent"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    listPaymentLinks: {
+        parameters: {
+            query?: never;
             header?: never;
             path: {
                 projectId: string;
@@ -1025,7 +2615,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaymentLinkList"];
+                    "application/json": components["schemas"]["Catalog016PaymentLinkList"];
                 };
             };
             /** @description Wathba problem */
@@ -1109,19 +2699,22 @@ export interface operations {
             content: {
                 /**
                  * @example {
+                 *       "amountMinor": 10000,
+                 *       "currency": "SAR",
                  *       "environmentId": "env_123",
-                 *       "failureRedirectUrl": "https://example.com/orders/123/payment-failed",
+                 *       "humanApprovalGrantId": "supg_123",
                  *       "items": [
                  *         {
-                 *           "productId": "pprd_123",
-                 *           "quantity": 1
+                 *           "currency": "SAR",
+                 *           "name": "Order 123",
+                 *           "quantity": 1,
+                 *           "unitAmountMinor": 10000
                  *         }
                  *       ],
-                 *       "orderReference": "ord_123",
-                 *       "successRedirectUrl": "https://example.com/orders/123/paid"
+                 *       "validUntil": null
                  *     }
                  */
-                "application/json": components["schemas"]["CreatePaymentLinkRequest"];
+                "application/json": components["schemas"]["Catalog016CreatePaymentLinkRequest"];
             };
         };
         responses: {
@@ -1131,7 +2724,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaymentLink"];
+                    "application/json": components["schemas"]["Catalog016PaymentLink"];
                 };
             };
             /** @description Wathba problem */
@@ -1217,7 +2810,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaymentLink"];
+                    "application/json": components["schemas"]["Catalog016PaymentLink"];
                 };
             };
             /** @description Wathba problem */
@@ -1305,7 +2898,7 @@ export interface operations {
                  *       "checkoutTitle": "Pay for order 123"
                  *     }
                  */
-                "application/json": components["schemas"]["UpdatePaymentLinkRequest"];
+                "application/json": components["schemas"]["Catalog016UpdatePaymentLinkRequest"];
             };
         };
         responses: {
@@ -1315,7 +2908,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaymentLink"];
+                    "application/json": components["schemas"]["Catalog016PaymentLink"];
                 };
             };
             /** @description Wathba problem */
@@ -1399,12 +2992,12 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful response */
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaymentLink"];
+                    "application/json": components["schemas"]["Catalog016PaymentLink"];
                 };
             };
             /** @description Wathba problem */
@@ -1485,472 +3078,14 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentLink"];
-                };
-            };
-            /** @description Wathba problem */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-        };
-    };
-    listPaymentProducts: {
-        parameters: {
-            query?: {
-                visibility?: "catalog" | "link_only" | "all";
-                currency?: string;
-                searchTerm?: string;
-                active?: boolean;
-            };
-            header?: never;
-            path: {
-                projectId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentProductList"];
-                };
-            };
-            /** @description Wathba problem */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-        };
-    };
-    createPaymentProduct: {
-        parameters: {
-            query?: never;
-            header: {
-                /** @description Stable identity for one logical status-changing command. */
-                "Idempotency-Key": string;
-            };
-            path: {
-                projectId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
+        requestBody?: {
             content: {
                 /**
                  * @example {
-                 *       "environmentId": "env_123",
-                 *       "name": "Premium plan",
-                 *       "prices": [
-                 *         {
-                 *           "amountMinor": 10000,
-                 *           "currency": "SAR"
-                 *         }
-                 *       ]
+                 *       "humanApprovalGrantId": "supg_123"
                  *     }
                  */
-                "application/json": components["schemas"]["CreatePaymentProductRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentProduct"];
-                };
-            };
-            /** @description Wathba problem */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-        };
-    };
-    getPaymentProduct: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                projectId: string;
-                productId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentProduct"];
-                };
-            };
-            /** @description Wathba problem */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-        };
-    };
-    archivePaymentProduct: {
-        parameters: {
-            query?: never;
-            header: {
-                /** @description Stable identity for one logical status-changing command. */
-                "Idempotency-Key": string;
-            };
-            path: {
-                projectId: string;
-                productId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentProduct"];
-                };
-            };
-            /** @description Wathba problem */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-        };
-    };
-    updatePaymentProduct: {
-        parameters: {
-            query?: never;
-            header: {
-                /** @description Stable identity for one logical status-changing command. */
-                "Idempotency-Key": string;
-            };
-            path: {
-                projectId: string;
-                productId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                /**
-                 * @example {
-                 *       "name": "Updated plan"
-                 *     }
-                 */
-                "application/json": components["schemas"]["UpdatePaymentProductRequest"];
+                "application/json": components["schemas"]["Catalog016ReactivatePaymentLinkRequest"];
             };
         };
         responses: {
@@ -1960,96 +3095,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaymentProduct"];
-                };
-            };
-            /** @description Wathba problem */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-            /** @description Wathba problem */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["WathbaProblem"];
-                };
-            };
-        };
-    };
-    promotePaymentProduct: {
-        parameters: {
-            query?: never;
-            header: {
-                /** @description Stable identity for one logical status-changing command. */
-                "Idempotency-Key": string;
-            };
-            path: {
-                projectId: string;
-                productId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentProduct"];
+                    "application/json": components["schemas"]["Catalog016PaymentLink"];
                 };
             };
             /** @description Wathba problem */
@@ -2119,9 +3165,7 @@ export interface operations {
     };
     listPayments: {
         parameters: {
-            query?: {
-                status?: "created" | "provider_pending" | "succeeded" | "failed" | "unknown" | "refunded" | "all";
-            };
+            query?: never;
             header?: never;
             path: {
                 projectId: string;
@@ -2136,7 +3180,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["WathbaPaymentList"];
+                    "application/json": components["schemas"]["Catalog016PaymentList"];
                 };
             };
             /** @description Wathba problem */
@@ -2222,7 +3266,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["WathbaPayment"];
+                    "application/json": components["schemas"]["Catalog016Payment"];
                 };
             };
             /** @description Wathba problem */
@@ -2308,7 +3352,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaymentRefundList"];
+                    "application/json": components["schemas"]["Catalog016RefundList"];
                 };
             };
             /** @description Wathba problem */
@@ -2393,10 +3437,11 @@ export interface operations {
             content: {
                 /**
                  * @example {
+                 *       "humanApprovalGrantId": "supg_456",
                  *       "reason": "customer_request"
                  *     }
                  */
-                "application/json": components["schemas"]["RequestPaymentRefund"];
+                "application/json": components["schemas"]["Catalog016RequestPaymentRefund"];
             };
         };
         responses: {
@@ -2406,7 +3451,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaymentRefund"];
+                    "application/json": components["schemas"]["Catalog016Refund"];
                 };
             };
             /** @description Wathba problem */
@@ -2492,7 +3537,128 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaymentRefund"];
+                    "application/json": components["schemas"]["Catalog016Refund"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    executeCatalogProviderOperation: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required for side-effecting operations; optional for read-only operations. See the selected operation metadata. */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                projectId: string;
+                serviceCode: string;
+                operationCode: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "environmentId": "env_123",
+                 *       "input": {
+                 *         "email": "user@example.com",
+                 *         "purpose": "checkout_confirmation"
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["CatalogProviderOperationRequest"];
+            };
+        };
+        responses: {
+            /** @description Provider result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogProviderOperationExecution"];
+                };
+            };
+            /** @description Provider result */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogProviderOperationExecution"];
+                };
+            };
+            /** @description Accepted and pending */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogProviderOperationExecution"];
                 };
             };
             /** @description Wathba problem */
@@ -2689,12 +3855,696 @@ export interface operations {
             };
         };
     };
+    listProjectWebhookDeliveries: {
+        parameters: {
+            query?: {
+                endpointId?: string;
+                deliveryId?: string;
+                state?: "scheduled" | "dispatched" | "retry_scheduled" | "dead_letter" | "replayed";
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                projectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Recent webhook deliveries, newest first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WebhookDeliveryList"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    getPublicCheckoutSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalog017PublicCheckoutSession"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    requestCheckoutApplePayMerchantSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Catalog017ApplePayMerchantSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalog017ApplePayMerchantSession"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    confirmCheckoutStcPay: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Catalog017ConfirmCheckoutStcPayRequest"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalog017CheckoutSubmission"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    exchangeCheckoutToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Catalog017ExchangeCheckoutTokenRequest"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalog017CheckoutSessionExchange"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    submitCheckoutSession: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Catalog017SubmitCheckoutSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalog017CheckoutSubmission"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    getPublicPaymentLinkAttempt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+                attemptId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalog016PublicAttemptStatus"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    startPublicPaymentLinkCheckout: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Stable identity for one logical status-changing command. */
+                "Idempotency-Key": string;
+            };
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "token": "token_example1"
+                 *     }
+                 */
+                "application/json": components["schemas"]["Catalog016PublicCheckoutRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted and pending */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalog016PublicCheckout"];
+                };
+            };
+            /** @description Wathba problem */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
     receiveWathbaMemberWebhook: {
         parameters: {
             query?: never;
             header: {
                 /** @description Source event identifier used for durable replay protection */
                 "X-Wathba-Event-Id": string;
+                /** @description Stable delivery identifier reused across retries; receivers should deduplicate repeated delivery attempts by this value */
+                "X-Wathba-Delivery-Id": string;
                 /** @description Unix timestamp in seconds included in the signature input */
                 "X-Wathba-Timestamp": string;
                 /** @description HMAC-SHA-256 signature over timestamp, a dot, and the exact raw body */

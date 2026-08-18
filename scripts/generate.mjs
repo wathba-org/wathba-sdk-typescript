@@ -67,6 +67,10 @@ function emitOperations(openapi) {
         throw new Error(`invalid_or_duplicate_operation_id:${String(operation.operationId)}`);
       }
       operationIds.add(operation.operationId);
+      // Payer-public checkout routes are intentionally browser-owned. The server SDK
+      // exposes only authenticated member/runtime operations and never becomes a
+      // second implementation of the hosted Wathba Checkout client boundary.
+      if (operation['x-wathba-audience'] === 'payer_public') continue;
       const requestRef = operation.requestBody?.content?.['application/json']?.schema?.$ref;
       if (operation.requestBody !== undefined && typeof requestRef !== 'string') {
         throw new Error(`unsupported_request_body:${operation.operationId}`);
@@ -97,6 +101,9 @@ function emitOperations(openapi) {
         throw new Error(`unsupported_operation_parameter:${operation.operationId}`);
       }
       const idempotency = operation['x-wathba-idempotency'];
+      // Generic catalog/provider execution keeps an operation-defined envelope
+      // and is not part of the typed direct-resource SDK surface.
+      if (idempotency === 'operation-defined') continue;
       if (idempotency !== 'required' && idempotency !== 'none') {
         throw new Error(`invalid_idempotency_policy:${operation.operationId}`);
       }
@@ -142,7 +149,9 @@ function emitOperations(openapi) {
       fields.push(`query?: ${operationType}["parameters"]["query"]`);
     }
     if (operation.requestSchema) {
-      fields.push(`body: ${operationType}["requestBody"]["content"]["application/json"]`);
+      fields.push(
+        `body: NonNullable<${operationType}["requestBody"]>["content"]["application/json"]`,
+      );
     }
     if (operation.idempotency === 'required') {
       fields.push('idempotencyKey: IdempotencyKey');
