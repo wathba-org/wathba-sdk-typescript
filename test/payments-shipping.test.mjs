@@ -215,102 +215,149 @@ test('shipping.create rejects missing amount, recipient email, items, or parcel 
   assert.equal(credentialResolutions, 0);
 });
 
-test('payments.createProduct is ergonomic and returns a typed final outcome', async () => {
+test('payments.createIntent returns a short-lived hosted checkout without exposing a provider key', async () => {
   const client = new WathbaClient({
     credentialProvider,
     fetch: async () =>
       Response.json(
         {
-          id: 'pprd_sdk_001',
-          productId: 'pprd_sdk_001',
+          paymentIntentId: 'pi_sdk_001',
+          paymentLinkId: null,
           projectId: 'prj_payments_001',
           environmentId: 'env_payments_001',
-          status: 'active',
-          visibility: 'catalog',
-          origin: 'member_created',
-          autoCreatedForLinkId: null,
-          name: 'Premium plan',
-          description: null,
-          type: 'one_off',
-          prices: [
-            {
-              id: 'price_sdk_001',
-              priceId: 'price_sdk_001',
-              currency: 'SAR',
-              amountMinor: 10000,
-              taxBehavior: 'exclusive',
-              status: 'active',
-            },
-          ],
-          unitAmountMinor: 10000,
+          status: 'requires_payment_method',
+          amountMinor: 10000,
           currency: 'SAR',
+          orderReference: 'order-sdk-001',
+          description: null,
+          requestedPaymentMethods: ['card', 'apple_pay'],
+          availablePaymentMethods: ['card'],
+          returnUrl: 'https://shop.example.test/payments/return',
           metadata: {},
-          linkedPaymentLinkId: null,
-          createdAt: '2026-07-11T10:00:00.000Z',
-          updatedAt: '2026-07-11T10:00:00.000Z',
-          archivedAt: null,
-          version: 1,
+          checkout: {
+            sessionId: 'wcs_sdk_001',
+            token: `wct_${'a'.repeat(48)}`,
+            url: 'https://checkout.wathba.test/checkout/wcs_sdk_001',
+            expiresAt: '2026-08-19T10:05:00.000Z',
+          },
+          paymentId: null,
+          createdAt: '2026-08-19T10:00:00.000Z',
+          updatedAt: '2026-08-19T10:00:00.000Z',
+          succeededAt: null,
+          failedAt: null,
+          cancelledAt: null,
         },
         { status: 201 },
       ),
   });
 
-  const outcome = await client.payments.createProduct({
+  const outcome = await client.payments.createIntent({
     projectId: 'prj_payments_001',
     environmentId: 'env_payments_001',
-    name: 'Premium plan',
-    prices: [{ amountMinor: 10000, currency: 'SAR' }],
-    idempotencyKey: asIdempotencyKey('idem_payment_product_sdk_001'),
+    amountMinor: 10000,
+    currency: 'SAR',
+    clientBinding: { kind: 'web_origin', value: 'https://shop.example.test' },
+    allowedPaymentMethods: ['card', 'apple_pay'],
+    returnUrl: 'https://shop.example.test/payments/return',
+    orderReference: 'order-sdk-001',
+    idempotencyKey: asIdempotencyKey('idem_payment_intent_sdk_001'),
   });
 
-  assert.equal(outcome.kind, 'final');
-  assert.equal(outcome.value.productId, 'pprd_sdk_001');
+  assert.equal(outcome.kind, 'pending');
+  assert.equal(outcome.value.paymentIntentId, 'pi_sdk_001');
+  assert.match(outcome.value.checkout.token, /^wct_/);
+  assert.equal(JSON.stringify(outcome.value).includes('publishable'), false);
+  assert.equal(JSON.stringify(outcome.value).includes('secret'), false);
 });
 
-test('payments ergonomic surface maps every remaining published operation exactly once', async () => {
+test('payments ergonomic surface maps the universal intent, link, record, and refund operations', async () => {
   const calls = [];
   const payments = new WathbaPaymentsClient({
     async execute(operationId, input) {
       calls.push({ operationId, input });
-      return { operationId };
+      return { operationId, status: 'succeeded' };
     },
   });
   const idempotencyKey = asIdempotencyKey('idem_payment_surface_001');
   const projectId = 'prj_payments_001';
-  const productId = 'pprd_payments_001';
+  const paymentIntentId = 'pi_payments_001';
   const linkId = 'plk_payments_001';
   const paymentId = 'pay_payments_001';
+  const refundId = 'prf_payments_001';
+  const clientBinding = { kind: 'web_origin', value: 'https://shop.example.test' };
 
   const cases = [
     {
-      run: () => payments.listProducts({ projectId, query: { active: true } }),
-      operationId: 'listPaymentProducts',
-      input: { path: { projectId }, query: { active: true } },
+      run: () =>
+        payments.createIntent({
+          projectId,
+          environmentId: 'env_payments_001',
+          amountMinor: 5000,
+          currency: 'SAR',
+          clientBinding,
+          idempotencyKey,
+        }),
+      operationId: 'createPaymentIntent',
+      input: {
+        path: { projectId },
+        body: {
+          environmentId: 'env_payments_001',
+          amountMinor: 5000,
+          currency: 'SAR',
+          clientBinding,
+        },
+        idempotencyKey,
+      },
     },
     {
-      run: () => payments.getProduct({ projectId, productId }),
-      operationId: 'getPaymentProduct',
-      input: { path: { projectId, productId } },
+      run: () => payments.listIntents({ projectId }),
+      operationId: 'listPaymentIntents',
+      input: { path: { projectId } },
     },
     {
-      run: () => payments.updateProduct({ projectId, productId, name: 'Updated', idempotencyKey }),
-      operationId: 'updatePaymentProduct',
-      input: { path: { projectId, productId }, body: { name: 'Updated' }, idempotencyKey },
+      run: () => payments.getIntent({ projectId, paymentIntentId }),
+      operationId: 'getPaymentIntent',
+      input: { path: { projectId, paymentIntentId } },
     },
     {
-      run: () => payments.archiveProduct({ projectId, productId, idempotencyKey }),
-      operationId: 'archivePaymentProduct',
-      input: { path: { projectId, productId }, idempotencyKey },
+      run: () =>
+        payments.cancelIntent({
+          projectId,
+          paymentIntentId,
+          reason: 'member_cancelled',
+          idempotencyKey,
+        }),
+      operationId: 'cancelPaymentIntent',
+      input: {
+        path: { projectId, paymentIntentId },
+        body: { reason: 'member_cancelled' },
+        idempotencyKey,
+      },
     },
     {
-      run: () => payments.promoteProduct({ projectId, productId, idempotencyKey }),
-      operationId: 'promotePaymentProduct',
-      input: { path: { projectId, productId }, idempotencyKey },
+      run: () =>
+        payments.createCheckoutSession({
+          projectId,
+          paymentIntentId,
+          clientBinding,
+          idempotencyKey,
+        }),
+      operationId: 'createCheckoutSession',
+      input: {
+        path: { projectId, paymentIntentId },
+        body: { clientBinding },
+        idempotencyKey,
+      },
     },
     {
-      run: () => payments.listLinks({ projectId, query: { status: 'active' } }),
+      run: () => payments.createLink({ projectId, items: [], humanApprovalGrantId: 'supg_1', idempotencyKey }),
+      operationId: 'createPaymentLink',
+      input: { path: { projectId }, body: { items: [], humanApprovalGrantId: 'supg_1' }, idempotencyKey },
+    },
+    {
+      run: () => payments.listLinks({ projectId }),
       operationId: 'listPaymentLinks',
-      input: { path: { projectId }, query: { status: 'active' } },
+      input: { path: { projectId } },
     },
     {
       run: () => payments.getLink({ projectId, linkId }),
@@ -328,19 +375,34 @@ test('payments ergonomic surface maps every remaining published operation exactl
       input: { path: { projectId, linkId }, idempotencyKey },
     },
     {
-      run: () => payments.reactivateLink({ projectId, linkId, idempotencyKey }),
+      run: () => payments.reactivateLink({ projectId, linkId, humanApprovalGrantId: 'supg_2', idempotencyKey }),
       operationId: 'reactivatePaymentLink',
-      input: { path: { projectId, linkId }, idempotencyKey },
+      input: { path: { projectId, linkId }, body: { humanApprovalGrantId: 'supg_2' }, idempotencyKey },
     },
     {
-      run: () => payments.listPayments({ projectId, query: { status: 'unknown' } }),
+      run: () => payments.listPayments({ projectId }),
       operationId: 'listPayments',
-      input: { path: { projectId }, query: { status: 'unknown' } },
+      input: { path: { projectId } },
+    },
+    {
+      run: () => payments.getPayment({ projectId, paymentId }),
+      operationId: 'getPayment',
+      input: { path: { projectId, paymentId } },
+    },
+    {
+      run: () => payments.requestRefund({ projectId, paymentId, reason: 'customer_request', idempotencyKey }),
+      operationId: 'requestPaymentRefund',
+      input: { path: { projectId, paymentId }, body: { reason: 'customer_request' }, idempotencyKey },
     },
     {
       run: () => payments.listRefunds({ projectId, paymentId }),
       operationId: 'listPaymentRefunds',
       input: { path: { projectId, paymentId } },
+    },
+    {
+      run: () => payments.getRefund({ projectId, refundId }),
+      operationId: 'getPaymentRefund',
+      input: { path: { projectId, refundId } },
     },
   ];
 

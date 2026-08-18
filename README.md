@@ -29,6 +29,49 @@ const outcome = await wathba.otp.send({
 });
 ```
 
+## Universal Wathba Checkout
+
+Create a Payment Intent only from your trusted server. The API key stays on
+that server. Send only the short-lived `checkout.token` and `checkout.url`
+to the browser or mobile app, then open Wathba's top-level hosted checkout.
+Wathba renders the payment methods that are currently ready for that project,
+such as cards, Apple Pay, or STC Pay, and keeps every provider credential and
+protocol behind Wathba.
+
+```ts
+const outcome = await wathba.payments.createIntent({
+  projectId: 'prj_123',
+  environmentId: 'env_123',
+  amountMinor: 5_000,
+  currency: 'SAR',
+  orderReference: 'order-1001',
+  allowedPaymentMethods: ['card', 'apple_pay', 'stc_pay'],
+  clientBinding: {
+    kind: 'web_origin',
+    value: 'https://shop.example.com',
+  },
+  returnUrl: 'https://shop.example.com/payments/return',
+  idempotencyKey: createIdempotencyKey(),
+});
+
+if (outcome.kind !== 'pending' || outcome.value.checkout === null) {
+  throw new Error('checkout is unavailable');
+}
+
+// Return only these values to the app. Never return WATHBA_API_KEY.
+return {
+  paymentIntentId: outcome.value.paymentIntentId,
+  checkout: outcome.value.checkout,
+};
+```
+
+For web apps, load `/checkout/v1.js` from the same Wathba checkout origin and
+call `WathbaCheckout.open({ checkoutToken, checkoutUrl })`. For iOS use an
+ephemeral authentication session, and for Android use a Custom Tab. Do not use
+an iframe or WebView. Treat a browser redirect as UX only: fulfill an order
+after a verified Wathba webhook or an authenticated `getIntent` result says
+`succeeded`. See [the payment recipe](./recipes/payments.md).
+
 OTP uses the same `final | pending | action_required` union as payments and shipping; a `201` or `202` transport status alone is never treated as proof of a completed business outcome.
 
 Ergonomic clients are grouped by capability and preserve Wathba's three runtime outcomes. A human action is never coerced into a transport error or a false success:
@@ -94,7 +137,7 @@ const devWathba = new WathbaClient({
 });
 ```
 
-`pollWathbaOutcome` is bounded and accepts a caller-supplied safe read operation only. It never replays a mutation. Payments expose every published product, hosted-link, payment-read, and refund operation through typed ergonomic methods; shipping exposes the published create operation and its read-only execution-status operation. The raw client exposes every published operation without inventing unsupported aliases. Payment amounts (`amountMinor`) are in the smallest currency unit, with a provider minimum of 100 (e.g. 100 halalas = 1.00 SAR) and no documented maximum; the server owns amount validation.
+`pollWathbaOutcome` is bounded and accepts a caller-supplied safe read operation only. It never replays a mutation. Payments expose the universal Payment Intent lifecycle, optional shareable Payment Links, payment reads, and refunds through typed ergonomic methods; shipping exposes the published create operation and its read-only execution-status operation. Payer-public checkout routes are deliberately not SDK operations. The raw client exposes authenticated published operations without inventing unsupported aliases. Payment amounts (`amountMinor`) are in the smallest currency unit, with a provider minimum of 100 (e.g. 100 halalas = 1.00 SAR); the server owns amount validation.
 
 Keep an idempotency key with the logical command and reuse it for retries. Create a new key only for a new intent. Resolve the Wathba credential inside the trusted server runtime; never pass it to browser code, an AI agent, logs, or source control.
 

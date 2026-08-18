@@ -3,18 +3,18 @@ import type { IdempotencyKey } from '../idempotency.js';
 import type { operations } from './schema.js';
 
 export const operationSpecs = {
-  "archivePaymentProduct": {
-    "operationId": "archivePaymentProduct",
-    "method": "DELETE",
-    "path": "/v1/platform/projects/{projectId}/payment-products/{productId}",
+  "cancelPaymentIntent": {
+    "operationId": "cancelPaymentIntent",
+    "method": "POST",
+    "path": "/v1/platform/projects/{projectId}/payment-intents/{paymentIntentId}/cancel",
     "capability": "payments.checkout",
     "idempotency": "required",
     "safeProbe": "none",
     "requiredScopes": [
-      "payments:products:archive"
+      "payments:intents:cancel"
     ],
     "pathParameters": {
-      "productId": {
+      "paymentIntentId": {
         "required": true,
         "schema": {
           "maxLength": 160,
@@ -32,11 +32,77 @@ export const operationSpecs = {
       }
     },
     "queryParameters": {},
-    "requestSchema": null,
+    "requestSchema": "Catalog017CancelPaymentIntentRequest",
     "successResponses": {
       "200": {
         "contentType": "application/json",
-        "schema": "PaymentProduct"
+        "schema": "Catalog017PaymentIntent"
+      }
+    }
+  },
+  "createCheckoutSession": {
+    "operationId": "createCheckoutSession",
+    "method": "POST",
+    "path": "/v1/platform/projects/{projectId}/payment-intents/{paymentIntentId}/checkout-sessions",
+    "capability": "payments.checkout",
+    "idempotency": "required",
+    "safeProbe": "none",
+    "requiredScopes": [
+      "payments:checkout:create"
+    ],
+    "pathParameters": {
+      "paymentIntentId": {
+        "required": true,
+        "schema": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        }
+      },
+      "projectId": {
+        "required": true,
+        "schema": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        }
+      }
+    },
+    "queryParameters": {},
+    "requestSchema": "Catalog017CreateCheckoutSessionRequest",
+    "successResponses": {
+      "201": {
+        "contentType": "application/json",
+        "schema": "Catalog017PaymentIntent"
+      }
+    }
+  },
+  "createPaymentIntent": {
+    "operationId": "createPaymentIntent",
+    "method": "POST",
+    "path": "/v1/platform/projects/{projectId}/payment-intents",
+    "capability": "payments.checkout",
+    "idempotency": "required",
+    "safeProbe": "none",
+    "requiredScopes": [
+      "payments:intents:create"
+    ],
+    "pathParameters": {
+      "projectId": {
+        "required": true,
+        "schema": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        }
+      }
+    },
+    "queryParameters": {},
+    "requestSchema": "Catalog017CreatePaymentIntentRequest",
+    "successResponses": {
+      "201": {
+        "contentType": "application/json",
+        "schema": "Catalog017PaymentIntent"
       }
     }
   },
@@ -61,40 +127,11 @@ export const operationSpecs = {
       }
     },
     "queryParameters": {},
-    "requestSchema": "CreatePaymentLinkRequest",
+    "requestSchema": "Catalog016CreatePaymentLinkRequest",
     "successResponses": {
       "201": {
         "contentType": "application/json",
-        "schema": "PaymentLink"
-      }
-    }
-  },
-  "createPaymentProduct": {
-    "operationId": "createPaymentProduct",
-    "method": "POST",
-    "path": "/v1/platform/projects/{projectId}/payment-products",
-    "capability": "payments.checkout",
-    "idempotency": "required",
-    "safeProbe": "none",
-    "requiredScopes": [
-      "payments:products:create"
-    ],
-    "pathParameters": {
-      "projectId": {
-        "required": true,
-        "schema": {
-          "maxLength": 160,
-          "minLength": 3,
-          "type": "string"
-        }
-      }
-    },
-    "queryParameters": {},
-    "requestSchema": "CreatePaymentProductRequest",
-    "successResponses": {
-      "201": {
-        "contentType": "application/json",
-        "schema": "PaymentProduct"
+        "schema": "Catalog016PaymentLink"
       }
     }
   },
@@ -162,9 +199,9 @@ export const operationSpecs = {
     "queryParameters": {},
     "requestSchema": null,
     "successResponses": {
-      "201": {
+      "200": {
         "contentType": "application/json",
-        "schema": "PaymentLink"
+        "schema": "Catalog016PaymentLink"
       }
     }
   },
@@ -201,7 +238,44 @@ export const operationSpecs = {
     "successResponses": {
       "200": {
         "contentType": "application/json",
-        "schema": "WathbaPayment"
+        "schema": "Catalog016Payment"
+      }
+    }
+  },
+  "getPaymentIntent": {
+    "operationId": "getPaymentIntent",
+    "method": "GET",
+    "path": "/v1/platform/projects/{projectId}/payment-intents/{paymentIntentId}",
+    "capability": "payments.checkout",
+    "idempotency": "none",
+    "safeProbe": "read_only",
+    "requiredScopes": [
+      "payments:intents:read"
+    ],
+    "pathParameters": {
+      "paymentIntentId": {
+        "required": true,
+        "schema": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        }
+      },
+      "projectId": {
+        "required": true,
+        "schema": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        }
+      }
+    },
+    "queryParameters": {},
+    "requestSchema": null,
+    "successResponses": {
+      "200": {
+        "contentType": "application/json",
+        "schema": "Catalog017PaymentIntent"
       }
     }
   },
@@ -238,44 +312,7 @@ export const operationSpecs = {
     "successResponses": {
       "200": {
         "contentType": "application/json",
-        "schema": "PaymentLink"
-      }
-    }
-  },
-  "getPaymentProduct": {
-    "operationId": "getPaymentProduct",
-    "method": "GET",
-    "path": "/v1/platform/projects/{projectId}/payment-products/{productId}",
-    "capability": "payments.checkout",
-    "idempotency": "none",
-    "safeProbe": "read_only",
-    "requiredScopes": [
-      "payments:products:read"
-    ],
-    "pathParameters": {
-      "productId": {
-        "required": true,
-        "schema": {
-          "maxLength": 160,
-          "minLength": 3,
-          "type": "string"
-        }
-      },
-      "projectId": {
-        "required": true,
-        "schema": {
-          "maxLength": 160,
-          "minLength": 3,
-          "type": "string"
-        }
-      }
-    },
-    "queryParameters": {},
-    "requestSchema": null,
-    "successResponses": {
-      "200": {
-        "contentType": "application/json",
-        "schema": "PaymentProduct"
+        "schema": "Catalog016PaymentLink"
       }
     }
   },
@@ -312,7 +349,7 @@ export const operationSpecs = {
     "successResponses": {
       "200": {
         "contentType": "application/json",
-        "schema": "PaymentRefund"
+        "schema": "Catalog016Refund"
       }
     }
   },
@@ -353,6 +390,81 @@ export const operationSpecs = {
       }
     }
   },
+  "listCatalogedProviderOperations": {
+    "operationId": "listCatalogedProviderOperations",
+    "method": "GET",
+    "path": "/v1/cli/capabilities/{serviceCode}/operations",
+    "capability": "provider.catalog-runtime",
+    "idempotency": "none",
+    "safeProbe": "read_only",
+    "requiredScopes": [
+      "tools:execute"
+    ],
+    "pathParameters": {
+      "serviceCode": {
+        "required": true,
+        "schema": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        }
+      }
+    },
+    "queryParameters": {},
+    "requestSchema": null,
+    "successResponses": {
+      "200": {
+        "contentType": "application/json",
+        "schema": "CliProviderOperationCatalogResponse"
+      }
+    }
+  },
+  "listPaymentIntents": {
+    "operationId": "listPaymentIntents",
+    "method": "GET",
+    "path": "/v1/platform/projects/{projectId}/payment-intents",
+    "capability": "payments.checkout",
+    "idempotency": "none",
+    "safeProbe": "read_only",
+    "requiredScopes": [
+      "payments:intents:read"
+    ],
+    "pathParameters": {
+      "projectId": {
+        "required": true,
+        "schema": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        }
+      }
+    },
+    "queryParameters": {
+      "environmentId": {
+        "required": false,
+        "schema": {
+          "maxLength": 160,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "status": {
+        "required": false,
+        "schema": {
+          "maxLength": 160,
+          "minLength": 1,
+          "type": "string"
+        }
+      }
+    },
+    "requestSchema": null,
+    "successResponses": {
+      "200": {
+        "contentType": "application/json",
+        "schema": "Catalog017PaymentIntentList"
+      }
+    }
+  },
   "listPaymentLinks": {
     "operationId": "listPaymentLinks",
     "method": "GET",
@@ -373,88 +485,12 @@ export const operationSpecs = {
         }
       }
     },
-    "queryParameters": {
-      "status": {
-        "required": false,
-        "schema": {
-          "enum": [
-            "draft",
-            "active",
-            "inactive",
-            "expired",
-            "completed",
-            "all"
-          ],
-          "type": "string"
-        }
-      }
-    },
+    "queryParameters": {},
     "requestSchema": null,
     "successResponses": {
       "200": {
         "contentType": "application/json",
-        "schema": "PaymentLinkList"
-      }
-    }
-  },
-  "listPaymentProducts": {
-    "operationId": "listPaymentProducts",
-    "method": "GET",
-    "path": "/v1/platform/projects/{projectId}/payment-products",
-    "capability": "payments.checkout",
-    "idempotency": "none",
-    "safeProbe": "read_only",
-    "requiredScopes": [
-      "payments:products:read"
-    ],
-    "pathParameters": {
-      "projectId": {
-        "required": true,
-        "schema": {
-          "maxLength": 160,
-          "minLength": 3,
-          "type": "string"
-        }
-      }
-    },
-    "queryParameters": {
-      "active": {
-        "required": false,
-        "schema": {
-          "type": "boolean"
-        }
-      },
-      "currency": {
-        "required": false,
-        "schema": {
-          "maxLength": 3,
-          "minLength": 3,
-          "type": "string"
-        }
-      },
-      "searchTerm": {
-        "required": false,
-        "schema": {
-          "type": "string"
-        }
-      },
-      "visibility": {
-        "required": false,
-        "schema": {
-          "enum": [
-            "catalog",
-            "link_only",
-            "all"
-          ],
-          "type": "string"
-        }
-      }
-    },
-    "requestSchema": null,
-    "successResponses": {
-      "200": {
-        "contentType": "application/json",
-        "schema": "PaymentProductList"
+        "schema": "Catalog016PaymentLinkList"
       }
     }
   },
@@ -491,7 +527,7 @@ export const operationSpecs = {
     "successResponses": {
       "200": {
         "contentType": "application/json",
-        "schema": "PaymentRefundList"
+        "schema": "Catalog016RefundList"
       }
     }
   },
@@ -515,50 +551,26 @@ export const operationSpecs = {
         }
       }
     },
-    "queryParameters": {
-      "status": {
-        "required": false,
-        "schema": {
-          "enum": [
-            "created",
-            "provider_pending",
-            "succeeded",
-            "failed",
-            "unknown",
-            "refunded",
-            "all"
-          ],
-          "type": "string"
-        }
-      }
-    },
+    "queryParameters": {},
     "requestSchema": null,
     "successResponses": {
       "200": {
         "contentType": "application/json",
-        "schema": "WathbaPaymentList"
+        "schema": "Catalog016PaymentList"
       }
     }
   },
-  "promotePaymentProduct": {
-    "operationId": "promotePaymentProduct",
-    "method": "POST",
-    "path": "/v1/platform/projects/{projectId}/payment-products/{productId}/promote",
-    "capability": "payments.checkout",
-    "idempotency": "required",
-    "safeProbe": "none",
+  "listProjectWebhookDeliveries": {
+    "operationId": "listProjectWebhookDeliveries",
+    "method": "GET",
+    "path": "/v1/platform/projects/{projectId}/webhook-deliveries",
+    "capability": "platform.member-webhooks",
+    "idempotency": "none",
+    "safeProbe": "read_only",
     "requiredScopes": [
-      "payments:products:update"
+      "projects:read"
     ],
     "pathParameters": {
-      "productId": {
-        "required": true,
-        "schema": {
-          "maxLength": 160,
-          "minLength": 3,
-          "type": "string"
-        }
-      },
       "projectId": {
         "required": true,
         "schema": {
@@ -568,12 +580,47 @@ export const operationSpecs = {
         }
       }
     },
-    "queryParameters": {},
+    "queryParameters": {
+      "deliveryId": {
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "endpointId": {
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "limit": {
+        "required": false,
+        "schema": {
+          "default": 50,
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "state": {
+        "required": false,
+        "schema": {
+          "enum": [
+            "scheduled",
+            "dispatched",
+            "retry_scheduled",
+            "dead_letter",
+            "replayed"
+          ],
+          "type": "string"
+        }
+      }
+    },
     "requestSchema": null,
     "successResponses": {
-      "201": {
+      "200": {
         "contentType": "application/json",
-        "schema": "PaymentProduct"
+        "schema": "WebhookDeliveryList"
       }
     }
   },
@@ -606,11 +653,11 @@ export const operationSpecs = {
       }
     },
     "queryParameters": {},
-    "requestSchema": null,
+    "requestSchema": "Catalog016ReactivatePaymentLinkRequest",
     "successResponses": {
-      "201": {
+      "200": {
         "contentType": "application/json",
-        "schema": "PaymentLink"
+        "schema": "Catalog016PaymentLink"
       }
     }
   },
@@ -643,11 +690,11 @@ export const operationSpecs = {
       }
     },
     "queryParameters": {},
-    "requestSchema": "RequestPaymentRefund",
+    "requestSchema": "Catalog016RequestPaymentRefund",
     "successResponses": {
       "201": {
         "contentType": "application/json",
-        "schema": "PaymentRefund"
+        "schema": "Catalog016Refund"
       }
     }
   },
@@ -713,48 +760,11 @@ export const operationSpecs = {
       }
     },
     "queryParameters": {},
-    "requestSchema": "UpdatePaymentLinkRequest",
+    "requestSchema": "Catalog016UpdatePaymentLinkRequest",
     "successResponses": {
       "200": {
         "contentType": "application/json",
-        "schema": "PaymentLink"
-      }
-    }
-  },
-  "updatePaymentProduct": {
-    "operationId": "updatePaymentProduct",
-    "method": "PATCH",
-    "path": "/v1/platform/projects/{projectId}/payment-products/{productId}",
-    "capability": "payments.checkout",
-    "idempotency": "required",
-    "safeProbe": "none",
-    "requiredScopes": [
-      "payments:products:update"
-    ],
-    "pathParameters": {
-      "productId": {
-        "required": true,
-        "schema": {
-          "maxLength": 160,
-          "minLength": 3,
-          "type": "string"
-        }
-      },
-      "projectId": {
-        "required": true,
-        "schema": {
-          "maxLength": 160,
-          "minLength": 3,
-          "type": "string"
-        }
-      }
-    },
-    "queryParameters": {},
-    "requestSchema": "UpdatePaymentProductRequest",
-    "successResponses": {
-      "200": {
-        "contentType": "application/json",
-        "schema": "PaymentProduct"
+        "schema": "Catalog016PaymentLink"
       }
     }
   }
@@ -763,47 +773,49 @@ export const operationSpecs = {
 export type OperationId = keyof typeof operationSpecs;
 
 export interface OperationInputMap {
-  "archivePaymentProduct": { path: operations["archivePaymentProduct"]["parameters"]["path"]; idempotencyKey: IdempotencyKey };
-  "createPaymentLink": { path: operations["createPaymentLink"]["parameters"]["path"]; body: operations["createPaymentLink"]["requestBody"]["content"]["application/json"]; idempotencyKey: IdempotencyKey };
-  "createPaymentProduct": { path: operations["createPaymentProduct"]["parameters"]["path"]; body: operations["createPaymentProduct"]["requestBody"]["content"]["application/json"]; idempotencyKey: IdempotencyKey };
-  "createShipment": { path: operations["createShipment"]["parameters"]["path"]; body: operations["createShipment"]["requestBody"]["content"]["application/json"]; idempotencyKey: IdempotencyKey };
+  "cancelPaymentIntent": { path: operations["cancelPaymentIntent"]["parameters"]["path"]; body: NonNullable<operations["cancelPaymentIntent"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
+  "createCheckoutSession": { path: operations["createCheckoutSession"]["parameters"]["path"]; body: NonNullable<operations["createCheckoutSession"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
+  "createPaymentIntent": { path: operations["createPaymentIntent"]["parameters"]["path"]; body: NonNullable<operations["createPaymentIntent"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
+  "createPaymentLink": { path: operations["createPaymentLink"]["parameters"]["path"]; body: NonNullable<operations["createPaymentLink"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
+  "createShipment": { path: operations["createShipment"]["parameters"]["path"]; body: NonNullable<operations["createShipment"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
   "deactivatePaymentLink": { path: operations["deactivatePaymentLink"]["parameters"]["path"]; idempotencyKey: IdempotencyKey };
   "getPayment": { path: operations["getPayment"]["parameters"]["path"] };
+  "getPaymentIntent": { path: operations["getPaymentIntent"]["parameters"]["path"] };
   "getPaymentLink": { path: operations["getPaymentLink"]["parameters"]["path"] };
-  "getPaymentProduct": { path: operations["getPaymentProduct"]["parameters"]["path"] };
   "getPaymentRefund": { path: operations["getPaymentRefund"]["parameters"]["path"] };
   "getShipmentExecutionStatus": { path: operations["getShipmentExecutionStatus"]["parameters"]["path"] };
-  "listPaymentLinks": { path: operations["listPaymentLinks"]["parameters"]["path"]; query?: operations["listPaymentLinks"]["parameters"]["query"] };
-  "listPaymentProducts": { path: operations["listPaymentProducts"]["parameters"]["path"]; query?: operations["listPaymentProducts"]["parameters"]["query"] };
+  "listCatalogedProviderOperations": { path: operations["listCatalogedProviderOperations"]["parameters"]["path"] };
+  "listPaymentIntents": { path: operations["listPaymentIntents"]["parameters"]["path"]; query?: operations["listPaymentIntents"]["parameters"]["query"] };
+  "listPaymentLinks": { path: operations["listPaymentLinks"]["parameters"]["path"] };
   "listPaymentRefunds": { path: operations["listPaymentRefunds"]["parameters"]["path"] };
-  "listPayments": { path: operations["listPayments"]["parameters"]["path"]; query?: operations["listPayments"]["parameters"]["query"] };
-  "promotePaymentProduct": { path: operations["promotePaymentProduct"]["parameters"]["path"]; idempotencyKey: IdempotencyKey };
-  "reactivatePaymentLink": { path: operations["reactivatePaymentLink"]["parameters"]["path"]; idempotencyKey: IdempotencyKey };
-  "requestPaymentRefund": { path: operations["requestPaymentRefund"]["parameters"]["path"]; body: operations["requestPaymentRefund"]["requestBody"]["content"]["application/json"]; idempotencyKey: IdempotencyKey };
-  "sendOtp": { path: operations["sendOtp"]["parameters"]["path"]; body: operations["sendOtp"]["requestBody"]["content"]["application/json"]; idempotencyKey: IdempotencyKey };
-  "updatePaymentLink": { path: operations["updatePaymentLink"]["parameters"]["path"]; body: operations["updatePaymentLink"]["requestBody"]["content"]["application/json"]; idempotencyKey: IdempotencyKey };
-  "updatePaymentProduct": { path: operations["updatePaymentProduct"]["parameters"]["path"]; body: operations["updatePaymentProduct"]["requestBody"]["content"]["application/json"]; idempotencyKey: IdempotencyKey };
+  "listPayments": { path: operations["listPayments"]["parameters"]["path"] };
+  "listProjectWebhookDeliveries": { path: operations["listProjectWebhookDeliveries"]["parameters"]["path"]; query?: operations["listProjectWebhookDeliveries"]["parameters"]["query"] };
+  "reactivatePaymentLink": { path: operations["reactivatePaymentLink"]["parameters"]["path"]; body: NonNullable<operations["reactivatePaymentLink"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
+  "requestPaymentRefund": { path: operations["requestPaymentRefund"]["parameters"]["path"]; body: NonNullable<operations["requestPaymentRefund"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
+  "sendOtp": { path: operations["sendOtp"]["parameters"]["path"]; body: NonNullable<operations["sendOtp"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
+  "updatePaymentLink": { path: operations["updatePaymentLink"]["parameters"]["path"]; body: NonNullable<operations["updatePaymentLink"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
 }
 
 export interface OperationResponseMap {
-  "archivePaymentProduct": operations["archivePaymentProduct"]["responses"][200]["content"]["application/json"];
+  "cancelPaymentIntent": operations["cancelPaymentIntent"]["responses"][200]["content"]["application/json"];
+  "createCheckoutSession": operations["createCheckoutSession"]["responses"][201]["content"]["application/json"];
+  "createPaymentIntent": operations["createPaymentIntent"]["responses"][201]["content"]["application/json"];
   "createPaymentLink": operations["createPaymentLink"]["responses"][201]["content"]["application/json"];
-  "createPaymentProduct": operations["createPaymentProduct"]["responses"][201]["content"]["application/json"];
   "createShipment": operations["createShipment"]["responses"][201]["content"]["application/json"] | operations["createShipment"]["responses"][202]["content"]["application/json"];
-  "deactivatePaymentLink": operations["deactivatePaymentLink"]["responses"][201]["content"]["application/json"];
+  "deactivatePaymentLink": operations["deactivatePaymentLink"]["responses"][200]["content"]["application/json"];
   "getPayment": operations["getPayment"]["responses"][200]["content"]["application/json"];
+  "getPaymentIntent": operations["getPaymentIntent"]["responses"][200]["content"]["application/json"];
   "getPaymentLink": operations["getPaymentLink"]["responses"][200]["content"]["application/json"];
-  "getPaymentProduct": operations["getPaymentProduct"]["responses"][200]["content"]["application/json"];
   "getPaymentRefund": operations["getPaymentRefund"]["responses"][200]["content"]["application/json"];
   "getShipmentExecutionStatus": operations["getShipmentExecutionStatus"]["responses"][200]["content"]["application/json"];
+  "listCatalogedProviderOperations": operations["listCatalogedProviderOperations"]["responses"][200]["content"]["application/json"];
+  "listPaymentIntents": operations["listPaymentIntents"]["responses"][200]["content"]["application/json"];
   "listPaymentLinks": operations["listPaymentLinks"]["responses"][200]["content"]["application/json"];
-  "listPaymentProducts": operations["listPaymentProducts"]["responses"][200]["content"]["application/json"];
   "listPaymentRefunds": operations["listPaymentRefunds"]["responses"][200]["content"]["application/json"];
   "listPayments": operations["listPayments"]["responses"][200]["content"]["application/json"];
-  "promotePaymentProduct": operations["promotePaymentProduct"]["responses"][201]["content"]["application/json"];
-  "reactivatePaymentLink": operations["reactivatePaymentLink"]["responses"][201]["content"]["application/json"];
+  "listProjectWebhookDeliveries": operations["listProjectWebhookDeliveries"]["responses"][200]["content"]["application/json"];
+  "reactivatePaymentLink": operations["reactivatePaymentLink"]["responses"][200]["content"]["application/json"];
   "requestPaymentRefund": operations["requestPaymentRefund"]["responses"][201]["content"]["application/json"];
   "sendOtp": operations["sendOtp"]["responses"][201]["content"]["application/json"] | operations["sendOtp"]["responses"][202]["content"]["application/json"];
   "updatePaymentLink": operations["updatePaymentLink"]["responses"][200]["content"]["application/json"];
-  "updatePaymentProduct": operations["updatePaymentProduct"]["responses"][200]["content"]["application/json"];
 }

@@ -9,13 +9,12 @@ import {
 } from './outcome.js';
 import { RawWathbaClient } from './raw-client.js';
 
-type CreateProductOperation = OperationInputMap['createPaymentProduct'];
+type CreateIntentOperation = OperationInputMap['createPaymentIntent'];
+type ListIntentsOperation = OperationInputMap['listPaymentIntents'];
+type GetIntentOperation = OperationInputMap['getPaymentIntent'];
+type CancelIntentOperation = OperationInputMap['cancelPaymentIntent'];
+type CreateCheckoutOperation = OperationInputMap['createCheckoutSession'];
 type CreateLinkOperation = OperationInputMap['createPaymentLink'];
-type ListProductsOperation = OperationInputMap['listPaymentProducts'];
-type GetProductOperation = OperationInputMap['getPaymentProduct'];
-type UpdateProductOperation = OperationInputMap['updatePaymentProduct'];
-type ArchiveProductOperation = OperationInputMap['archivePaymentProduct'];
-type PromoteProductOperation = OperationInputMap['promotePaymentProduct'];
 type ListLinksOperation = OperationInputMap['listPaymentLinks'];
 type GetLinkOperation = OperationInputMap['getPaymentLink'];
 type UpdateLinkOperation = OperationInputMap['updatePaymentLink'];
@@ -28,26 +27,43 @@ type GetRefundOperation = OperationInputMap['getPaymentRefund'];
 type ListRefundsOperation = OperationInputMap['listPaymentRefunds'];
 
 /**
- * All payment amounts (`amountMinor`) are expressed in the smallest currency
- * unit — e.g. halalas for SAR, so `100` = 1.00 SAR. The payment provider
- * enforces a minimum of `100` minor units per amount; no maximum is
- * documented. The server validates amounts — the SDK performs no client-side
- * validation.
+ * Creates a single-use Payment Intent from trusted server code. Amounts use
+ * the smallest currency unit. The returned checkout token is short-lived and
+ * may be passed only to Wathba Checkout; never persist or log it.
  */
-export type CreatePaymentProductInput = Readonly<
-  CreateProductOperation['body'] & {
-    readonly projectId: CreateProductOperation['path']['projectId'];
-    readonly idempotencyKey: CreateProductOperation['idempotencyKey'];
+export type CreatePaymentIntentInput = Readonly<
+  CreateIntentOperation['body'] & {
+    readonly projectId: CreateIntentOperation['path']['projectId'];
+    readonly idempotencyKey: CreateIntentOperation['idempotencyKey'];
   }
 >;
-export type CreatePaymentProductResult =
-  OperationResponseMap['createPaymentProduct'];
+export type CreatePaymentIntentResult = OperationResponseMap['createPaymentIntent'];
+
+export type ListPaymentIntentsInput = Readonly<ListIntentsOperation['path']>;
+export type ListPaymentIntentsResult = OperationResponseMap['listPaymentIntents'];
+
+export type GetPaymentIntentInput = Readonly<GetIntentOperation['path']>;
+export type GetPaymentIntentResult = OperationResponseMap['getPaymentIntent'];
+
+export type CancelPaymentIntentInput = Readonly<
+  CancelIntentOperation['body'] &
+    CancelIntentOperation['path'] & {
+      readonly idempotencyKey: CancelIntentOperation['idempotencyKey'];
+    }
+>;
+export type CancelPaymentIntentResult = OperationResponseMap['cancelPaymentIntent'];
+
+export type CreateCheckoutSessionInput = Readonly<
+  CreateCheckoutOperation['body'] &
+    CreateCheckoutOperation['path'] & {
+      readonly idempotencyKey: CreateCheckoutOperation['idempotencyKey'];
+    }
+>;
+export type CreateCheckoutSessionResult = OperationResponseMap['createCheckoutSession'];
 
 /**
- * Payment amounts (`amountMinor`) are in the smallest currency unit with a
- * provider minimum of `100` (e.g. `100` halalas = 1.00 SAR) and no documented
- * maximum. See {@link CreatePaymentProductInput}. Validation happens
- * server-side.
+ * Payment Links are an optional shareable wrapper around the same Payment
+ * Intent and hosted Wathba Checkout engine. Use Payment Intents in apps.
  */
 export type CreatePaymentLinkInput = Readonly<
   CreateLinkOperation['body'] & {
@@ -57,39 +73,7 @@ export type CreatePaymentLinkInput = Readonly<
 >;
 export type CreatePaymentLinkResult = OperationResponseMap['createPaymentLink'];
 
-export type ListPaymentProductsInput = Readonly<
-  ListProductsOperation['path'] & { readonly query?: ListProductsOperation['query'] }
->;
-export type ListPaymentProductsResult = OperationResponseMap['listPaymentProducts'];
-
-export type GetPaymentProductInput = Readonly<GetProductOperation['path']>;
-export type GetPaymentProductResult = OperationResponseMap['getPaymentProduct'];
-
-export type UpdatePaymentProductInput = Readonly<
-  UpdateProductOperation['body'] &
-    UpdateProductOperation['path'] & {
-      readonly idempotencyKey: UpdateProductOperation['idempotencyKey'];
-    }
->;
-export type UpdatePaymentProductResult = OperationResponseMap['updatePaymentProduct'];
-
-export type ArchivePaymentProductInput = Readonly<
-  ArchiveProductOperation['path'] & {
-    readonly idempotencyKey: ArchiveProductOperation['idempotencyKey'];
-  }
->;
-export type ArchivePaymentProductResult = OperationResponseMap['archivePaymentProduct'];
-
-export type PromotePaymentProductInput = Readonly<
-  PromoteProductOperation['path'] & {
-    readonly idempotencyKey: PromoteProductOperation['idempotencyKey'];
-  }
->;
-export type PromotePaymentProductResult = OperationResponseMap['promotePaymentProduct'];
-
-export type ListPaymentLinksInput = Readonly<
-  ListLinksOperation['path'] & { readonly query?: ListLinksOperation['query'] }
->;
+export type ListPaymentLinksInput = Readonly<ListLinksOperation['path']>;
 export type ListPaymentLinksResult = OperationResponseMap['listPaymentLinks'];
 
 export type GetPaymentLinkInput = Readonly<GetLinkOperation['path']>;
@@ -108,18 +92,19 @@ export type DeactivatePaymentLinkInput = Readonly<
     readonly idempotencyKey: DeactivateLinkOperation['idempotencyKey'];
   }
 >;
-export type DeactivatePaymentLinkResult = OperationResponseMap['deactivatePaymentLink'];
+export type DeactivatePaymentLinkResult =
+  OperationResponseMap['deactivatePaymentLink'];
 
 export type ReactivatePaymentLinkInput = Readonly<
-  ReactivateLinkOperation['path'] & {
-    readonly idempotencyKey: ReactivateLinkOperation['idempotencyKey'];
-  }
+  ReactivateLinkOperation['body'] &
+    ReactivateLinkOperation['path'] & {
+      readonly idempotencyKey: ReactivateLinkOperation['idempotencyKey'];
+    }
 >;
-export type ReactivatePaymentLinkResult = OperationResponseMap['reactivatePaymentLink'];
+export type ReactivatePaymentLinkResult =
+  OperationResponseMap['reactivatePaymentLink'];
 
-export type ListPaymentsInput = Readonly<
-  ListPaymentsOperation['path'] & { readonly query?: ListPaymentsOperation['query'] }
->;
+export type ListPaymentsInput = Readonly<ListPaymentsOperation['path']>;
 export type ListPaymentsResult = OperationResponseMap['listPayments'];
 
 export type GetPaymentInput = Readonly<GetPaymentOperation['path']>;
@@ -143,16 +128,68 @@ export type ListPaymentRefundsResult = OperationResponseMap['listPaymentRefunds'
 export class WathbaPaymentsClient {
   constructor(private readonly raw: RawWathbaClient) {}
 
-  createProduct(
-    input: CreatePaymentProductInput,
-  ): Promise<WathbaOutcome<CreatePaymentProductResult>> {
+  createIntent(
+    input: CreatePaymentIntentInput,
+  ): Promise<WathbaOutcome<CreatePaymentIntentResult>> {
     const { projectId, idempotencyKey, ...body } = input;
+    return captureWathbaOutcome(
+      () =>
+        this.raw.execute('createPaymentIntent', {
+          path: { projectId },
+          body,
+          idempotencyKey,
+        }),
+      classifyPaymentIntent,
+    );
+  }
+
+  listIntents(
+    input: ListPaymentIntentsInput,
+  ): Promise<WathbaOutcome<ListPaymentIntentsResult>> {
+    const { projectId } = input;
     return captureWathbaOutcome(() =>
-      this.raw.execute('createPaymentProduct', {
+      this.raw.execute('listPaymentIntents', {
         path: { projectId },
-        body,
-        idempotencyKey,
       }),
+    );
+  }
+
+  getIntent(
+    input: GetPaymentIntentInput,
+  ): Promise<WathbaOutcome<GetPaymentIntentResult>> {
+    return captureWathbaOutcome(
+      () => this.raw.execute('getPaymentIntent', { path: input }),
+      classifyPaymentIntent,
+    );
+  }
+
+  cancelIntent(
+    input: CancelPaymentIntentInput,
+  ): Promise<WathbaOutcome<CancelPaymentIntentResult>> {
+    const { projectId, paymentIntentId, idempotencyKey, ...body } = input;
+    return captureWathbaOutcome(
+      () =>
+        this.raw.execute('cancelPaymentIntent', {
+          path: { projectId, paymentIntentId },
+          body,
+          idempotencyKey,
+        }),
+      classifyPaymentIntent,
+    );
+  }
+
+  createCheckoutSession(
+    input: CreateCheckoutSessionInput,
+  ): Promise<WathbaOutcome<CreateCheckoutSessionResult>> {
+    const { projectId, paymentIntentId, idempotencyKey, ...body } = input;
+    return captureWathbaOutcome(
+      () =>
+        this.raw.execute('createCheckoutSession', {
+          path: { projectId, paymentIntentId },
+          body,
+          idempotencyKey,
+        }),
+      classifyPaymentIntent,
     );
   }
 
@@ -169,71 +206,13 @@ export class WathbaPaymentsClient {
     );
   }
 
-  listProducts(
-    input: ListPaymentProductsInput,
-  ): Promise<WathbaOutcome<ListPaymentProductsResult>> {
-    const { projectId, query } = input;
-    return captureWathbaOutcome(() =>
-      this.raw.execute('listPaymentProducts', {
-        path: { projectId },
-        ...(query === undefined ? {} : { query }),
-      }),
-    );
-  }
-
-  getProduct(
-    input: GetPaymentProductInput,
-  ): Promise<WathbaOutcome<GetPaymentProductResult>> {
-    return captureWathbaOutcome(() =>
-      this.raw.execute('getPaymentProduct', { path: input }),
-    );
-  }
-
-  updateProduct(
-    input: UpdatePaymentProductInput,
-  ): Promise<WathbaOutcome<UpdatePaymentProductResult>> {
-    const { projectId, productId, idempotencyKey, ...body } = input;
-    return captureWathbaOutcome(() =>
-      this.raw.execute('updatePaymentProduct', {
-        path: { projectId, productId },
-        body,
-        idempotencyKey,
-      }),
-    );
-  }
-
-  archiveProduct(
-    input: ArchivePaymentProductInput,
-  ): Promise<WathbaOutcome<ArchivePaymentProductResult>> {
-    const { projectId, productId, idempotencyKey } = input;
-    return captureWathbaOutcome(() =>
-      this.raw.execute('archivePaymentProduct', {
-        path: { projectId, productId },
-        idempotencyKey,
-      }),
-    );
-  }
-
-  promoteProduct(
-    input: PromotePaymentProductInput,
-  ): Promise<WathbaOutcome<PromotePaymentProductResult>> {
-    const { projectId, productId, idempotencyKey } = input;
-    return captureWathbaOutcome(() =>
-      this.raw.execute('promotePaymentProduct', {
-        path: { projectId, productId },
-        idempotencyKey,
-      }),
-    );
-  }
-
   listLinks(
     input: ListPaymentLinksInput,
   ): Promise<WathbaOutcome<ListPaymentLinksResult>> {
-    const { projectId, query } = input;
+    const { projectId } = input;
     return captureWathbaOutcome(() =>
       this.raw.execute('listPaymentLinks', {
         path: { projectId },
-        ...(query === undefined ? {} : { query }),
       }),
     );
   }
@@ -274,10 +253,11 @@ export class WathbaPaymentsClient {
   reactivateLink(
     input: ReactivatePaymentLinkInput,
   ): Promise<WathbaOutcome<ReactivatePaymentLinkResult>> {
-    const { projectId, linkId, idempotencyKey } = input;
+    const { projectId, linkId, idempotencyKey, ...body } = input;
     return captureWathbaOutcome(() =>
       this.raw.execute('reactivatePaymentLink', {
         path: { projectId, linkId },
+        body,
         idempotencyKey,
       }),
     );
@@ -286,11 +266,10 @@ export class WathbaPaymentsClient {
   listPayments(
     input: ListPaymentsInput,
   ): Promise<WathbaOutcome<ListPaymentsResult>> {
-    const { projectId, query } = input;
+    const { projectId } = input;
     return captureWathbaOutcome(() =>
       this.raw.execute('listPayments', {
         path: { projectId },
-        ...(query === undefined ? {} : { query }),
       }),
     );
   }
@@ -333,6 +312,16 @@ export class WathbaPaymentsClient {
       this.raw.execute('listPaymentRefunds', { path: input }),
     );
   }
+}
+
+function classifyPaymentIntent(
+  intent: CreatePaymentIntentResult | GetPaymentIntentResult,
+): WathbaOutcomeClassification {
+  return intent.status === 'succeeded' ||
+    intent.status === 'failed' ||
+    intent.status === 'cancelled'
+    ? 'final'
+    : 'pending';
 }
 
 function classifyPayment(

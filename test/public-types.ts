@@ -1,8 +1,8 @@
 import {
   WathbaClient,
   asIdempotencyKey,
-  type CreatePaymentProductInput,
-  type CreatePaymentProductResult,
+  type CreatePaymentIntentInput,
+  type CreatePaymentIntentResult,
   type CreateShipmentInput,
   type CreateShipmentResult,
   type GetShipmentExecutionStatusInput,
@@ -39,15 +39,17 @@ const verificationResult: Promise<WathbaOutcome<VerifyOtpResult>> =
   client.otp.verify(otpVerification);
 void verificationResult;
 
-const paymentProduct: CreatePaymentProductInput = {
+const paymentIntent: CreatePaymentIntentInput = {
   projectId: 'prj_types',
   environmentId: 'env_types',
-  name: 'Premium plan',
-  prices: [{ amountMinor: 10_000, currency: 'SAR' }],
-  idempotencyKey: asIdempotencyKey('idem_types_payment_product'),
+  amountMinor: 10_000,
+  currency: 'SAR',
+  clientBinding: { kind: 'web_origin', value: 'https://shop.example.test' },
+  allowedPaymentMethods: ['card', 'apple_pay', 'stc_pay'],
+  idempotencyKey: asIdempotencyKey('idem_types_payment_intent'),
 };
-const paymentOutcome: Promise<WathbaOutcome<CreatePaymentProductResult>> =
-  client.payments.createProduct(paymentProduct);
+const paymentOutcome: Promise<WathbaOutcome<CreatePaymentIntentResult>> =
+  client.payments.createIntent(paymentIntent);
 void paymentOutcome;
 
 const shipment: CreateShipmentInput = {
@@ -85,8 +87,13 @@ function useOutcome(outcome: WathbaOutcome<CreateShipmentResult>): string {
 }
 void useOutcome;
 
-const linkQuery: OperationInputMap['listPaymentLinks']['query'] = { status: 'active' };
-void linkQuery;
+const intentBody: OperationInputMap['createPaymentIntent']['body'] = {
+  environmentId: 'env_types',
+  amountMinor: 10_000,
+  currency: 'SAR',
+  clientBinding: { kind: 'web_origin', value: 'https://shop.example.test' },
+};
+void intentBody;
 
 const billingEffect: WathbaProblem['billingEffect'] = 'none';
 void billingEffect;
@@ -97,9 +104,12 @@ client.otp.verify(otp);
 // @ts-expect-error Idempotency strings must be validated and branded first.
 client.otp.send({ ...otp, idempotencyKey: 'unbranded' });
 
-// @ts-expect-error Generated query enums reject values outside the OpenAPI contract.
-const invalidLinkQuery: OperationInputMap['listPaymentLinks']['query'] = { status: 'unknown_value' };
-void invalidLinkQuery;
+const invalidPaymentMethods: OperationInputMap['createPaymentIntent']['body'] = {
+  ...intentBody,
+  // @ts-expect-error Generated wallet enums reject unsupported methods.
+  allowedPaymentMethods: ['cash'],
+};
+void invalidPaymentMethods;
 
 // @ts-expect-error Stable problem billing effects are a closed contract.
 const invalidBillingEffect: WathbaProblem['billingEffect'] = 'maybe';
@@ -108,5 +118,5 @@ void invalidBillingEffect;
 // @ts-expect-error Shipping only accepts canonical published mode values.
 client.shipping.create({ ...shipment, mode: 'choose_any_provider' });
 
-// @ts-expect-error Payment product commands require a branded idempotency key.
-client.payments.createProduct({ ...paymentProduct, idempotencyKey: 'unbranded' });
+// @ts-expect-error Payment Intent commands require a branded idempotency key.
+client.payments.createIntent({ ...paymentIntent, idempotencyKey: 'unbranded' });

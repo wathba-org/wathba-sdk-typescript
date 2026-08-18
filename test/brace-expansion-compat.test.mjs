@@ -10,7 +10,10 @@ const redoclyRequire = createRequire(
   openapiRequire.resolve('@redocly/openapi-core'),
 );
 const minimatch = redoclyRequire('minimatch');
-const { expand } = redoclyRequire('brace-expansion');
+const minimatchRequire = createRequire(
+  redoclyRequire.resolve('minimatch/package.json'),
+);
+const { expand } = minimatchRequire('brace-expansion');
 
 test('patched minimatch uses the fixed brace expansion export', () => {
   assert.equal(minimatch('sdk-esm', 'sdk-{esm,cjs}'), true);
