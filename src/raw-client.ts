@@ -55,6 +55,8 @@ export interface RawWathbaClientOptions {
   readonly credentialProvider: WathbaCredentialProvider;
   readonly fetch?: typeof fetch;
   readonly retry?: WathbaRetryPolicy;
+  /** Optional assertion for the API contract pinned to the service binding. */
+  readonly apiVersion?: string;
 }
 
 export interface WathbaRetryPolicy {
@@ -67,6 +69,7 @@ export class RawWathbaClient {
   private readonly apiOrigin: string;
   private readonly fetch: typeof fetch;
   private readonly retry: Required<WathbaRetryPolicy>;
+  private readonly configuredApiVersion: string | undefined;
 
   constructor(private readonly options: RawWathbaClientOptions) {
     assertServerRuntime();
@@ -102,6 +105,15 @@ export class RawWathbaClient {
       throw new Error('wathba_invalid_retry_policy');
     }
     this.retry = { maximumAttempts, delayMs };
+    if (
+      options.apiVersion !== undefined &&
+      !/^(?:legacy-unversioned|\d{4}-\d{2}-\d{2}(?:\.[1-9]\d*)?)$/.test(
+        options.apiVersion,
+      )
+    ) {
+      throw new Error('wathba_invalid_api_version');
+    }
+    this.configuredApiVersion = options.apiVersion;
   }
 
   async execute<Id extends WathbaOperationId>(
@@ -174,6 +186,7 @@ export class RawWathbaClient {
     }
 
     const retryAllowed = spec.method === 'GET' || spec.idempotency === 'required';
+    let selectedApiVersion = this.configuredApiVersion;
     for (let attempt = 1; attempt <= this.retry.maximumAttempts; attempt += 1) {
       const credential = await this.resolveCredential(operationId, spec);
       const headers = new Headers({
@@ -183,6 +196,9 @@ export class RawWathbaClient {
       if (body !== undefined) headers.set('content-type', 'application/json');
       if ('idempotencyKey' in input) {
         headers.set('idempotency-key', String(input.idempotencyKey));
+      }
+      if (selectedApiVersion) {
+        headers.set('wathba-version', selectedApiVersion);
       }
 
       let response: Response;
@@ -202,6 +218,19 @@ export class RawWathbaClient {
           continue;
         }
         throw new WathbaSdkError('wathba_transport_unavailable');
+      }
+
+      const responseApiVersion = response.headers.get('wathba-version');
+      if (responseApiVersion) {
+        if (
+          selectedApiVersion !== undefined &&
+          responseApiVersion !== selectedApiVersion
+        ) {
+          throw new WathbaSdkError('wathba_api_version_mismatch');
+        }
+        selectedApiVersion = responseApiVersion;
+      } else if (selectedApiVersion !== undefined) {
+        throw new WathbaSdkError('wathba_api_version_mismatch');
       }
 
       if (!response.ok) {

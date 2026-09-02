@@ -1,4 +1,5 @@
 export type WathbaSdkErrorCode =
+  | 'wathba_api_version_mismatch'
   | 'wathba_credential_unavailable'
   | 'wathba_invalid_json_response'
   | 'wathba_invalid_request'
@@ -15,6 +16,7 @@ const errorFacts: Readonly<Record<WathbaSdkErrorCode, {
   readonly billingEffect: WathbaSdkBillingEffect;
   readonly retryable: boolean;
 }>> = {
+  wathba_api_version_mismatch: { billingEffect: 'none', retryable: false },
   wathba_credential_unavailable: { billingEffect: 'none', retryable: true },
   wathba_invalid_json_response: { billingEffect: 'unknown', retryable: false },
   wathba_invalid_problem_response: { billingEffect: 'unknown', retryable: false },

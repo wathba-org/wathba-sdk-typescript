@@ -141,6 +141,16 @@ const devWathba = new WathbaClient({
 
 Keep an idempotency key with the logical command and reuse it for retries. Create a new key only for a new intent. Resolve the Wathba credential inside the trusted server runtime; never pass it to browser code, an AI agent, logs, or source control.
 
+Wathba pins an API contract version to each activated service. The SDK reads the
+`Wathba-Version` response header and reuses that version assertion on retries.
+Set `apiVersion` in `WathbaClient` options only when deliberately testing or
+upgrading a binding; a mismatch fails closed and never falls forward silently.
+
+Wathba pins an API contract version to each activated service. The SDK reads the
+`Wathba-Version` response header and reuses that version assertion on retries.
+Set `apiVersion` in `WathbaClient` options only when deliberately testing or
+upgrading a binding; a mismatch fails closed and never falls forward silently.
+
 Wathba does not require a member cloud account, credential destination, or GCP
 adapter. The SDK credential provider is an application-owned callback. Keep the
 member-configured key in server-only configuration and return it only to the
@@ -156,6 +166,11 @@ The package includes the pinned OpenAPI artifact, AI-integration protocol schema
 See [`recipes/`](./recipes) for Node, Next.js server, NestJS/Fastify, and the sandbox shipping flow.
 
 Server-side webhook verification is exported as `verifyWathbaWebhook`. It verifies the exact raw body before parsing, enforces the `v1` timestamped HMAC contract and five-minute freshness window, resolves only the declared signing-secret version, compares signatures timing-safely, validates the strict event envelope, and requires an atomic durable replay-store claim. A valid redelivery returns `kind: 'duplicate'`; acknowledge it without applying the business effect again. Never use an already-parsed body or an in-memory replay store in production.
+
+Webhook contracts are pinned independently from API contracts. Pass
+`expectedWebhookVersion` when you have recorded the endpoint pin; verification
+then requires the matching `X-Wathba-Webhook-Version` header while still
+checking the signature over the exact raw bytes.
 
 ## Publication
 

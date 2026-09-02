@@ -20,12 +20,16 @@ test('shipping.create sends the complete sandbox order_first contract and preser
   let observed;
   const client = new WathbaClient({
     baseUrl: 'https://api.test.wathba.info',
+    apiVersion: '2026-09-02',
     credentialProvider,
     fetch: async (url, init) => {
       observed = { url: String(url), init };
       return Response.json(
         shippingFixture.pending.body,
-        { status: shippingFixture.pending.status },
+        {
+          status: shippingFixture.pending.status,
+          headers: { 'wathba-version': '2026-09-02' },
+        },
       );
     },
   });
@@ -46,6 +50,7 @@ test('shipping.create sends the complete sandbox order_first contract and preser
     observed.init.headers.get('idempotency-key'),
     shippingFixture.request.idempotencyKey,
   );
+  assert.equal(observed.init.headers.get('wathba-version'), '2026-09-02');
   const body = JSON.parse(observed.init.body);
   assert.equal(body.projectId, undefined);
   assert.equal(body.idempotencyKey, undefined);
