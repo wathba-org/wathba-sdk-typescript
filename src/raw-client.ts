@@ -220,29 +220,43 @@ export class RawWathbaClient {
         throw new WathbaSdkError('wathba_transport_unavailable');
       }
 
-      const responseApiVersion = response.headers.get('wathba-version');
-      if (responseApiVersion) {
-        if (
-          selectedApiVersion !== undefined &&
-          responseApiVersion !== selectedApiVersion
-        ) {
-          throw new WathbaSdkError('wathba_api_version_mismatch');
-        }
-        selectedApiVersion = responseApiVersion;
-      } else if (selectedApiVersion !== undefined) {
-        throw new WathbaSdkError('wathba_api_version_mismatch');
-      }
-
+      // Only runtime routes pin a version; an absent header is not a mismatch.
+      const responseApiVersion = response.headers.get('wathba-version') ?? undefined;
       if (!response.ok) {
         const payload = await parseJson(response, 'application/problem+json');
+        if (
+          response.status === 409 &&
+          isRecord(payload) &&
+          payload.code === 'api_version_mismatch'
+        ) {
+          throw new WathbaSdkError('wathba_api_version_mismatch', {
+            expectedVersion: selectedApiVersion,
+            pinnedVersion:
+              typeof payload.pinnedVersion === 'string'
+                ? payload.pinnedVersion
+                : responseApiVersion,
+          });
+        }
         if (!isWathbaProblem(payload) || payload.status !== response.status) {
           throw new WathbaSdkError('wathba_invalid_problem_response');
         }
         if (payload.retryable && retryAllowed && attempt < this.retry.maximumAttempts) {
+          // Freeze the first reported pin so a retry never straddles a contract change.
+          selectedApiVersion ??= responseApiVersion;
           await wait(this.retry.delayMs);
           continue;
         }
         throw new WathbaApiError(payload);
+      }
+      if (
+        responseApiVersion !== undefined &&
+        selectedApiVersion !== undefined &&
+        responseApiVersion !== selectedApiVersion
+      ) {
+        throw new WathbaSdkError('wathba_api_version_mismatch', {
+          expectedVersion: selectedApiVersion,
+          pinnedVersion: responseApiVersion,
+        });
       }
       const success = (spec.successResponses as Readonly<Record<string, {
         readonly contentType: string;

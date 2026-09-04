@@ -44,6 +44,7 @@ export interface WathbaWebhookReplayStore {
     readonly eventId: string;
     readonly attemptTimestamp: number;
     readonly secretVersion: number;
+    readonly webhookContractVersion?: string;
   }): Promise<'claimed' | 'duplicate'>;
 }
 
@@ -126,11 +127,13 @@ export async function verifyWathbaWebhook(
       'wathba_webhook_event_id_mismatch',
     );
   }
+  const contractVersion =
+    webhookContractVersion === undefined ? {} : { webhookContractVersion };
   const claim = await claimReplay(input.replayStore, {
     eventId: event.eventId,
     attemptTimestamp,
     secretVersion,
-    ...(webhookContractVersion ? { webhookContractVersion } : {}),
+    ...contractVersion,
   });
   return {
     kind: claim === 'claimed' ? 'verified' : 'duplicate',
@@ -138,6 +141,7 @@ export async function verifyWathbaWebhook(
     event,
     attemptTimestamp,
     secretVersion,
+    ...contractVersion,
   };
 }
 

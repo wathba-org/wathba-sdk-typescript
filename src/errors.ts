@@ -28,14 +28,25 @@ const errorFacts: Readonly<Record<WathbaSdkErrorCode, {
   wathba_unexpected_content_type: { billingEffect: 'unknown', retryable: false },
 };
 
+export interface WathbaSdkErrorDetails {
+  /** The API version the client asserted (`wathba_api_version_mismatch` only). */
+  readonly expectedVersion?: string | undefined;
+  /** The API version the server reported as pinned (`wathba_api_version_mismatch` only). */
+  readonly pinnedVersion?: string | undefined;
+}
+
 export class WathbaSdkError extends Error {
   readonly name = 'WathbaSdkError';
   readonly billingEffect: WathbaSdkBillingEffect;
   readonly retryable: boolean;
+  readonly expectedVersion: string | undefined;
+  readonly pinnedVersion: string | undefined;
 
-  constructor(readonly code: WathbaSdkErrorCode) {
+  constructor(readonly code: WathbaSdkErrorCode, details: WathbaSdkErrorDetails = {}) {
     super(code);
     this.billingEffect = errorFacts[code].billingEffect;
     this.retryable = errorFacts[code].retryable;
+    this.expectedVersion = details.expectedVersion;
+    this.pinnedVersion = details.pinnedVersion;
   }
 }

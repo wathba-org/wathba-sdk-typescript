@@ -141,15 +141,20 @@ const devWathba = new WathbaClient({
 
 Keep an idempotency key with the logical command and reuse it for retries. Create a new key only for a new intent. Resolve the Wathba credential inside the trusted server runtime; never pass it to browser code, an AI agent, logs, or source control.
 
-Wathba pins an API contract version to each activated service. The SDK reads the
-`Wathba-Version` response header and reuses that version assertion on retries.
-Set `apiVersion` in `WathbaClient` options only when deliberately testing or
-upgrading a binding; a mismatch fails closed and never falls forward silently.
-
-Wathba pins an API contract version to each activated service. The SDK reads the
-`Wathba-Version` response header and reuses that version assertion on retries.
-Set `apiVersion` in `WathbaClient` options only when deliberately testing or
-upgrading a binding; a mismatch fails closed and never falls forward silently.
+Wathba pins an API contract version to each activated service. Set `apiVersion`
+in `WathbaClient` options only when deliberately testing or upgrading a binding.
+The SDK then sends it as `Wathba-Version` on every request and treats it as a
+fail-closed assertion: a pinned runtime route rejects any other version with
+`409 api_version_mismatch`, which the SDK raises as `wathba_api_version_mismatch`
+carrying the server's `pinnedVersion`; a binding that is not pinned to that
+version (including a `legacy-unversioned` one) is a mismatch too; and a
+successful response that reports a different `Wathba-Version` raises the same
+error. The SDK never falls forward: it freezes the first `Wathba-Version` it
+receives for the remaining retries of a call so a retry never straddles a
+contract change. Only runtime routes pin a version, so a response without the
+header (a management route, or a server that predates version pinning) is
+accepted as-is; the version assertion is enforced where the server pins, not
+inferred by the client.
 
 Wathba does not require a member cloud account, credential destination, or GCP
 adapter. The SDK credential provider is an application-owned callback. Keep the
