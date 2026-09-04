@@ -363,3 +363,56 @@ test('secret map selects the exact declared version and never falls back', () =>
       error.code === 'wathba_webhook_unknown_secret_version',
   );
 });
+
+test('expectedWebhookVersion accepts the matching header and surfaces the contract version', async () => {
+  const claims = [];
+  const result = await verifyWathbaWebhook({
+    rawBody: RAW_BODY,
+    headers: { ...signedHeaders(), 'x-wathba-webhook-version': '2026-09-02' },
+    secretResolver: resolver(),
+    replayStore: {
+      async claim(input) {
+        claims.push(input);
+        return 'claimed';
+      },
+    },
+    now: () => NOW,
+    expectedWebhookVersion: '2026-09-02',
+  });
+  assert.equal(result.kind, 'verified');
+  assert.equal(result.webhookContractVersion, '2026-09-02');
+  assert.equal(claims[0].webhookContractVersion, '2026-09-02');
+});
+
+test('a delivery without a webhook version verifies and reports none', async () => {
+  const result = await verifyWathbaWebhook({
+    rawBody: RAW_BODY,
+    headers: signedHeaders(),
+    secretResolver: resolver(),
+    replayStore: { claim: async () => 'claimed' },
+    now: () => NOW,
+  });
+  assert.equal(result.kind, 'verified');
+  assert.equal('webhookContractVersion' in result, false);
+});
+
+for (const [name, header] of [
+  ['missing', {}],
+  ['different', { 'x-wathba-webhook-version': '2026-10-01' }],
+]) {
+  test(`expectedWebhookVersion rejects a ${name} webhook version header`, async () => {
+    await assert.rejects(
+      verifyWathbaWebhook({
+        rawBody: RAW_BODY,
+        headers: { ...signedHeaders(), ...header },
+        secretResolver: resolver(),
+        replayStore: { claim: async () => 'claimed' },
+        now: () => NOW,
+        expectedWebhookVersion: '2026-09-02',
+      }),
+      (error) =>
+        error instanceof WathbaWebhookVerificationError &&
+        error.code === 'wathba_webhook_version_mismatch',
+    );
+  });
+}

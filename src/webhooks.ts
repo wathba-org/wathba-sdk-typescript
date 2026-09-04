@@ -44,6 +44,7 @@ export interface WathbaWebhookReplayStore {
     readonly eventId: string;
     readonly attemptTimestamp: number;
     readonly secretVersion: number;
+    readonly webhookContractVersion?: string;
   }): Promise<'claimed' | 'duplicate'>;
 }
 
@@ -54,6 +55,7 @@ export interface VerifyWathbaWebhookInput {
   readonly replayStore: WathbaWebhookReplayStore;
   readonly now?: () => Date;
   readonly toleranceSeconds?: number;
+  readonly expectedWebhookVersion?: string;
 }
 
 export interface VerifiedWathbaWebhook {
@@ -62,6 +64,7 @@ export interface VerifiedWathbaWebhook {
   readonly event: WathbaWebhookEvent;
   readonly attemptTimestamp: number;
   readonly secretVersion: number;
+  readonly webhookContractVersion?: string;
 }
 
 export type WathbaWebhookVerificationErrorCode =
@@ -77,6 +80,7 @@ export type WathbaWebhookVerificationErrorCode =
   | 'wathba_webhook_secret_unavailable'
   | 'wathba_webhook_timestamp_outside_tolerance'
   | 'wathba_webhook_unknown_secret_version'
+  | 'wathba_webhook_version_mismatch'
   | 'wathba_webhook_unsupported_signature_version';
 
 export class WathbaWebhookVerificationError extends Error {
@@ -91,6 +95,18 @@ export async function verifyWathbaWebhook(
   input: VerifyWathbaWebhookInput,
 ): Promise<VerifiedWathbaWebhook> {
   const headers = requiredHeaders(input.headers);
+  const webhookContractVersion = optionalOneHeader(
+    input.headers,
+    'x-wathba-webhook-version',
+  );
+  if (
+    input.expectedWebhookVersion !== undefined &&
+    webhookContractVersion !== input.expectedWebhookVersion
+  ) {
+    throw new WathbaWebhookVerificationError(
+      'wathba_webhook_version_mismatch',
+    );
+  }
   const attemptTimestamp = parseTimestamp(headers['x-wathba-timestamp']);
   assertFresh(
     attemptTimestamp,
@@ -111,10 +127,13 @@ export async function verifyWathbaWebhook(
       'wathba_webhook_event_id_mismatch',
     );
   }
+  const contractVersion =
+    webhookContractVersion === undefined ? {} : { webhookContractVersion };
   const claim = await claimReplay(input.replayStore, {
     eventId: event.eventId,
     attemptTimestamp,
     secretVersion,
+    ...contractVersion,
   });
   return {
     kind: claim === 'claimed' ? 'verified' : 'duplicate',
@@ -122,6 +141,7 @@ export async function verifyWathbaWebhook(
     event,
     attemptTimestamp,
     secretVersion,
+    ...contractVersion,
   };
 }
 
@@ -260,6 +280,24 @@ function oneHeader(
     throw new WathbaWebhookVerificationError(
       'wathba_webhook_missing_header',
     );
+  }
+  if (typeof value !== 'string' || value.includes(',')) {
+    throw new WathbaWebhookVerificationError(
+      'wathba_webhook_duplicate_header',
+    );
+  }
+  return value;
+}
+
+function optionalOneHeader(
+  source: WathbaWebhookHeaders | WathbaWebhookHeaderReader,
+  name: string,
+): string | undefined {
+  const value = isHeaderReader(source)
+    ? source.get(name)
+    : recordHeader(source, name);
+  if (value === undefined || value === null || value.length === 0) {
+    return undefined;
   }
   if (typeof value !== 'string' || value.includes(',')) {
     throw new WathbaWebhookVerificationError(

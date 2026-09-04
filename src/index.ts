@@ -75,6 +75,7 @@ export {
   WathbaSdkError,
   type WathbaSdkBillingEffect,
   type WathbaSdkErrorCode,
+  type WathbaSdkErrorDetails,
 } from './errors.js';
 export { wathbaSdkRelease, type WathbaSdkRelease } from './generated/release.js';
 export {

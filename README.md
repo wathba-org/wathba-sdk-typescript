@@ -141,6 +141,21 @@ const devWathba = new WathbaClient({
 
 Keep an idempotency key with the logical command and reuse it for retries. Create a new key only for a new intent. Resolve the Wathba credential inside the trusted server runtime; never pass it to browser code, an AI agent, logs, or source control.
 
+Wathba pins an API contract version to each activated service. Set `apiVersion`
+in `WathbaClient` options only when deliberately testing or upgrading a binding.
+The SDK then sends it as `Wathba-Version` on every request and treats it as a
+fail-closed assertion: a pinned runtime route rejects any other version with
+`409 api_version_mismatch`, which the SDK raises as `wathba_api_version_mismatch`
+carrying the server's `pinnedVersion`; a binding that is not pinned to that
+version (including a `legacy-unversioned` one) is a mismatch too; and a
+successful response that reports a different `Wathba-Version` raises the same
+error. The SDK never falls forward: it freezes the first `Wathba-Version` it
+receives for the remaining retries of a call so a retry never straddles a
+contract change. Only runtime routes pin a version, so a response without the
+header (a management route, or a server that predates version pinning) is
+accepted as-is; the version assertion is enforced where the server pins, not
+inferred by the client.
+
 Wathba does not require a member cloud account, credential destination, or GCP
 adapter. The SDK credential provider is an application-owned callback. Keep the
 member-configured key in server-only configuration and return it only to the
@@ -156,6 +171,11 @@ The package includes the pinned OpenAPI artifact, AI-integration protocol schema
 See [`recipes/`](./recipes) for Node, Next.js server, NestJS/Fastify, and the sandbox shipping flow.
 
 Server-side webhook verification is exported as `verifyWathbaWebhook`. It verifies the exact raw body before parsing, enforces the `v1` timestamped HMAC contract and five-minute freshness window, resolves only the declared signing-secret version, compares signatures timing-safely, validates the strict event envelope, and requires an atomic durable replay-store claim. A valid redelivery returns `kind: 'duplicate'`; acknowledge it without applying the business effect again. Never use an already-parsed body or an in-memory replay store in production.
+
+Webhook contracts are pinned independently from API contracts. Pass
+`expectedWebhookVersion` when you have recorded the endpoint pin; verification
+then requires the matching `X-Wathba-Webhook-Version` header while still
+checking the signature over the exact raw bytes.
 
 ## Publication
 
