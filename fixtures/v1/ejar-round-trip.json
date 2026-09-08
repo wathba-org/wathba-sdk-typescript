@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "1.0",
+  "contractVersion": "2026.08.mvp.018",
+  "operationId": "getEjarContract",
+  "synthetic": true,
+  "apiVersion": "2026-09-02",
+  "request": {
+    "path": {
+      "projectId": "prj_fixture_123"
+    },
+    "idempotencyKey": "idem_fixture_ejar_lookup_123",
+    "body": {
+      "environmentId": "env_fixture_sandbox",
+      "input": {
+        "contractNumber": "10000000000"
+      }
+    }
+  },
+  "success": {
+    "status": 200,
+    "contentType": "application/json",
+    "headers": {
+      "Wathba-Version": "2026-09-02"
+    },
+    "body": {
+      "executionId": "exe_fixture_ejar_123",
+      "capability": "realestate.contracts",
+      "operationCode": "getContract",
+      "amountMinor": 0,
+      "currency": "SAR",
+      "state": "succeeded",
+      "statusCode": 200,
+      "message": "operation_succeeded",
+      "result": {
+        "contractNumber": "10000000000",
+        "retrievedAt": "2026-09-08T12:00:00Z",
+        "found": true,
+        "contract": {
+          "contractType": "residential",
+          "status": "active",
+          "startDate": "2026-01-01",
+          "endDate": "2026-12-31",
+          "version": {
+            "major": 1,
+            "minor": 0
+          },
+          "currency": "SAR",
+          "securityDepositAmount": "0.00"
+        }
+      }
+    }
+  },
+  "empty": {
+    "status": 200,
+    "contentType": "application/json",
+    "headers": {
+      "Wathba-Version": "2026-09-02"
+    },
+    "body": {
+      "executionId": "exe_fixture_ejar_123",
+      "capability": "realestate.contracts",
+      "operationCode": "getContract",
+      "amountMinor": 0,
+      "currency": "SAR",
+      "state": "succeeded",
+      "statusCode": 200,
+      "message": "operation_succeeded",
+      "result": {
+        "contractNumber": "10000000000",
+        "retrievedAt": "2026-09-08T12:00:00Z",
+        "found": false,
+        "contract": null
+      }
+    }
+  },
+  "pending": {
+    "status": 202,
+    "contentType": "application/json",
+    "headers": {
+      "Wathba-Version": "2026-09-02"
+    },
+    "body": {
+      "executionId": "exe_fixture_ejar_123",
+      "capability": "realestate.contracts",
+      "operationCode": "getContract",
+      "amountMinor": 0,
+      "currency": "SAR",
+      "state": "pending",
+      "statusCode": 202,
+      "message": "operation_pending"
+    }
+  },
+  "settlementPending": {
+    "status": 202,
+    "contentType": "application/json",
+    "headers": {
+      "Wathba-Version": "2026-09-02"
+    },
+    "body": {
+      "executionId": "exe_fixture_ejar_123",
+      "capability": "realestate.contracts",
+      "operationCode": "getContract",
+      "amountMinor": 1,
+      "currency": "SAR",
+      "state": "pending",
+      "statusCode": 202,
+      "message": "settlement_pending"
+    }
+  },
+  "problem": {
+    "status": 409,
+    "contentType": "application/problem+json",
+    "body": {
+      "type": "https://wathba.dev/problems/idempotency-conflict",
+      "title": "The idempotency key belongs to a different request",
+      "status": 409,
+      "code": "idempotency_conflict",
+      "correlationId": "corr_fixture_ejar_123",
+      "retryable": false,
+      "billingEffect": "none"
+    }
+  }
+}

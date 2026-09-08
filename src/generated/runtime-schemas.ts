@@ -3879,6 +3879,683 @@ export const runtimeSchemas = {
     ],
     "type": "object"
   },
+  "EjarExecutionEnvelope": {
+    "additionalProperties": false,
+    "properties": {
+      "amountMinor": {
+        "maximum": 9007199254740991,
+        "minimum": 0,
+        "type": "integer"
+      },
+      "capability": {
+        "const": "realestate.contracts",
+        "type": "string"
+      },
+      "currency": {
+        "const": "SAR",
+        "type": "string"
+      },
+      "executionId": {
+        "maxLength": 160,
+        "minLength": 3,
+        "type": "string"
+      },
+      "message": {
+        "type": "string"
+      },
+      "operationCode": {
+        "const": "getContract",
+        "type": "string"
+      },
+      "result": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "contract": {
+                "additionalProperties": false,
+                "properties": {
+                  "contractType": {
+                    "enum": [
+                      "residential",
+                      "commercial",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "currency": {
+                    "anyOf": [
+                      {
+                        "pattern": "^[A-Z]{3}$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "endDate": {
+                    "anyOf": [
+                      {
+                        "format": "date",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "securityDepositAmount": {
+                    "anyOf": [
+                      {
+                        "pattern": "^(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,2})?$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "startDate": {
+                    "anyOf": [
+                      {
+                        "format": "date",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "status": {
+                    "enum": [
+                      "active",
+                      "expired",
+                      "draft",
+                      "pending",
+                      "terminated",
+                      "cancelled",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "version": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "major": {
+                        "maximum": 9007199254740991,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "minor": {
+                        "maximum": 9007199254740991,
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "major",
+                      "minor"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "contractType",
+                  "status",
+                  "startDate",
+                  "endDate",
+                  "version",
+                  "currency"
+                ],
+                "type": "object"
+              },
+              "contractNumber": {
+                "pattern": "^[0-9]{1,40}$",
+                "type": "string"
+              },
+              "found": {
+                "const": true,
+                "type": "boolean"
+              },
+              "retrievedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "contractNumber",
+              "retrievedAt",
+              "found",
+              "contract"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "contract": {
+                "type": "null"
+              },
+              "contractNumber": {
+                "pattern": "^[0-9]{1,40}$",
+                "type": "string"
+              },
+              "found": {
+                "const": false,
+                "type": "boolean"
+              },
+              "retrievedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "contractNumber",
+              "retrievedAt",
+              "found",
+              "contract"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "state": {
+        "enum": [
+          "succeeded",
+          "pending"
+        ],
+        "type": "string"
+      },
+      "statusCode": {
+        "anyOf": [
+          {
+            "const": 200,
+            "type": "number"
+          },
+          {
+            "const": 202,
+            "type": "number"
+          }
+        ]
+      }
+    },
+    "required": [
+      "executionId",
+      "state",
+      "statusCode",
+      "message",
+      "capability",
+      "operationCode",
+      "amountMinor",
+      "currency"
+    ],
+    "type": "object"
+  },
+  "EjarGetContractRequest": {
+    "additionalProperties": false,
+    "properties": {
+      "contractNumber": {
+        "pattern": "^[0-9]{1,40}$",
+        "type": "string"
+      },
+      "environmentId": {
+        "maxLength": 160,
+        "minLength": 3,
+        "type": "string"
+      }
+    },
+    "required": [
+      "environmentId",
+      "contractNumber"
+    ],
+    "type": "object"
+  },
+  "EjarGetContractResult": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "contract": {
+            "additionalProperties": false,
+            "properties": {
+              "contractType": {
+                "enum": [
+                  "residential",
+                  "commercial",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              "currency": {
+                "anyOf": [
+                  {
+                    "pattern": "^[A-Z]{3}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "endDate": {
+                "anyOf": [
+                  {
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "securityDepositAmount": {
+                "anyOf": [
+                  {
+                    "pattern": "^(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,2})?$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "startDate": {
+                "anyOf": [
+                  {
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "status": {
+                "enum": [
+                  "active",
+                  "expired",
+                  "draft",
+                  "pending",
+                  "terminated",
+                  "cancelled",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "additionalProperties": false,
+                "properties": {
+                  "major": {
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "minor": {
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "major",
+                  "minor"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "contractType",
+              "status",
+              "startDate",
+              "endDate",
+              "version",
+              "currency"
+            ],
+            "type": "object"
+          },
+          "contractNumber": {
+            "pattern": "^[0-9]{1,40}$",
+            "type": "string"
+          },
+          "found": {
+            "const": true,
+            "type": "boolean"
+          },
+          "retrievedAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "contractNumber",
+          "retrievedAt",
+          "found",
+          "contract"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "contract": {
+            "type": "null"
+          },
+          "contractNumber": {
+            "pattern": "^[0-9]{1,40}$",
+            "type": "string"
+          },
+          "found": {
+            "const": false,
+            "type": "boolean"
+          },
+          "retrievedAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "contractNumber",
+          "retrievedAt",
+          "found",
+          "contract"
+        ],
+        "type": "object"
+      }
+    ]
+  },
+  "EjarPendingExecution": {
+    "additionalProperties": false,
+    "properties": {
+      "amountMinor": {
+        "maximum": 9007199254740991,
+        "minimum": 0,
+        "type": "integer"
+      },
+      "capability": {
+        "const": "realestate.contracts",
+        "type": "string"
+      },
+      "currency": {
+        "const": "SAR",
+        "type": "string"
+      },
+      "executionId": {
+        "maxLength": 160,
+        "minLength": 3,
+        "type": "string"
+      },
+      "message": {
+        "type": "string"
+      },
+      "operationCode": {
+        "const": "getContract",
+        "type": "string"
+      },
+      "state": {
+        "const": "pending",
+        "type": "string"
+      },
+      "statusCode": {
+        "const": 202,
+        "type": "number"
+      }
+    },
+    "required": [
+      "executionId",
+      "state",
+      "statusCode",
+      "message",
+      "capability",
+      "operationCode",
+      "amountMinor",
+      "currency"
+    ],
+    "type": "object"
+  },
+  "EjarPublicRequest": {
+    "additionalProperties": false,
+    "properties": {
+      "environmentId": {
+        "maxLength": 160,
+        "minLength": 3,
+        "type": "string"
+      },
+      "input": {
+        "additionalProperties": false,
+        "properties": {
+          "contractNumber": {
+            "pattern": "^[0-9]{1,40}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "contractNumber"
+        ],
+        "type": "object"
+      }
+    },
+    "required": [
+      "environmentId",
+      "input"
+    ],
+    "type": "object"
+  },
+  "EjarSucceededExecution": {
+    "additionalProperties": false,
+    "properties": {
+      "amountMinor": {
+        "maximum": 9007199254740991,
+        "minimum": 0,
+        "type": "integer"
+      },
+      "capability": {
+        "const": "realestate.contracts",
+        "type": "string"
+      },
+      "currency": {
+        "const": "SAR",
+        "type": "string"
+      },
+      "executionId": {
+        "maxLength": 160,
+        "minLength": 3,
+        "type": "string"
+      },
+      "message": {
+        "type": "string"
+      },
+      "operationCode": {
+        "const": "getContract",
+        "type": "string"
+      },
+      "result": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "contract": {
+                "additionalProperties": false,
+                "properties": {
+                  "contractType": {
+                    "enum": [
+                      "residential",
+                      "commercial",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "currency": {
+                    "anyOf": [
+                      {
+                        "pattern": "^[A-Z]{3}$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "endDate": {
+                    "anyOf": [
+                      {
+                        "format": "date",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "securityDepositAmount": {
+                    "anyOf": [
+                      {
+                        "pattern": "^(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,2})?$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "startDate": {
+                    "anyOf": [
+                      {
+                        "format": "date",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "status": {
+                    "enum": [
+                      "active",
+                      "expired",
+                      "draft",
+                      "pending",
+                      "terminated",
+                      "cancelled",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "version": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "major": {
+                        "maximum": 9007199254740991,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "minor": {
+                        "maximum": 9007199254740991,
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "major",
+                      "minor"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "contractType",
+                  "status",
+                  "startDate",
+                  "endDate",
+                  "version",
+                  "currency"
+                ],
+                "type": "object"
+              },
+              "contractNumber": {
+                "pattern": "^[0-9]{1,40}$",
+                "type": "string"
+              },
+              "found": {
+                "const": true,
+                "type": "boolean"
+              },
+              "retrievedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "contractNumber",
+              "retrievedAt",
+              "found",
+              "contract"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "contract": {
+                "type": "null"
+              },
+              "contractNumber": {
+                "pattern": "^[0-9]{1,40}$",
+                "type": "string"
+              },
+              "found": {
+                "const": false,
+                "type": "boolean"
+              },
+              "retrievedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "contractNumber",
+              "retrievedAt",
+              "found",
+              "contract"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "state": {
+        "const": "succeeded",
+        "type": "string"
+      },
+      "statusCode": {
+        "const": 200,
+        "type": "number"
+      }
+    },
+    "required": [
+      "executionId",
+      "state",
+      "statusCode",
+      "message",
+      "capability",
+      "operationCode",
+      "amountMinor",
+      "currency",
+      "result"
+    ],
+    "type": "object"
+  },
   "MemberWebhookEvent": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "additionalProperties": false,

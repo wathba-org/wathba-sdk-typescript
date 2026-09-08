@@ -29,6 +29,8 @@ const errorFacts: Readonly<Record<WathbaSdkErrorCode, {
 };
 
 export interface WathbaSdkErrorDetails {
+  /** A received success response can leave effects uncertain even if validation fails. */
+  readonly billingEffect?: 'unknown';
   /** The API version the client asserted (`wathba_api_version_mismatch` only). */
   readonly expectedVersion?: string | undefined;
   /** The API version the server reported as pinned (`wathba_api_version_mismatch` only). */
@@ -44,7 +46,7 @@ export class WathbaSdkError extends Error {
 
   constructor(readonly code: WathbaSdkErrorCode, details: WathbaSdkErrorDetails = {}) {
     super(code);
-    this.billingEffect = errorFacts[code].billingEffect;
+    this.billingEffect = details.billingEffect ?? errorFacts[code].billingEffect;
     this.retryable = errorFacts[code].retryable;
     this.expectedVersion = details.expectedVersion;
     this.pinnedVersion = details.pinnedVersion;

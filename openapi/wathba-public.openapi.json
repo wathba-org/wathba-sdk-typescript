@@ -3880,6 +3880,683 @@
         ],
         "type": "object"
       },
+      "EjarExecutionEnvelope": {
+        "additionalProperties": false,
+        "properties": {
+          "amountMinor": {
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "capability": {
+            "const": "realestate.contracts",
+            "type": "string"
+          },
+          "currency": {
+            "const": "SAR",
+            "type": "string"
+          },
+          "executionId": {
+            "maxLength": 160,
+            "minLength": 3,
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "operationCode": {
+            "const": "getContract",
+            "type": "string"
+          },
+          "result": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "contract": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "contractType": {
+                        "enum": [
+                          "residential",
+                          "commercial",
+                          "unknown"
+                        ],
+                        "type": "string"
+                      },
+                      "currency": {
+                        "anyOf": [
+                          {
+                            "pattern": "^[A-Z]{3}$",
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "endDate": {
+                        "anyOf": [
+                          {
+                            "format": "date",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "securityDepositAmount": {
+                        "anyOf": [
+                          {
+                            "pattern": "^(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,2})?$",
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "startDate": {
+                        "anyOf": [
+                          {
+                            "format": "date",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "status": {
+                        "enum": [
+                          "active",
+                          "expired",
+                          "draft",
+                          "pending",
+                          "terminated",
+                          "cancelled",
+                          "unknown"
+                        ],
+                        "type": "string"
+                      },
+                      "version": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "major": {
+                            "maximum": 9007199254740991,
+                            "minimum": 0,
+                            "type": "integer"
+                          },
+                          "minor": {
+                            "maximum": 9007199254740991,
+                            "minimum": 0,
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "major",
+                          "minor"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "contractType",
+                      "status",
+                      "startDate",
+                      "endDate",
+                      "version",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "contractNumber": {
+                    "pattern": "^[0-9]{1,40}$",
+                    "type": "string"
+                  },
+                  "found": {
+                    "const": true,
+                    "type": "boolean"
+                  },
+                  "retrievedAt": {
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "contractNumber",
+                  "retrievedAt",
+                  "found",
+                  "contract"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "contract": {
+                    "type": "null"
+                  },
+                  "contractNumber": {
+                    "pattern": "^[0-9]{1,40}$",
+                    "type": "string"
+                  },
+                  "found": {
+                    "const": false,
+                    "type": "boolean"
+                  },
+                  "retrievedAt": {
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "contractNumber",
+                  "retrievedAt",
+                  "found",
+                  "contract"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "state": {
+            "enum": [
+              "succeeded",
+              "pending"
+            ],
+            "type": "string"
+          },
+          "statusCode": {
+            "anyOf": [
+              {
+                "const": 200,
+                "type": "number"
+              },
+              {
+                "const": 202,
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "executionId",
+          "state",
+          "statusCode",
+          "message",
+          "capability",
+          "operationCode",
+          "amountMinor",
+          "currency"
+        ],
+        "type": "object"
+      },
+      "EjarGetContractRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "contractNumber": {
+            "pattern": "^[0-9]{1,40}$",
+            "type": "string"
+          },
+          "environmentId": {
+            "maxLength": 160,
+            "minLength": 3,
+            "type": "string"
+          }
+        },
+        "required": [
+          "environmentId",
+          "contractNumber"
+        ],
+        "type": "object"
+      },
+      "EjarGetContractResult": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "contract": {
+                "additionalProperties": false,
+                "properties": {
+                  "contractType": {
+                    "enum": [
+                      "residential",
+                      "commercial",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "currency": {
+                    "anyOf": [
+                      {
+                        "pattern": "^[A-Z]{3}$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "endDate": {
+                    "anyOf": [
+                      {
+                        "format": "date",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "securityDepositAmount": {
+                    "anyOf": [
+                      {
+                        "pattern": "^(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,2})?$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "startDate": {
+                    "anyOf": [
+                      {
+                        "format": "date",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "status": {
+                    "enum": [
+                      "active",
+                      "expired",
+                      "draft",
+                      "pending",
+                      "terminated",
+                      "cancelled",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "version": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "major": {
+                        "maximum": 9007199254740991,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "minor": {
+                        "maximum": 9007199254740991,
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "major",
+                      "minor"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "contractType",
+                  "status",
+                  "startDate",
+                  "endDate",
+                  "version",
+                  "currency"
+                ],
+                "type": "object"
+              },
+              "contractNumber": {
+                "pattern": "^[0-9]{1,40}$",
+                "type": "string"
+              },
+              "found": {
+                "const": true,
+                "type": "boolean"
+              },
+              "retrievedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "contractNumber",
+              "retrievedAt",
+              "found",
+              "contract"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "contract": {
+                "type": "null"
+              },
+              "contractNumber": {
+                "pattern": "^[0-9]{1,40}$",
+                "type": "string"
+              },
+              "found": {
+                "const": false,
+                "type": "boolean"
+              },
+              "retrievedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "contractNumber",
+              "retrievedAt",
+              "found",
+              "contract"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "EjarPendingExecution": {
+        "additionalProperties": false,
+        "properties": {
+          "amountMinor": {
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "capability": {
+            "const": "realestate.contracts",
+            "type": "string"
+          },
+          "currency": {
+            "const": "SAR",
+            "type": "string"
+          },
+          "executionId": {
+            "maxLength": 160,
+            "minLength": 3,
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "operationCode": {
+            "const": "getContract",
+            "type": "string"
+          },
+          "state": {
+            "const": "pending",
+            "type": "string"
+          },
+          "statusCode": {
+            "const": 202,
+            "type": "number"
+          }
+        },
+        "required": [
+          "executionId",
+          "state",
+          "statusCode",
+          "message",
+          "capability",
+          "operationCode",
+          "amountMinor",
+          "currency"
+        ],
+        "type": "object"
+      },
+      "EjarPublicRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "environmentId": {
+            "maxLength": 160,
+            "minLength": 3,
+            "type": "string"
+          },
+          "input": {
+            "additionalProperties": false,
+            "properties": {
+              "contractNumber": {
+                "pattern": "^[0-9]{1,40}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "contractNumber"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "environmentId",
+          "input"
+        ],
+        "type": "object"
+      },
+      "EjarSucceededExecution": {
+        "additionalProperties": false,
+        "properties": {
+          "amountMinor": {
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "capability": {
+            "const": "realestate.contracts",
+            "type": "string"
+          },
+          "currency": {
+            "const": "SAR",
+            "type": "string"
+          },
+          "executionId": {
+            "maxLength": 160,
+            "minLength": 3,
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "operationCode": {
+            "const": "getContract",
+            "type": "string"
+          },
+          "result": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "contract": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "contractType": {
+                        "enum": [
+                          "residential",
+                          "commercial",
+                          "unknown"
+                        ],
+                        "type": "string"
+                      },
+                      "currency": {
+                        "anyOf": [
+                          {
+                            "pattern": "^[A-Z]{3}$",
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "endDate": {
+                        "anyOf": [
+                          {
+                            "format": "date",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "securityDepositAmount": {
+                        "anyOf": [
+                          {
+                            "pattern": "^(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,2})?$",
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "startDate": {
+                        "anyOf": [
+                          {
+                            "format": "date",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "status": {
+                        "enum": [
+                          "active",
+                          "expired",
+                          "draft",
+                          "pending",
+                          "terminated",
+                          "cancelled",
+                          "unknown"
+                        ],
+                        "type": "string"
+                      },
+                      "version": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "major": {
+                            "maximum": 9007199254740991,
+                            "minimum": 0,
+                            "type": "integer"
+                          },
+                          "minor": {
+                            "maximum": 9007199254740991,
+                            "minimum": 0,
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "major",
+                          "minor"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "contractType",
+                      "status",
+                      "startDate",
+                      "endDate",
+                      "version",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "contractNumber": {
+                    "pattern": "^[0-9]{1,40}$",
+                    "type": "string"
+                  },
+                  "found": {
+                    "const": true,
+                    "type": "boolean"
+                  },
+                  "retrievedAt": {
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "contractNumber",
+                  "retrievedAt",
+                  "found",
+                  "contract"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "contract": {
+                    "type": "null"
+                  },
+                  "contractNumber": {
+                    "pattern": "^[0-9]{1,40}$",
+                    "type": "string"
+                  },
+                  "found": {
+                    "const": false,
+                    "type": "boolean"
+                  },
+                  "retrievedAt": {
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "contractNumber",
+                  "retrievedAt",
+                  "found",
+                  "contract"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "state": {
+            "const": "succeeded",
+            "type": "string"
+          },
+          "statusCode": {
+            "const": 200,
+            "type": "number"
+          }
+        },
+        "required": [
+          "executionId",
+          "state",
+          "statusCode",
+          "message",
+          "capability",
+          "operationCode",
+          "amountMinor",
+          "currency",
+          "result"
+        ],
+        "type": "object"
+      },
       "MemberWebhookEvent": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
@@ -4863,7 +5540,7 @@
   },
   "info": {
     "title": "Wathba Public API",
-    "version": "2026.08.mvp.017"
+    "version": "2026.08.mvp.018"
   },
   "jsonSchemaDialect": "https://spec.openapis.org/oas/3.1/dialect/base",
   "openapi": "3.1.2",
@@ -8575,6 +9252,216 @@
         "x-wathba-safe-probe": "none"
       }
     },
+    "/v1/platform/projects/{projectId}/services/realestate.ejar/operations/getContract": {
+      "post": {
+        "description": "Candidate contract. Requires enabled member, project and environment access. A successful found or empty production lookup costs its pinned price; sandbox costs zero. Reuse the unchanged request and Idempotency-Key on retry. A pending response is not final success. Provider certification is required before availability.",
+        "operationId": "getEjarContract",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "maxLength": 160,
+              "minLength": 3,
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 240,
+              "minLength": 8,
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Wathba-Version",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "maxLength": 80,
+              "minLength": 1,
+              "pattern": "^(?:legacy-unversioned|\\d{4}-\\d{2}-\\d{2}(?:\\.[1-9]\\d*)?)$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "environmentId": "env_sandbox",
+                "input": {
+                  "contractNumber": "10000000000"
+                }
+              },
+              "schema": {
+                "$ref": "#/components/schemas/EjarPublicRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EjarSucceededExecution"
+                }
+              }
+            },
+            "description": "Verified found or empty result with completed settlement",
+            "headers": {
+              "Wathba-Version": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "maxLength": 80,
+                  "minLength": 1,
+                  "pattern": "^(?:legacy-unversioned|\\d{4}-\\d{2}-\\d{2}(?:\\.[1-9]\\d*)?)$",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EjarPendingExecution"
+                }
+              }
+            },
+            "description": "Outcome or settlement pending; retry the same intent",
+            "headers": {
+              "Wathba-Version": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "maxLength": 80,
+                  "minLength": 1,
+                  "pattern": "^(?:legacy-unversioned|\\d{4}-\\d{2}-\\d{2}(?:\\.[1-9]\\d*)?)$",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WathbaProblem"
+                }
+              }
+            },
+            "description": "Wathba problem; inspect billingEffect and preserve the original intent on retry"
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WathbaProblem"
+                }
+              }
+            },
+            "description": "Wathba problem; inspect billingEffect and preserve the original intent on retry"
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WathbaProblem"
+                }
+              }
+            },
+            "description": "Wathba problem; inspect billingEffect and preserve the original intent on retry"
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WathbaProblem"
+                }
+              }
+            },
+            "description": "Wathba problem; inspect billingEffect and preserve the original intent on retry"
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WathbaProblem"
+                }
+              }
+            },
+            "description": "Wathba problem; inspect billingEffect and preserve the original intent on retry"
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WathbaProblem"
+                }
+              }
+            },
+            "description": "Wathba problem; inspect billingEffect and preserve the original intent on retry"
+          },
+          "502": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WathbaProblem"
+                }
+              }
+            },
+            "description": "Wathba problem; inspect billingEffect and preserve the original intent on retry"
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WathbaProblem"
+                }
+              }
+            },
+            "description": "Wathba problem; inspect billingEffect and preserve the original intent on retry"
+          },
+          "504": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WathbaProblem"
+                }
+              }
+            },
+            "description": "Wathba problem; inspect billingEffect and preserve the original intent on retry"
+          }
+        },
+        "security": [
+          {
+            "wathbaApiKey": [
+              "tools:execute",
+              "ejar:contracts:read"
+            ]
+          }
+        ],
+        "summary": "Retrieve contract information by contract number",
+        "tags": [
+          "realestate.contracts"
+        ],
+        "x-wathba-audience": "member",
+        "x-wathba-capability": "realestate.contracts",
+        "x-wathba-idempotency": "required",
+        "x-wathba-operation-code": "getContract",
+        "x-wathba-projection-kind": "generic_runtime",
+        "x-wathba-provider-effect": "reads_contract",
+        "x-wathba-safe-probe": "none",
+        "x-wathba-service-code": "realestate.ejar"
+      }
+    },
     "/v1/platform/projects/{projectId}/shipments": {
       "post": {
         "deprecated": true,
@@ -9838,7 +10725,7 @@
     }
   },
   "x-wathba-provider-runtime": {
-    "contractVersion": "2026.08.mvp.017",
+    "contractVersion": "2026.08.mvp.018",
     "discriminator": {
       "operationCodeParameter": "operationCode",
       "serviceCodeParameter": "serviceCode"
@@ -10205,6 +11092,55 @@
         "responseSchemaRef": "#/components/schemas/TorodCancellationResult",
         "riskClassification": "status_changing_write",
         "serviceCode": "shipping.torod"
+      },
+      {
+        "adapter": "NhcEjarAdapter",
+        "capabilityCode": "realestate.contracts",
+        "capCodes": [
+          "ejar.lookup.per_day",
+          "ejar.lookup.per_minute"
+        ],
+        "certification": "development_preview",
+        "doorwayRequiredScopes": [
+          "tools:execute"
+        ],
+        "eventType": "EjarContractLookupCompleted",
+        "executionAvailability": {
+          "allowedEnvironmentKinds": [
+            "sandbox"
+          ],
+          "enablementFlag": "REALESTATE_EJAR_PROVIDER_ENABLED",
+          "failClosedReason": "ejar_provider_certification_required",
+          "requiresExplicitEnablement": true,
+          "stage": "dev_preview"
+        },
+        "executionPathTemplate": "/v1/platform/projects/{projectId}/services/realestate.ejar/operations/getContract",
+        "humanApproval": "none",
+        "humanApprovalBinding": null,
+        "idempotency": "required",
+        "operationCode": "getContract",
+        "operationRequiredScopes": [
+          "ejar:contracts:read"
+        ],
+        "provider": "nhc",
+        "requestExample": {
+          "contractNumber": "10000000000",
+          "environmentId": "env_sandbox"
+        },
+        "requestSchemaRef": "#/components/schemas/EjarGetContractRequest",
+        "requiredScopes": [
+          "tools:execute",
+          "ejar:contracts:read"
+        ],
+        "responseExample": {
+          "contract": null,
+          "contractNumber": "10000000000",
+          "found": false,
+          "retrievedAt": "2026-09-08T12:00:00Z"
+        },
+        "responseSchemaRef": "#/components/schemas/EjarGetContractResult",
+        "riskClassification": "read_only",
+        "serviceCode": "realestate.ejar"
       }
     ]
   }

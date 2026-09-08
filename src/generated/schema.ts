@@ -356,6 +356,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/platform/projects/{projectId}/services/realestate.ejar/operations/getContract": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Retrieve contract information by contract number
+         * @description Candidate contract. Requires enabled member, project and environment access. A successful found or empty production lookup costs its pinned price; sandbox costs zero. Reuse the unchanged request and Idempotency-Key on retry. A pending response is not final success. Provider certification is required before availability.
+         */
+        post: operations["getEjarContract"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/platform/projects/{projectId}/shipments": {
         parameters: {
             query?: never;
@@ -1253,6 +1273,144 @@ export interface components {
             shipmentType?: "normal" | "cold" | "quick";
             warehouseCode?: string;
             warehouseName?: string;
+        };
+        EjarExecutionEnvelope: {
+            amountMinor: number;
+            /** @constant */
+            capability: "realestate.contracts";
+            /** @constant */
+            currency: "SAR";
+            executionId: string;
+            message: string;
+            /** @constant */
+            operationCode: "getContract";
+            result?: {
+                contract: {
+                    /** @enum {string} */
+                    contractType: "residential" | "commercial" | "unknown";
+                    currency: string | null;
+                    endDate: string | null;
+                    securityDepositAmount?: string | null;
+                    startDate: string | null;
+                    /** @enum {string} */
+                    status: "active" | "expired" | "draft" | "pending" | "terminated" | "cancelled" | "unknown";
+                    version: {
+                        major: number;
+                        minor: number;
+                    };
+                };
+                contractNumber: string;
+                /** @constant */
+                found: true;
+                /** Format: date-time */
+                retrievedAt: string;
+            } | {
+                contract: null;
+                contractNumber: string;
+                /** @constant */
+                found: false;
+                /** Format: date-time */
+                retrievedAt: string;
+            };
+            /** @enum {string} */
+            state: "succeeded" | "pending";
+            statusCode: 200 | 202;
+        };
+        EjarGetContractRequest: {
+            contractNumber: string;
+            environmentId: string;
+        };
+        EjarGetContractResult: {
+            contract: {
+                /** @enum {string} */
+                contractType: "residential" | "commercial" | "unknown";
+                currency: string | null;
+                endDate: string | null;
+                securityDepositAmount?: string | null;
+                startDate: string | null;
+                /** @enum {string} */
+                status: "active" | "expired" | "draft" | "pending" | "terminated" | "cancelled" | "unknown";
+                version: {
+                    major: number;
+                    minor: number;
+                };
+            };
+            contractNumber: string;
+            /** @constant */
+            found: true;
+            /** Format: date-time */
+            retrievedAt: string;
+        } | {
+            contract: null;
+            contractNumber: string;
+            /** @constant */
+            found: false;
+            /** Format: date-time */
+            retrievedAt: string;
+        };
+        EjarPendingExecution: {
+            amountMinor: number;
+            /** @constant */
+            capability: "realestate.contracts";
+            /** @constant */
+            currency: "SAR";
+            executionId: string;
+            message: string;
+            /** @constant */
+            operationCode: "getContract";
+            /** @constant */
+            state: "pending";
+            /** @constant */
+            statusCode: 202;
+        };
+        EjarPublicRequest: {
+            environmentId: string;
+            input: {
+                contractNumber: string;
+            };
+        };
+        EjarSucceededExecution: {
+            amountMinor: number;
+            /** @constant */
+            capability: "realestate.contracts";
+            /** @constant */
+            currency: "SAR";
+            executionId: string;
+            message: string;
+            /** @constant */
+            operationCode: "getContract";
+            result: {
+                contract: {
+                    /** @enum {string} */
+                    contractType: "residential" | "commercial" | "unknown";
+                    currency: string | null;
+                    endDate: string | null;
+                    securityDepositAmount?: string | null;
+                    startDate: string | null;
+                    /** @enum {string} */
+                    status: "active" | "expired" | "draft" | "pending" | "terminated" | "cancelled" | "unknown";
+                    version: {
+                        major: number;
+                        minor: number;
+                    };
+                };
+                contractNumber: string;
+                /** @constant */
+                found: true;
+                /** Format: date-time */
+                retrievedAt: string;
+            } | {
+                contract: null;
+                contractNumber: string;
+                /** @constant */
+                found: false;
+                /** Format: date-time */
+                retrievedAt: string;
+            };
+            /** @constant */
+            state: "succeeded";
+            /** @constant */
+            statusCode: 200;
         };
         MemberWebhookEvent: {
             alertKey: string;
@@ -3717,6 +3875,135 @@ export interface operations {
             };
             /** @description Wathba problem */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    getEjarContract: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "Wathba-Version": string;
+            };
+            path: {
+                projectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "environmentId": "env_sandbox",
+                 *       "input": {
+                 *         "contractNumber": "10000000000"
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["EjarPublicRequest"];
+            };
+        };
+        responses: {
+            /** @description Verified found or empty result with completed settlement */
+            200: {
+                headers: {
+                    "Wathba-Version"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EjarSucceededExecution"];
+                };
+            };
+            /** @description Outcome or settlement pending; retry the same intent */
+            202: {
+                headers: {
+                    "Wathba-Version"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EjarPendingExecution"];
+                };
+            };
+            /** @description Wathba problem; inspect billingEffect and preserve the original intent on retry */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem; inspect billingEffect and preserve the original intent on retry */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem; inspect billingEffect and preserve the original intent on retry */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem; inspect billingEffect and preserve the original intent on retry */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem; inspect billingEffect and preserve the original intent on retry */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem; inspect billingEffect and preserve the original intent on retry */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem; inspect billingEffect and preserve the original intent on retry */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem; inspect billingEffect and preserve the original intent on retry */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem; inspect billingEffect and preserve the original intent on retry */
+            504: {
                 headers: {
                     [name: string]: unknown;
                 };

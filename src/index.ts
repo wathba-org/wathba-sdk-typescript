@@ -1,5 +1,10 @@
 export { WathbaClient } from './client.js';
 export {
+  WathbaEjarClient,
+  type GetEjarContractInput,
+  type GetEjarContractResult,
+} from './ejar.js';
+export {
   WathbaOtpClient,
   type SendOtpInput,
   type SendOtpResult,

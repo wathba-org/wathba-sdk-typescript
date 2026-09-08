@@ -1,5 +1,5 @@
 {
-  "contractVersion": "2026.08.mvp.017",
+  "contractVersion": "2026.08.mvp.018",
   "operationId": "sendOtp",
   "problem": {
     "body": {

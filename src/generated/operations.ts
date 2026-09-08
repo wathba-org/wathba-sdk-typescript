@@ -205,6 +205,41 @@ export const operationSpecs = {
       }
     }
   },
+  "getEjarContract": {
+    "operationId": "getEjarContract",
+    "method": "POST",
+    "path": "/v1/platform/projects/{projectId}/services/realestate.ejar/operations/getContract",
+    "capability": "realestate.contracts",
+    "idempotency": "required",
+    "apiVersionRequired": true,
+    "safeProbe": "none",
+    "requiredScopes": [
+      "tools:execute",
+      "ejar:contracts:read"
+    ],
+    "pathParameters": {
+      "projectId": {
+        "required": true,
+        "schema": {
+          "maxLength": 160,
+          "minLength": 3,
+          "type": "string"
+        }
+      }
+    },
+    "queryParameters": {},
+    "requestSchema": "EjarPublicRequest",
+    "successResponses": {
+      "200": {
+        "contentType": "application/json",
+        "schema": "EjarSucceededExecution"
+      },
+      "202": {
+        "contentType": "application/json",
+        "schema": "EjarPendingExecution"
+      }
+    }
+  },
   "getPayment": {
     "operationId": "getPayment",
     "method": "GET",
@@ -779,6 +814,7 @@ export interface OperationInputMap {
   "createPaymentLink": { path: operations["createPaymentLink"]["parameters"]["path"]; body: NonNullable<operations["createPaymentLink"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
   "createShipment": { path: operations["createShipment"]["parameters"]["path"]; body: NonNullable<operations["createShipment"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
   "deactivatePaymentLink": { path: operations["deactivatePaymentLink"]["parameters"]["path"]; idempotencyKey: IdempotencyKey };
+  "getEjarContract": { path: operations["getEjarContract"]["parameters"]["path"]; body: NonNullable<operations["getEjarContract"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
   "getPayment": { path: operations["getPayment"]["parameters"]["path"] };
   "getPaymentIntent": { path: operations["getPaymentIntent"]["parameters"]["path"] };
   "getPaymentLink": { path: operations["getPaymentLink"]["parameters"]["path"] };
@@ -803,6 +839,7 @@ export interface OperationResponseMap {
   "createPaymentLink": operations["createPaymentLink"]["responses"][201]["content"]["application/json"];
   "createShipment": operations["createShipment"]["responses"][201]["content"]["application/json"] | operations["createShipment"]["responses"][202]["content"]["application/json"];
   "deactivatePaymentLink": operations["deactivatePaymentLink"]["responses"][200]["content"]["application/json"];
+  "getEjarContract": operations["getEjarContract"]["responses"][200]["content"]["application/json"] | operations["getEjarContract"]["responses"][202]["content"]["application/json"];
   "getPayment": operations["getPayment"]["responses"][200]["content"]["application/json"];
   "getPaymentIntent": operations["getPaymentIntent"]["responses"][200]["content"]["application/json"];
   "getPaymentLink": operations["getPaymentLink"]["responses"][200]["content"]["application/json"];

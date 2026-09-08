@@ -121,6 +121,10 @@ export class RawWathbaClient {
     input: WathbaOperationInputMap[Id],
   ): Promise<WathbaOperationResponseMap[Id]> {
     const spec = wathbaOperationSpecs[operationId];
+    const apiVersionRequired = 'apiVersionRequired' in spec && spec.apiVersionRequired === true;
+    if (apiVersionRequired && this.configuredApiVersion === undefined) {
+      throw new WathbaSdkError('wathba_invalid_request');
+    }
     let path: string = spec.path;
     if (!isRecord(input.path)) throw new WathbaSdkError('wathba_invalid_request');
     const pathInput: Readonly<Record<string, unknown>> = input.path;
@@ -175,9 +179,11 @@ export class RawWathbaClient {
       throw new WathbaSdkError('wathba_invalid_request');
     }
     if (spec.idempotency === 'required') {
-      if (!('idempotencyKey' in input)) throw new WathbaSdkError('wathba_invalid_request');
+      if (!('idempotencyKey' in input) || typeof input.idempotencyKey !== 'string') {
+        throw new WathbaSdkError('wathba_invalid_request');
+      }
       try {
-        asIdempotencyKey(String(input.idempotencyKey));
+        asIdempotencyKey(input.idempotencyKey);
       } catch {
         throw new WathbaSdkError('wathba_invalid_request');
       }
@@ -222,6 +228,12 @@ export class RawWathbaClient {
 
       // Only runtime routes pin a version; an absent header is not a mismatch.
       const responseApiVersion = response.headers.get('wathba-version') ?? undefined;
+      if (response.ok && apiVersionRequired && responseApiVersion === undefined) {
+        throw new WathbaSdkError('wathba_api_version_mismatch', {
+          expectedVersion: selectedApiVersion,
+          billingEffect: 'unknown',
+        });
+      }
       if (!response.ok) {
         const payload = await parseJson(response, 'application/problem+json');
         if (
@@ -256,6 +268,7 @@ export class RawWathbaClient {
         throw new WathbaSdkError('wathba_api_version_mismatch', {
           expectedVersion: selectedApiVersion,
           pinnedVersion: responseApiVersion,
+          billingEffect: 'unknown',
         });
       }
       const success = (spec.successResponses as Readonly<Record<string, {
