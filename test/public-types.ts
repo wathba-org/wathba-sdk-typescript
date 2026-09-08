@@ -120,3 +120,22 @@ client.shipping.create({ ...shipment, mode: 'choose_any_provider' });
 
 // @ts-expect-error Payment Intent commands require a branded idempotency key.
 client.payments.createIntent({ ...paymentIntent, idempotencyKey: 'unbranded' });
+
+const ejarInput: import('@wathba-cli/sdk').GetEjarContractInput = {
+  projectId: 'prj_types', environmentId: 'env_types', contractNumber: '10000000000',
+  idempotencyKey: asIdempotencyKey('idem_types_ejar_lookup'),
+};
+const ejarOutcome: Promise<WathbaOutcome<import('@wathba-cli/sdk').GetEjarContractResult>> =
+  client.ejar.getContract(ejarInput);
+void ejarOutcome;
+function useEjarResult(result: import('@wathba-cli/sdk').GetEjarContractResult): string {
+  if (result.state === 'pending') return result.executionId;
+  if (result.result.found) return result.result.contract.contractType;
+  const empty: null = result.result.contract;
+  return String(empty);
+}
+void useEjarResult;
+// @ts-expect-error Contract numbers remain strings rather than JavaScript numbers.
+client.ejar.getContract({ ...ejarInput, contractNumber: 10000000000 });
+// @ts-expect-error Each lookup intent requires a branded idempotency key.
+client.ejar.getContract({ ...ejarInput, idempotencyKey: 'unbranded' });

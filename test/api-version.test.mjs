@@ -48,11 +48,11 @@ function send(responses, options = {}) {
   return { outcome, requests };
 }
 
-function isMismatch(expectedVersion, pinnedVersion) {
+function isMismatch(expectedVersion, pinnedVersion, billingEffect = 'unknown') {
   return (error) => {
     assert.equal(error.code, 'wathba_api_version_mismatch');
     assert.equal(error.retryable, false);
-    assert.equal(error.billingEffect, 'none');
+    assert.equal(error.billingEffect, billingEffect);
     assert.equal(error.expectedVersion, expectedVersion);
     assert.equal(error.pinnedVersion, pinnedVersion);
     return true;
@@ -120,7 +120,7 @@ for (const [name, init] of [
       ],
       { apiVersion: PINNED },
     );
-    await assert.rejects(outcome, isMismatch(PINNED, OTHER));
+    await assert.rejects(outcome, isMismatch(PINNED, OTHER, 'none'));
   });
 }
 

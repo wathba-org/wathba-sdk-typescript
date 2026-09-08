@@ -8,6 +8,10 @@ export function matchesGeneratedSchema(name: string, value: unknown): boolean {
 }
 
 export function matchesJsonSchema(schema: JsonSchema, value: unknown): boolean {
+  if (Array.isArray(schema.oneOf)) {
+    const matches = schema.oneOf.filter((candidate) => isSchema(candidate) && matchesJsonSchema(candidate, value));
+    if (matches.length !== 1) return false;
+  }
   if (Array.isArray(schema.anyOf)) {
     if (!schema.anyOf.some((candidate) => isSchema(candidate) && matchesJsonSchema(candidate, value))) {
       return false;

@@ -188,3 +188,68 @@ The first `@wathba-cli/sdk` publication is a deliberately separate one-time boot
 3. On npm, configure the new package's trusted GitHub Actions publisher for organization `wathba-org`, repository `wathba-sdk-typescript`, workflow `release.yml`, environment `npm-production`, and allowed action `npm publish`. With an interactive session on the current npm CLI, the equivalent command is `npm trust github @wathba-cli/sdk --repo wathba-org/wathba-sdk-typescript --file release.yml --env npm-production --allow-publish`; complete npm's 2FA challenge locally and never put that session or its credentials in CI.
 4. Delete the `NPM_TOKEN` GitHub environment secret and revoke the granular token at npm before proceeding.
 5. Verify that the bootstrap-created `v0.1.0` tag points to the npm-provenance source commit (the original publication dispatch commit, which may differ from a later recovery dispatch) and that its release has exactly one `publication-attestation.json` asset. All later versions publish only through the trusted publisher; do not restore a long-lived npm token.
+
+## Ejar contract information (DEV candidate)
+
+`client.ejar.getContract` uses the versioned `getEjarContract` operation through
+Wathba's project service endpoint. Availability requires current service,
+member, project and environment authorization. This candidate does not itself
+enable the service; live contract-number lookup is pending certification.
+
+Configure `apiVersion` from the project's pinned runtime version shown in its
+integration guide. The OpenAPI artifact version in `wathbaSdkRelease` identifies
+generated types; it is not the value to send in `Wathba-Version`.
+
+```typescript
+import { WathbaClient, asIdempotencyKey } from '@wathba-cli/sdk';
+
+const client = new WathbaClient({
+  baseUrl: process.env.WATHBA_API_BASE_URL,
+  apiVersion: process.env.WATHBA_API_VERSION,
+  credentialProvider: {
+    async resolve() {
+      return { apiKey: process.env.WATHBA_API_KEY! };
+    },
+  },
+});
+
+// Persist this key with the user intent and reuse it with the unchanged request.
+const outcome = await client.ejar.getContract({
+  projectId: process.env.WATHBA_PROJECT_ID!,
+  environmentId: process.env.WATHBA_ENVIRONMENT_ID!,
+  contractNumber: '10000000000', // Synthetic format example, not a live fixture.
+  idempotencyKey: asIdempotencyKey('your-persisted-lookup-intent-id'),
+});
+
+if (outcome.kind === 'action_required') {
+  // Let the authorized member complete the returned action.
+} else if (outcome.kind === 'pending') {
+  // Retain the execution and retry the original intent after bounded backoff.
+} else if (outcome.value.state === 'succeeded') {
+  const result = outcome.value.result;
+  if (result.found) {
+    // Use result.contract's allowlisted facts in your server application.
+  } else {
+    // A successful empty result: contract is null.
+  }
+}
+```
+
+The equivalent raw call is `client.raw.execute('getEjarContract', { path:
+{ projectId }, body: { environmentId, input: { contractNumber } }, idempotencyKey })`.
+Contract numbers are strings, including any leading zeros. UUIDs and numbers are
+rejected before credentials or network access. Both calls return the same typed
+execution; the convenience method adds the standard outcome wrapper.
+
+A successful production found or empty lookup uses the price pinned when the
+execution was admitted. Read `amountMinor` and `currency` from the completed
+execution; do not hard-code pricing in app code. Sandbox is unbilled. Replaying
+the same intent creates no new charge. Pending lookup or settlement is not final
+success, and an error must not be converted into an empty result. A new explicit
+refresh uses a new intent key.
+
+Ejar requires an explicit runtime API version and a matching version response
+header. Existing SDK operations retain their compatibility behavior. Keep keys
+on the server; browser imports remain unsupported. The shared synthetic cases
+in `fixtures/v1/ejar-round-trip.json` cover found, empty, pending settlement and
+idempotency conflict without a live call.

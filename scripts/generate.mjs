@@ -95,7 +95,7 @@ function emitOperations(openapi) {
       }
       const parameters = operation.parameters ?? [];
       const unsupportedParameters = parameters.filter(
-        (item) => item.in === 'cookie' || (item.in === 'header' && item.name !== 'Idempotency-Key'),
+        (item) => item.in === 'cookie' || (item.in === 'header' && !['Idempotency-Key', 'Wathba-Version'].includes(item.name)),
       );
       if (unsupportedParameters.length > 0) {
         throw new Error(`unsupported_operation_parameter:${operation.operationId}`);
@@ -122,12 +122,19 @@ function emitOperations(openapi) {
       }
       const pathParameters = parameterSpecs(parameters, 'path');
       const queryParameters = parameterSpecs(parameters, 'query');
+      const apiVersionHeader = parameters.find(
+        (item) => item.in === 'header' && item.name === 'Wathba-Version',
+      );
+      if (apiVersionHeader !== undefined && apiVersionHeader.schema?.type !== 'string') {
+        throw new Error(`unsupported_api_version_parameter:${operation.operationId}`);
+      }
       operations.push({
         operationId: operation.operationId,
         method: method.toUpperCase(),
         path,
         capability: operation['x-wathba-capability'],
         idempotency,
+        ...(apiVersionHeader?.required === true ? { apiVersionRequired: true } : {}),
         safeProbe: operation['x-wathba-safe-probe'],
         requiredScopes,
         pathParameters,
