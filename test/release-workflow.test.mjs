@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { execFileSync } from 'node:child_process';
 
 const workflow = (name) =>
   readFile(new URL(`../.github/workflows/${name}`, import.meta.url), 'utf8');
@@ -99,6 +100,27 @@ test('tag releases separate authority and re-authorize main at each mutation', a
   );
   assert.doesNotMatch(release, /jq -S 'del\(\.retrievedAt\)'/);
   assert.doesNotMatch(release, /--clobber/);
+});
+
+test('DEV and other prereleases do not promote npm latest or the stable GitHub release', async () => {
+  const source = await workflow('release.yml');
+  const channel = job(source, 'publish').match(/          case "\$GITHUB_REF_NAME" in[\s\S]*?          esac/)?.[0];
+  const flags = job(source, 'release').match(/          release_flags=\(.*\)[\s\S]*?          fi/)?.[0];
+  assert.ok(channel);
+  assert.ok(flags);
+  assert.match(source, /--provenance --tag "\$dist_tag"/);
+  assert.match(source, /"\$\{release_flags\[@\]\}"/);
+  for (const [tag, expectedChannel, prerelease] of [
+    ['v0.4.0-dev.1', 'dev', true],
+    ['v0.4.0-beta.1', 'next', true],
+    ['v0.4.0-rc.2', 'next', true],
+    ['v0.4.0', 'latest', false],
+  ]) {
+    const env = { ...process.env, GITHUB_REF_NAME: tag };
+    assert.equal(execFileSync('bash', ['-c', `${channel}\nprintf '%s' "$dist_tag"`], { env, encoding: 'utf8' }), expectedChannel);
+    const actual = execFileSync('bash', ['-c', `${flags}\nprintf '%s\\n' "\u0024{release_flags[@]}"`], { env, encoding: 'utf8' }).trim().split('\n');
+    assert.deepEqual(actual, ['--verify-tag', '--generate-notes', ...(prerelease ? ['--prerelease', '--latest=false'] : [])]);
+  }
 });
 
 test('published registry evidence remains SHA-512 and SLSA provenance bound', async () => {
