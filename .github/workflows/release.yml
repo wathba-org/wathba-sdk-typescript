@@ -183,8 +183,13 @@ jobs:
             echo "::error::SDK release tag is no longer reachable from current origin/main"
             exit 1
           }
+          case "$GITHUB_REF_NAME" in
+            *-dev.*) dist_tag=dev ;;
+            *-*) dist_tag=next ;;
+            *) dist_tag=latest ;;
+          esac
           npm publish "${RUNNER_TEMP}/wathba-sdk-candidate/candidate.tgz" \
-            --access public --provenance
+            --access public --provenance --tag "$dist_tag"
 
   attest:
     needs: [candidate, publish]
@@ -274,10 +279,14 @@ jobs:
           }
 
           evidence_state=created
+          release_flags=(--verify-tag --generate-notes)
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+            release_flags+=(--prerelease --latest=false)
+          fi
           if ! gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
             authorize_tag_on_main
             gh release create "$GITHUB_REF_NAME" "$attestation_path" \
-              --verify-tag --generate-notes
+              "${release_flags[@]}"
           else
             asset_count="$(
               gh release view "$GITHUB_REF_NAME" --json assets \

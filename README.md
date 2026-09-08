@@ -191,6 +191,10 @@ The first `@wathba-cli/sdk` publication is a deliberately separate one-time boot
 
 ## Ejar contract information (DEV candidate)
 
+DEV prereleases publish under npm's `dev` tag and appear as GitHub prereleases.
+Other prereleases use `next`; stable versions use `latest`. Pin the exact SDK
+version supplied by the signed project guide rather than relying on a moving tag.
+
 `client.ejar.getContract` uses the versioned `getEjarContract` operation through
 Wathba's project service endpoint. Availability requires current service,
 member, project and environment authorization. This candidate does not itself
