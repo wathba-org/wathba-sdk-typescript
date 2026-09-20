@@ -13,10 +13,32 @@ import {
   type VerifyOtpResult,
   type WathbaOutcome,
   type WathbaProblem,
+  type SendVerificationCodeInput,
+  type SendVerificationCodeResult,
+  type CheckVerificationCodeInput,
 } from '@wathba-cli/sdk';
 import type { OperationInputMap } from '@wathba-cli/sdk/raw';
 
 declare const client: WathbaClient;
+
+const authenticaSend: SendVerificationCodeInput = {
+  projectId: 'prj_types', environmentId: 'env_types',
+  recipient: { email: 'user@example.com' }, channel: 'email', maxCostSar: '0.0001',
+  idempotencyKey: asIdempotencyKey('idem_authentica_send'),
+};
+const authenticaResult: Promise<WathbaOutcome<SendVerificationCodeResult>> = client.verification.sendOtp(authenticaSend);
+void authenticaResult;
+const authenticaVerify: CheckVerificationCodeInput = {
+  projectId: 'prj_types', environmentId: 'env_types', sendExecutionId: 'exj_original',
+  otp: '0123', idempotencyKey: asIdempotencyKey('idem_authentica_verify'),
+};
+void client.verification.verifyOtp(authenticaVerify);
+// @ts-expect-error The member ceiling is a decimal string, never a floating-point charge.
+void client.verification.sendOtp({ ...authenticaSend, maxCostSar: 0.0001 });
+// @ts-expect-error A verification code must preserve leading zeroes.
+void client.verification.verifyOtp({ ...authenticaVerify, otp: 1234 });
+// @ts-expect-error Original-send verification cannot change its recipient.
+void client.verification.verifyOtp({ ...authenticaVerify, recipient: { email: 'other@example.com' } });
 
 const otp: SendOtpInput = {
   projectId: 'prj_types',

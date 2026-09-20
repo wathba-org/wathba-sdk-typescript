@@ -1,5 +1,6 @@
 import { WathbaOtpClient } from './otp.js';
 import { WathbaEjarClient } from './ejar.js';
+import { WathbaVerificationClient } from './verification.js';
 import { WathbaPaymentsClient } from './payments.js';
 import { RawWathbaClient, type RawWathbaClientOptions } from './raw-client.js';
 import { WathbaShippingClient } from './shipping.js';
@@ -10,6 +11,7 @@ export class WathbaClient {
   readonly payments: WathbaPaymentsClient;
   readonly shipping: WathbaShippingClient;
   readonly ejar: WathbaEjarClient;
+  readonly verification: WathbaVerificationClient;
 
   constructor(options: RawWathbaClientOptions) {
     this.raw = new RawWathbaClient(options);
@@ -17,5 +19,6 @@ export class WathbaClient {
     this.payments = new WathbaPaymentsClient(this.raw);
     this.shipping = new WathbaShippingClient(this.raw);
     this.ejar = new WathbaEjarClient(this.raw);
+    this.verification = new WathbaVerificationClient(this.raw);
   }
 }

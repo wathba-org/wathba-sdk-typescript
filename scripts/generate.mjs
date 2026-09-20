@@ -93,6 +93,14 @@ function emitOperations(openapi) {
       if (Object.keys(successResponses).length === 0) {
         throw new Error(`missing_success_response:${operation.operationId}`);
       }
+      const failureResponses = operation['x-wathba-execution-envelope'] === true
+        ? Object.fromEntries(Object.entries(operation.responses)
+          .filter(([status, response]) => /^[45]\d\d$/.test(status) && response.content?.['application/json']?.schema?.$ref)
+          .map(([status, response]) => [status, {
+            contentType: 'application/json',
+            schema: schemaName(response.content['application/json'].schema.$ref),
+          }]))
+        : {};
       const parameters = operation.parameters ?? [];
       const unsupportedParameters = parameters.filter(
         (item) => item.in === 'cookie' || (item.in === 'header' && !['Idempotency-Key', 'Wathba-Version'].includes(item.name)),
@@ -116,10 +124,12 @@ function emitOperations(openapi) {
       if (typeof operation['x-wathba-capability'] !== 'string') {
         throw new Error(`missing_capability:${operation.operationId}`);
       }
-      const requiredScopes = operation.security?.[0]?.wathbaApiKey;
-      if (!Array.isArray(requiredScopes) || requiredScopes.length === 0) {
+      const scopeAlternatives = operation.security?.map((entry) => entry.wathbaApiKey);
+      if (!Array.isArray(scopeAlternatives) || scopeAlternatives.length === 0 ||
+          scopeAlternatives.some((scopes) => !Array.isArray(scopes) || scopes.length === 0 || scopes.some((scope) => typeof scope !== 'string'))) {
         throw new Error(`missing_required_scopes:${operation.operationId}`);
       }
+      const requiredScopes = scopeAlternatives[0].filter((scope) => scopeAlternatives.every((scopes) => scopes.includes(scope)));
       const pathParameters = parameterSpecs(parameters, 'path');
       const queryParameters = parameterSpecs(parameters, 'query');
       const apiVersionHeader = parameters.find(
@@ -137,10 +147,12 @@ function emitOperations(openapi) {
         ...(apiVersionHeader?.required === true ? { apiVersionRequired: true } : {}),
         safeProbe: operation['x-wathba-safe-probe'],
         requiredScopes,
+        ...(scopeAlternatives.length > 1 ? { scopeAlternatives } : {}),
         pathParameters,
         queryParameters,
         requestSchema: schemaName(requestRef),
         successResponses,
+        ...(Object.keys(failureResponses).length > 0 ? { failureResponses } : {}),
       });
     }
   }
@@ -167,7 +179,7 @@ function emitOperations(openapi) {
   });
   const responseEntries = operations.map((operation) => {
     const operationType = `operations[${JSON.stringify(operation.operationId)}]`;
-    const responses = Object.entries(operation.successResponses).map(
+    const responses = Object.entries({ ...operation.successResponses, ...operation.failureResponses }).map(
       ([status, response]) =>
         `${operationType}["responses"][${Number(status)}]["content"][${JSON.stringify(response.contentType)}]`,
     );

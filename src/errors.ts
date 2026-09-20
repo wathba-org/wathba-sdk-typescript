@@ -3,6 +3,7 @@ export type WathbaSdkErrorCode =
   | 'wathba_credential_unavailable'
   | 'wathba_invalid_json_response'
   | 'wathba_invalid_request'
+  | 'wathba_invalid_execution_response'
   | 'wathba_invalid_problem_response'
   | 'wathba_invalid_success_response'
   | 'wathba_poll_aborted'
@@ -21,6 +22,7 @@ const errorFacts: Readonly<Record<WathbaSdkErrorCode, {
   wathba_invalid_json_response: { billingEffect: 'unknown', retryable: false },
   wathba_invalid_problem_response: { billingEffect: 'unknown', retryable: false },
   wathba_invalid_request: { billingEffect: 'none', retryable: false },
+  wathba_invalid_execution_response: { billingEffect: 'unknown', retryable: false },
   wathba_invalid_success_response: { billingEffect: 'unknown', retryable: false },
   wathba_poll_aborted: { billingEffect: 'none', retryable: false },
   wathba_transport_unavailable: { billingEffect: 'unknown', retryable: true },

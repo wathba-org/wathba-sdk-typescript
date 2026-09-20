@@ -13,6 +13,771 @@ export const runtimeSchemas = {
     ],
     "type": "object"
   },
+  "AuthenticaAcceptedSendResult": {
+    "additionalProperties": false,
+    "properties": {
+      "accepted": {
+        "const": true,
+        "type": "boolean"
+      },
+      "charge": {
+        "additionalProperties": false,
+        "properties": {
+          "currency": {
+            "const": "SAR",
+            "type": "string"
+          },
+          "denominator": {
+            "pattern": "^[1-9]\\d{0,18}$",
+            "type": "string"
+          },
+          "numerator": {
+            "pattern": "^(?:0|[1-9]\\d{0,18})$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "numerator",
+          "denominator",
+          "currency"
+        ],
+        "type": "object"
+      },
+      "deliveryMethod": {
+        "enum": [
+          "sms",
+          "whatsapp",
+          "email"
+        ],
+        "type": "string"
+      },
+      "expiresAt": {
+        "format": "date-time",
+        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+        "type": "string"
+      }
+    },
+    "required": [
+      "accepted",
+      "deliveryMethod",
+      "expiresAt",
+      "charge"
+    ],
+    "type": "object"
+  },
+  "AuthenticaExactSar": {
+    "additionalProperties": false,
+    "properties": {
+      "currency": {
+        "const": "SAR",
+        "type": "string"
+      },
+      "denominator": {
+        "pattern": "^[1-9]\\d{0,18}$",
+        "type": "string"
+      },
+      "numerator": {
+        "pattern": "^(?:0|[1-9]\\d{0,18})$",
+        "type": "string"
+      }
+    },
+    "required": [
+      "numerator",
+      "denominator",
+      "currency"
+    ],
+    "type": "object"
+  },
+  "AuthenticaFailedExecution": {
+    "additionalProperties": false,
+    "properties": {
+      "capability": {
+        "const": "messaging.otp",
+        "type": "string"
+      },
+      "executionId": {
+        "pattern": "^exj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+        "type": "string"
+      },
+      "message": {
+        "maxLength": 160,
+        "minLength": 1,
+        "type": "string"
+      },
+      "operationCode": {
+        "enum": [
+          "sendOtp",
+          "verifyOtp"
+        ],
+        "type": "string"
+      },
+      "state": {
+        "enum": [
+          "failed",
+          "blocked",
+          "closed"
+        ],
+        "type": "string"
+      },
+      "statusCode": {
+        "maximum": 599,
+        "minimum": 400,
+        "type": "integer"
+      }
+    },
+    "required": [
+      "executionId",
+      "message",
+      "capability",
+      "state",
+      "statusCode",
+      "operationCode"
+    ],
+    "type": "object"
+  },
+  "AuthenticaPendingExecution": {
+    "additionalProperties": false,
+    "properties": {
+      "capability": {
+        "const": "messaging.otp",
+        "type": "string"
+      },
+      "executionId": {
+        "pattern": "^exj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+        "type": "string"
+      },
+      "message": {
+        "maxLength": 160,
+        "minLength": 1,
+        "type": "string"
+      },
+      "operationCode": {
+        "enum": [
+          "sendOtp",
+          "verifyOtp"
+        ],
+        "type": "string"
+      },
+      "state": {
+        "const": "pending",
+        "type": "string"
+      },
+      "statusCode": {
+        "const": 202,
+        "type": "number"
+      }
+    },
+    "required": [
+      "executionId",
+      "message",
+      "capability",
+      "state",
+      "statusCode",
+      "operationCode"
+    ],
+    "type": "object"
+  },
+  "AuthenticaPublicExecution": {
+    "anyOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "capability": {
+            "const": "messaging.otp",
+            "type": "string"
+          },
+          "executionId": {
+            "pattern": "^exj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "type": "string"
+          },
+          "message": {
+            "maxLength": 160,
+            "minLength": 1,
+            "type": "string"
+          },
+          "operationCode": {
+            "const": "sendOtp",
+            "type": "string"
+          },
+          "result": {
+            "additionalProperties": false,
+            "properties": {
+              "accepted": {
+                "const": true,
+                "type": "boolean"
+              },
+              "charge": {
+                "additionalProperties": false,
+                "properties": {
+                  "currency": {
+                    "const": "SAR",
+                    "type": "string"
+                  },
+                  "denominator": {
+                    "pattern": "^[1-9]\\d{0,18}$",
+                    "type": "string"
+                  },
+                  "numerator": {
+                    "pattern": "^(?:0|[1-9]\\d{0,18})$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "numerator",
+                  "denominator",
+                  "currency"
+                ],
+                "type": "object"
+              },
+              "deliveryMethod": {
+                "enum": [
+                  "sms",
+                  "whatsapp",
+                  "email"
+                ],
+                "type": "string"
+              },
+              "expiresAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "accepted",
+              "deliveryMethod",
+              "expiresAt",
+              "charge"
+            ],
+            "type": "object"
+          },
+          "state": {
+            "const": "succeeded",
+            "type": "string"
+          },
+          "statusCode": {
+            "const": 200,
+            "type": "number"
+          }
+        },
+        "required": [
+          "executionId",
+          "message",
+          "capability",
+          "state",
+          "statusCode",
+          "operationCode",
+          "result"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "capability": {
+            "const": "messaging.otp",
+            "type": "string"
+          },
+          "executionId": {
+            "pattern": "^exj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "type": "string"
+          },
+          "message": {
+            "maxLength": 160,
+            "minLength": 1,
+            "type": "string"
+          },
+          "operationCode": {
+            "const": "verifyOtp",
+            "type": "string"
+          },
+          "result": {
+            "additionalProperties": false,
+            "properties": {
+              "sendExecutionId": {
+                "pattern": "^exj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+                "type": "string"
+              },
+              "verified": {
+                "const": true,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "verified",
+              "sendExecutionId"
+            ],
+            "type": "object"
+          },
+          "state": {
+            "const": "succeeded",
+            "type": "string"
+          },
+          "statusCode": {
+            "const": 200,
+            "type": "number"
+          }
+        },
+        "required": [
+          "executionId",
+          "message",
+          "capability",
+          "state",
+          "statusCode",
+          "operationCode",
+          "result"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "capability": {
+            "const": "messaging.otp",
+            "type": "string"
+          },
+          "executionId": {
+            "pattern": "^exj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "type": "string"
+          },
+          "message": {
+            "maxLength": 160,
+            "minLength": 1,
+            "type": "string"
+          },
+          "operationCode": {
+            "enum": [
+              "sendOtp",
+              "verifyOtp"
+            ],
+            "type": "string"
+          },
+          "state": {
+            "const": "pending",
+            "type": "string"
+          },
+          "statusCode": {
+            "const": 202,
+            "type": "number"
+          }
+        },
+        "required": [
+          "executionId",
+          "message",
+          "capability",
+          "state",
+          "statusCode",
+          "operationCode"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "capability": {
+            "const": "messaging.otp",
+            "type": "string"
+          },
+          "executionId": {
+            "pattern": "^exj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "type": "string"
+          },
+          "message": {
+            "maxLength": 160,
+            "minLength": 1,
+            "type": "string"
+          },
+          "operationCode": {
+            "enum": [
+              "sendOtp",
+              "verifyOtp"
+            ],
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "failed",
+              "blocked",
+              "closed"
+            ],
+            "type": "string"
+          },
+          "statusCode": {
+            "maximum": 599,
+            "minimum": 400,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "executionId",
+          "message",
+          "capability",
+          "state",
+          "statusCode",
+          "operationCode"
+        ],
+        "type": "object"
+      }
+    ]
+  },
+  "AuthenticaSendOperationInput": {
+    "additionalProperties": false,
+    "properties": {
+      "channel": {
+        "enum": [
+          "sms",
+          "whatsapp",
+          "email"
+        ],
+        "type": "string"
+      },
+      "environmentId": {
+        "pattern": "^env_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+        "type": "string"
+      },
+      "maxCostSar": {
+        "pattern": "^(?:0|[1-9]\\d{0,12})(?:\\.\\d{1,4})?$",
+        "type": "string"
+      },
+      "recipient": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "pattern": "^\\+[1-9]\\d{7,14}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "phone"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "format": "email",
+                "maxLength": 254,
+                "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "email"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "templateHandle": {
+        "pattern": "^actpl_[a-f0-9]{64}$",
+        "type": "string"
+      }
+    },
+    "required": [
+      "recipient",
+      "maxCostSar",
+      "environmentId"
+    ],
+    "type": "object"
+  },
+  "AuthenticaSendRequest": {
+    "additionalProperties": false,
+    "properties": {
+      "environmentId": {
+        "pattern": "^env_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+        "type": "string"
+      },
+      "input": {
+        "additionalProperties": false,
+        "properties": {
+          "channel": {
+            "enum": [
+              "sms",
+              "whatsapp",
+              "email"
+            ],
+            "type": "string"
+          },
+          "maxCostSar": {
+            "pattern": "^(?:0|[1-9]\\d{0,12})(?:\\.\\d{1,4})?$",
+            "type": "string"
+          },
+          "recipient": {
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "phone": {
+                    "pattern": "^\\+[1-9]\\d{7,14}$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "phone"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "email": {
+                    "format": "email",
+                    "maxLength": 254,
+                    "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "templateHandle": {
+            "pattern": "^actpl_[a-f0-9]{64}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "recipient",
+          "maxCostSar"
+        ],
+        "type": "object"
+      }
+    },
+    "required": [
+      "environmentId",
+      "input"
+    ],
+    "type": "object"
+  },
+  "AuthenticaSendSucceeded": {
+    "additionalProperties": false,
+    "properties": {
+      "capability": {
+        "const": "messaging.otp",
+        "type": "string"
+      },
+      "executionId": {
+        "pattern": "^exj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+        "type": "string"
+      },
+      "message": {
+        "maxLength": 160,
+        "minLength": 1,
+        "type": "string"
+      },
+      "operationCode": {
+        "const": "sendOtp",
+        "type": "string"
+      },
+      "result": {
+        "additionalProperties": false,
+        "properties": {
+          "accepted": {
+            "const": true,
+            "type": "boolean"
+          },
+          "charge": {
+            "additionalProperties": false,
+            "properties": {
+              "currency": {
+                "const": "SAR",
+                "type": "string"
+              },
+              "denominator": {
+                "pattern": "^[1-9]\\d{0,18}$",
+                "type": "string"
+              },
+              "numerator": {
+                "pattern": "^(?:0|[1-9]\\d{0,18})$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "numerator",
+              "denominator",
+              "currency"
+            ],
+            "type": "object"
+          },
+          "deliveryMethod": {
+            "enum": [
+              "sms",
+              "whatsapp",
+              "email"
+            ],
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "accepted",
+          "deliveryMethod",
+          "expiresAt",
+          "charge"
+        ],
+        "type": "object"
+      },
+      "state": {
+        "const": "succeeded",
+        "type": "string"
+      },
+      "statusCode": {
+        "const": 200,
+        "type": "number"
+      }
+    },
+    "required": [
+      "executionId",
+      "message",
+      "capability",
+      "state",
+      "statusCode",
+      "operationCode",
+      "result"
+    ],
+    "type": "object"
+  },
+  "AuthenticaVerifiedResult": {
+    "additionalProperties": false,
+    "properties": {
+      "sendExecutionId": {
+        "pattern": "^exj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+        "type": "string"
+      },
+      "verified": {
+        "const": true,
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "verified",
+      "sendExecutionId"
+    ],
+    "type": "object"
+  },
+  "AuthenticaVerifyOperationInput": {
+    "additionalProperties": false,
+    "properties": {
+      "environmentId": {
+        "pattern": "^env_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+        "type": "string"
+      },
+      "otp": {
+        "pattern": "^\\d{4}$",
+        "type": "string"
+      },
+      "sendExecutionId": {
+        "pattern": "^exj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+        "type": "string"
+      }
+    },
+    "required": [
+      "sendExecutionId",
+      "otp",
+      "environmentId"
+    ],
+    "type": "object"
+  },
+  "AuthenticaVerifyRequest": {
+    "additionalProperties": false,
+    "properties": {
+      "environmentId": {
+        "pattern": "^env_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+        "type": "string"
+      },
+      "input": {
+        "additionalProperties": false,
+        "properties": {
+          "otp": {
+            "pattern": "^\\d{4}$",
+            "type": "string"
+          },
+          "sendExecutionId": {
+            "pattern": "^exj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sendExecutionId",
+          "otp"
+        ],
+        "type": "object"
+      }
+    },
+    "required": [
+      "environmentId",
+      "input"
+    ],
+    "type": "object"
+  },
+  "AuthenticaVerifySucceeded": {
+    "additionalProperties": false,
+    "properties": {
+      "capability": {
+        "const": "messaging.otp",
+        "type": "string"
+      },
+      "executionId": {
+        "pattern": "^exj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+        "type": "string"
+      },
+      "message": {
+        "maxLength": 160,
+        "minLength": 1,
+        "type": "string"
+      },
+      "operationCode": {
+        "const": "verifyOtp",
+        "type": "string"
+      },
+      "result": {
+        "additionalProperties": false,
+        "properties": {
+          "sendExecutionId": {
+            "pattern": "^exj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "type": "string"
+          },
+          "verified": {
+            "const": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "verified",
+          "sendExecutionId"
+        ],
+        "type": "object"
+      },
+      "state": {
+        "const": "succeeded",
+        "type": "string"
+      },
+      "statusCode": {
+        "const": 200,
+        "type": "number"
+      }
+    },
+    "required": [
+      "executionId",
+      "message",
+      "capability",
+      "state",
+      "statusCode",
+      "operationCode",
+      "result"
+    ],
+    "type": "object"
+  },
   "Catalog016CreatePaymentLinkRequest": {
     "additionalProperties": false,
     "properties": {

@@ -1,5 +1,14 @@
 export { WathbaClient } from './client.js';
 export {
+  WathbaVerificationClient,
+  type SendVerificationCodeInput,
+  type SendVerificationCodeResult,
+  type CheckVerificationCodeInput,
+  type CheckVerificationCodeResult,
+  type GetVerificationExecutionStatusInput,
+  type GetVerificationExecutionStatusResult,
+} from './verification.js';
+export {
   WathbaEjarClient,
   type GetEjarContractInput,
   type GetEjarContractResult,
