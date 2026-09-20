@@ -8,6 +8,7 @@ import { WathbaSdkError } from './errors.js';
 import { asIdempotencyKey } from './idempotency.js';
 import { isWathbaProblem, WathbaApiError } from './problem.js';
 import { matchesGeneratedSchema, matchesJsonSchema } from './schema-validation.js';
+import { matchesVerificationContext, verificationRequestContext } from './verification-contract.js';
 import {
   runtimeExtensionOperationSpecs,
   type RuntimeExtensionOperationId,
@@ -193,6 +194,7 @@ export class RawWathbaClient {
       throw new WathbaSdkError('wathba_invalid_request');
     }
 
+    const verificationContext = verificationRequestContext(operationId, input);
     const retryAllowed = spec.method === 'GET' || spec.idempotency === 'required';
     let selectedApiVersion = this.configuredApiVersion;
     for (let attempt = 1; attempt <= this.retry.maximumAttempts; attempt += 1) {
@@ -281,7 +283,7 @@ export class RawWathbaClient {
       }
       if (executionFailure !== undefined) {
         const payload = await parseJson(response, executionFailure.contentType);
-        if (!matchesGeneratedSchema(executionFailure.schema, payload) || !isRecord(payload) || payload.statusCode !== response.status) {
+        if (!matchesGeneratedSchema(executionFailure.schema, payload) || !isRecord(payload) || payload.statusCode !== response.status || !matchesVerificationContext(verificationContext, payload)) {
           throw new WathbaSdkError('wathba_invalid_execution_response');
         }
         return payload as WathbaOperationResponseMap[Id];
@@ -294,7 +296,7 @@ export class RawWathbaClient {
         throw new WathbaSdkError('wathba_undeclared_success_status');
       }
       const payload = await parseJson(response, success.contentType);
-      if (!matchesGeneratedSchema(success.schema, payload)) {
+      if (!matchesGeneratedSchema(success.schema, payload) || !matchesVerificationContext(verificationContext, payload)) {
         throw new WathbaSdkError('wathba_invalid_success_response');
       }
       return payload as WathbaOperationResponseMap[Id];

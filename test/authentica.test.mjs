@@ -72,7 +72,9 @@ test('channel charges remain exact SAR including sub-halala Email and repeating 
     const value = { ...send.success, body: { ...send.success.body, result: {
       ...send.success.body.result, deliveryMethod: channel, charge: { currency: 'SAR', numerator, denominator },
     } } };
-    const result = await client(async () => response(value)).verification.sendOtp(input(send));
+    const result = await client(async () => response(value)).verification.sendOtp({
+      ...input(send), channel, recipient: channel === 'email' ? { email: 'user@example.com' } : { phone: '+966500000000' },
+    });
     assert.deepEqual(result.value.result.charge, value.body.result.charge);
     assert.equal('amountMinor' in result.value, false);
     assert.equal('points' in result.value.result, false);
@@ -178,4 +180,57 @@ test('a Wathba problem retains its error contract and is not a failed execution 
     assert.equal(error.problem.code, 'idempotency_conflict');
     return true;
   });
+});
+
+test('recipient/channel and custom-template constraints reject typed and raw calls before credentials', async () => {
+  let effects = 0;
+  const sdk = client(async () => { effects += 1; }, {
+    credentialProvider: { async resolve() { effects += 1; return { apiKey: 'wth_sdk_fixture_key' }; } },
+  });
+  for (const change of [
+    { channel: 'sms' },
+    { channel: 'whatsapp' },
+    { channel: 'email', recipient: { phone: '+966500000000' } },
+    { channel: 'whatsapp', recipient: { phone: '+966500000000' }, templateHandle: `actpl_${'a'.repeat(64)}` },
+  ]) {
+    await assert.rejects(sdk.verification.sendOtp({ ...input(send), ...change }), { code: 'wathba_invalid_request' });
+    await assert.rejects(sdk.raw.execute(send.operationId, {
+      ...send.request, body: { ...send.request.body, input: { ...send.request.body.input, ...change } },
+    }), { code: 'wathba_invalid_request' });
+  }
+  assert.equal(effects, 0);
+});
+
+test('verification and status reject another send or execution, through typed and raw calls', async () => {
+  const wrongSend = { ...verify.success, body: { ...verify.success.body, result: { verified: true, sendExecutionId: 'exj_unrelated' } } };
+  const sdk = client(async () => response(wrongSend));
+  await assert.rejects(sdk.verification.verifyOtp(input(verify)), { code: 'wathba_invalid_success_response' });
+  await assert.rejects(sdk.raw.execute(verify.operationId, verify.request), { code: 'wathba_invalid_success_response' });
+  for (const result of [status.success, status.pending, status.failed]) {
+    const mismatch = { ...result, body: { ...result.body, executionId: 'exj_unrelated' } };
+    const reader = client(async () => response(mismatch));
+    await assert.rejects(reader.verification.getExecutionStatus(status.request.path), { code: 'wathba_invalid_success_response' });
+    await assert.rejects(reader.raw.execute(status.operationId, status.request), { code: 'wathba_invalid_success_response' });
+  }
+});
+
+test('failed or pending envelopes must belong to the requested operation', async () => {
+  for (const result of [verify.pending, verify.invalid]) {
+    const mismatch = { ...result, body: { ...result.body, operationCode: 'sendOtp' } };
+    await assert.rejects(client(async () => response(mismatch)).verification.verifyOtp(input(verify)), {
+      code: result.status === 202 ? 'wathba_invalid_success_response' : 'wathba_invalid_execution_response',
+    });
+  }
+  const mismatch = { ...send.success, body: { ...send.success.body, result: { ...send.success.body.result, deliveryMethod: 'sms' } } };
+  await assert.rejects(client(async () => response(mismatch)).verification.sendOtp(input(send)), { code: 'wathba_invalid_success_response' });
+});
+
+test('response correlation uses the intent captured before credential resolution', async () => {
+  const request = structuredClone(verify.request);
+  const sdk = client(async () => response(verify.success), { credentialProvider: { async resolve() {
+    request.body.input.sendExecutionId = 'exj_mutated_after_dispatch';
+    return { apiKey: 'wth_sdk_fixture_key' };
+  } } });
+  const result = await sdk.raw.execute(verify.operationId, request);
+  assert.equal(result.result.sendExecutionId, verify.request.body.input.sendExecutionId);
 });
