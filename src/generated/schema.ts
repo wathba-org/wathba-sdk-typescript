@@ -356,6 +356,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/platform/projects/{projectId}/services/messaging.otp.authentica/executions/{executionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read the original Authentica execution without another send
+         * @description Read-only status in the API key project and environment. Requires tools:execute plus otp:send for a send execution or otp:verify for a verification. HTTP 200 returns a current execution snapshot, whose state and statusCode describe the original operation. Pending is unresolved, not free, delivered or verified. This never invokes the provider or releases a hold.
+         */
+        get: operations["getAuthenticaExecutionStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/platform/projects/{projectId}/services/messaging.otp.authentica/operations/sendOtp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request a verification code using the linked application
+         * @description Both sandbox and production Wathba environments send real production messages. The selected channel rate is charged from the existing Wallet once the provider accepts the send, even if verification never happens. maxCostSar is the caller ceiling, not a price. A pending send retains its hold: retry the identical request with the same Idempotency-Key and never issue a fresh send to resolve uncertainty. Acceptance is not delivery. Custom sender names, paid fallback and unpriced destinations are unavailable.
+         */
+        post: operations["sendAuthenticaOtp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/platform/projects/{projectId}/services/messaging.otp.authentica/operations/verifyOtp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify a code against its original send
+         * @description Uses the original project/environment/application/recipient and channel bound to sendExecutionId. A verification never creates another send charge or reverses the original charge. Submit a code server-side; keep it out of logs. A wrong-or-expired response does not distinguish those reasons. Preserve the same key and input when retrying an uncertain verification.
+         */
+        post: operations["verifyAuthenticaOtp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/platform/projects/{projectId}/services/realestate.ejar/operations/getContract": {
         parameters: {
             query?: never;
@@ -561,6 +621,200 @@ export interface components {
         AuthentaOtpResult: {
             /** @constant */
             deliveryMethod: "email";
+        };
+        AuthenticaAcceptedSendResult: {
+            /** @constant */
+            accepted: true;
+            charge: {
+                /** @constant */
+                currency: "SAR";
+                denominator: string;
+                numerator: string;
+            };
+            /** @enum {string} */
+            deliveryMethod: "sms" | "whatsapp" | "email";
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        AuthenticaExactSar: {
+            /** @constant */
+            currency: "SAR";
+            denominator: string;
+            numerator: string;
+        };
+        AuthenticaFailedExecution: {
+            /** @constant */
+            capability: "messaging.otp";
+            executionId: string;
+            message: string;
+            /** @enum {string} */
+            operationCode: "sendOtp" | "verifyOtp";
+            /** @enum {string} */
+            state: "failed" | "blocked" | "closed";
+            statusCode: number;
+        };
+        AuthenticaPendingExecution: {
+            /** @constant */
+            capability: "messaging.otp";
+            executionId: string;
+            message: string;
+            /** @enum {string} */
+            operationCode: "sendOtp" | "verifyOtp";
+            /** @constant */
+            state: "pending";
+            /** @constant */
+            statusCode: 202;
+        };
+        AuthenticaPublicExecution: {
+            /** @constant */
+            capability: "messaging.otp";
+            executionId: string;
+            message: string;
+            /** @constant */
+            operationCode: "sendOtp";
+            result: {
+                /** @constant */
+                accepted: true;
+                charge: {
+                    /** @constant */
+                    currency: "SAR";
+                    denominator: string;
+                    numerator: string;
+                };
+                /** @enum {string} */
+                deliveryMethod: "sms" | "whatsapp" | "email";
+                /** Format: date-time */
+                expiresAt: string;
+            };
+            /** @constant */
+            state: "succeeded";
+            /** @constant */
+            statusCode: 200;
+        } | {
+            /** @constant */
+            capability: "messaging.otp";
+            executionId: string;
+            message: string;
+            /** @constant */
+            operationCode: "verifyOtp";
+            result: {
+                sendExecutionId: string;
+                /** @constant */
+                verified: true;
+            };
+            /** @constant */
+            state: "succeeded";
+            /** @constant */
+            statusCode: 200;
+        } | {
+            /** @constant */
+            capability: "messaging.otp";
+            executionId: string;
+            message: string;
+            /** @enum {string} */
+            operationCode: "sendOtp" | "verifyOtp";
+            /** @constant */
+            state: "pending";
+            /** @constant */
+            statusCode: 202;
+        } | {
+            /** @constant */
+            capability: "messaging.otp";
+            executionId: string;
+            message: string;
+            /** @enum {string} */
+            operationCode: "sendOtp" | "verifyOtp";
+            /** @enum {string} */
+            state: "failed" | "blocked" | "closed";
+            statusCode: number;
+        };
+        AuthenticaSendOperationInput: {
+            /** @enum {string} */
+            channel?: "sms" | "whatsapp" | "email";
+            environmentId: string;
+            maxCostSar: string;
+            recipient: {
+                phone: string;
+            } | {
+                /** Format: email */
+                email: string;
+            };
+            templateHandle?: string;
+        };
+        AuthenticaSendRequest: {
+            environmentId: string;
+            input: {
+                /** @enum {string} */
+                channel?: "sms" | "whatsapp" | "email";
+                maxCostSar: string;
+                recipient: {
+                    phone: string;
+                } | {
+                    /** Format: email */
+                    email: string;
+                };
+                templateHandle?: string;
+            };
+        };
+        AuthenticaSendSucceeded: {
+            /** @constant */
+            capability: "messaging.otp";
+            executionId: string;
+            message: string;
+            /** @constant */
+            operationCode: "sendOtp";
+            result: {
+                /** @constant */
+                accepted: true;
+                charge: {
+                    /** @constant */
+                    currency: "SAR";
+                    denominator: string;
+                    numerator: string;
+                };
+                /** @enum {string} */
+                deliveryMethod: "sms" | "whatsapp" | "email";
+                /** Format: date-time */
+                expiresAt: string;
+            };
+            /** @constant */
+            state: "succeeded";
+            /** @constant */
+            statusCode: 200;
+        };
+        AuthenticaVerifiedResult: {
+            sendExecutionId: string;
+            /** @constant */
+            verified: true;
+        };
+        AuthenticaVerifyOperationInput: {
+            environmentId: string;
+            otp: string;
+            sendExecutionId: string;
+        };
+        AuthenticaVerifyRequest: {
+            environmentId: string;
+            input: {
+                otp: string;
+                sendExecutionId: string;
+            };
+        };
+        AuthenticaVerifySucceeded: {
+            /** @constant */
+            capability: "messaging.otp";
+            executionId: string;
+            message: string;
+            /** @constant */
+            operationCode: "verifyOtp";
+            result: {
+                sendExecutionId: string;
+                /** @constant */
+                verified: true;
+            };
+            /** @constant */
+            state: "succeeded";
+            /** @constant */
+            statusCode: 200;
         };
         Catalog016CreatePaymentLinkRequest: {
             amountMinor: number;
@@ -3879,6 +4133,358 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    getAuthenticaExecutionStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+                executionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current original execution snapshot; no provider side effect. */
+            200: {
+                headers: {
+                    "Wathba-Version"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaPublicExecution"];
+                };
+            };
+            /** @description The caller cannot read this scoped execution. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description The caller cannot read this scoped execution. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description The caller cannot read this scoped execution. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    sendAuthenticaOtp: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "Wathba-Version": string;
+            };
+            path: {
+                projectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "environmentId": "env_selected",
+                 *       "input": {
+                 *         "channel": "email",
+                 *         "maxCostSar": "0.0001",
+                 *         "recipient": {
+                 *           "email": "user@example.com"
+                 *         }
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["AuthenticaSendRequest"];
+            };
+        };
+        responses: {
+            /** @description Confirmed operation and completed financial processing; send acceptance does not prove delivery */
+            200: {
+                headers: {
+                    "Wathba-Version"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaSendSucceeded"];
+                };
+            };
+            /** @description Outcome or financial processing pending; retain the original intent and idempotency key */
+            202: {
+                headers: {
+                    "Wathba-Version"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaPendingExecution"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            504: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+        };
+    };
+    verifyAuthenticaOtp: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "Wathba-Version": string;
+            };
+            path: {
+                projectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "environmentId": "env_selected",
+                 *       "input": {
+                 *         "otp": "1234",
+                 *         "sendExecutionId": "exj_original"
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["AuthenticaVerifyRequest"];
+            };
+        };
+        responses: {
+            /** @description Confirmed operation and completed financial processing; send acceptance does not prove delivery */
+            200: {
+                headers: {
+                    "Wathba-Version"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaVerifySucceeded"];
+                };
+            };
+            /** @description Outcome or financial processing pending; retain the original intent and idempotency key */
+            202: {
+                headers: {
+                    "Wathba-Version"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaPendingExecution"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
+                    "application/problem+json": components["schemas"]["WathbaProblem"];
+                };
+            };
+            /** @description Wathba problem. Inspect retryability and billing effect; never infer an uncharged send from an HTTP timeout. */
+            504: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticaFailedExecution"];
                     "application/problem+json": components["schemas"]["WathbaProblem"];
                 };
             };

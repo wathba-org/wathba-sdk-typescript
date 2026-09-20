@@ -44,6 +44,8 @@ export interface WathbaCredentialRequest {
   readonly capability: string;
   readonly operationId: WathbaOperationId;
   readonly requiredScopes: readonly string[];
+  /** When present, the credential must satisfy one complete alternative, plus common requiredScopes. */
+  readonly scopeAlternatives?: readonly (readonly string[])[];
 }
 
 export interface WathbaCredentialProvider {
@@ -228,13 +230,19 @@ export class RawWathbaClient {
 
       // Only runtime routes pin a version; an absent header is not a mismatch.
       const responseApiVersion = response.headers.get('wathba-version') ?? undefined;
-      if (response.ok && apiVersionRequired && responseApiVersion === undefined) {
+      const failureResponses = ('failureResponses' in spec ? spec.failureResponses : {}) as Readonly<Record<string, {
+        readonly contentType: string;
+        readonly schema: string;
+      }>>;
+      const executionFailure = response.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() === 'application/json'
+        ? failureResponses[String(response.status)] : undefined;
+      if ((response.ok || executionFailure !== undefined) && apiVersionRequired && responseApiVersion === undefined) {
         throw new WathbaSdkError('wathba_api_version_mismatch', {
           expectedVersion: selectedApiVersion,
           billingEffect: 'unknown',
         });
       }
-      if (!response.ok) {
+      if (!response.ok && executionFailure === undefined) {
         const payload = await parseJson(response, 'application/problem+json');
         if (
           response.status === 409 &&
@@ -271,6 +279,13 @@ export class RawWathbaClient {
           billingEffect: 'unknown',
         });
       }
+      if (executionFailure !== undefined) {
+        const payload = await parseJson(response, executionFailure.contentType);
+        if (!matchesGeneratedSchema(executionFailure.schema, payload) || !isRecord(payload) || payload.statusCode !== response.status) {
+          throw new WathbaSdkError('wathba_invalid_execution_response');
+        }
+        return payload as WathbaOperationResponseMap[Id];
+      }
       const success = (spec.successResponses as Readonly<Record<string, {
         readonly contentType: string;
         readonly schema: string;
@@ -298,6 +313,9 @@ export class RawWathbaClient {
         capability: spec.capability,
         operationId,
         requiredScopes: Object.freeze([...spec.requiredScopes]),
+        ...('scopeAlternatives' in spec ? {
+          scopeAlternatives: Object.freeze(spec.scopeAlternatives.map((scopes) => Object.freeze([...scopes]))),
+        } : {}),
       }));
     } catch {
       throw new WathbaSdkError('wathba_credential_unavailable');

@@ -205,6 +205,50 @@ export const operationSpecs = {
       }
     }
   },
+  "getAuthenticaExecutionStatus": {
+    "operationId": "getAuthenticaExecutionStatus",
+    "method": "GET",
+    "path": "/v1/platform/projects/{projectId}/services/messaging.otp.authentica/executions/{executionId}",
+    "capability": "messaging.otp",
+    "idempotency": "none",
+    "safeProbe": "read_only",
+    "requiredScopes": [
+      "tools:execute"
+    ],
+    "scopeAlternatives": [
+      [
+        "tools:execute",
+        "otp:send"
+      ],
+      [
+        "tools:execute",
+        "otp:verify"
+      ]
+    ],
+    "pathParameters": {
+      "executionId": {
+        "required": true,
+        "schema": {
+          "pattern": "^exj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "type": "string"
+        }
+      },
+      "projectId": {
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "queryParameters": {},
+    "requestSchema": null,
+    "successResponses": {
+      "200": {
+        "contentType": "application/json",
+        "schema": "AuthenticaPublicExecution"
+      }
+    }
+  },
   "getEjarContract": {
     "operationId": "getEjarContract",
     "method": "POST",
@@ -733,6 +777,82 @@ export const operationSpecs = {
       }
     }
   },
+  "sendAuthenticaOtp": {
+    "operationId": "sendAuthenticaOtp",
+    "method": "POST",
+    "path": "/v1/platform/projects/{projectId}/services/messaging.otp.authentica/operations/sendOtp",
+    "capability": "messaging.otp",
+    "idempotency": "required",
+    "apiVersionRequired": true,
+    "safeProbe": "none",
+    "requiredScopes": [
+      "tools:execute",
+      "otp:send"
+    ],
+    "pathParameters": {
+      "projectId": {
+        "required": true,
+        "schema": {
+          "pattern": "^prj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "type": "string"
+        }
+      }
+    },
+    "queryParameters": {},
+    "requestSchema": "AuthenticaSendRequest",
+    "successResponses": {
+      "200": {
+        "contentType": "application/json",
+        "schema": "AuthenticaSendSucceeded"
+      },
+      "202": {
+        "contentType": "application/json",
+        "schema": "AuthenticaPendingExecution"
+      }
+    },
+    "failureResponses": {
+      "400": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "401": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "403": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "404": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "409": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "422": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "429": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "502": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "503": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "504": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      }
+    }
+  },
   "sendOtp": {
     "operationId": "sendOtp",
     "method": "POST",
@@ -802,6 +922,82 @@ export const operationSpecs = {
         "schema": "Catalog016PaymentLink"
       }
     }
+  },
+  "verifyAuthenticaOtp": {
+    "operationId": "verifyAuthenticaOtp",
+    "method": "POST",
+    "path": "/v1/platform/projects/{projectId}/services/messaging.otp.authentica/operations/verifyOtp",
+    "capability": "messaging.otp",
+    "idempotency": "required",
+    "apiVersionRequired": true,
+    "safeProbe": "none",
+    "requiredScopes": [
+      "tools:execute",
+      "otp:verify"
+    ],
+    "pathParameters": {
+      "projectId": {
+        "required": true,
+        "schema": {
+          "pattern": "^prj_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "type": "string"
+        }
+      }
+    },
+    "queryParameters": {},
+    "requestSchema": "AuthenticaVerifyRequest",
+    "successResponses": {
+      "200": {
+        "contentType": "application/json",
+        "schema": "AuthenticaVerifySucceeded"
+      },
+      "202": {
+        "contentType": "application/json",
+        "schema": "AuthenticaPendingExecution"
+      }
+    },
+    "failureResponses": {
+      "400": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "401": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "403": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "404": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "409": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "422": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "429": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "502": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "503": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      },
+      "504": {
+        "contentType": "application/json",
+        "schema": "AuthenticaFailedExecution"
+      }
+    }
   }
 } as const;
 
@@ -814,6 +1010,7 @@ export interface OperationInputMap {
   "createPaymentLink": { path: operations["createPaymentLink"]["parameters"]["path"]; body: NonNullable<operations["createPaymentLink"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
   "createShipment": { path: operations["createShipment"]["parameters"]["path"]; body: NonNullable<operations["createShipment"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
   "deactivatePaymentLink": { path: operations["deactivatePaymentLink"]["parameters"]["path"]; idempotencyKey: IdempotencyKey };
+  "getAuthenticaExecutionStatus": { path: operations["getAuthenticaExecutionStatus"]["parameters"]["path"] };
   "getEjarContract": { path: operations["getEjarContract"]["parameters"]["path"]; body: NonNullable<operations["getEjarContract"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
   "getPayment": { path: operations["getPayment"]["parameters"]["path"] };
   "getPaymentIntent": { path: operations["getPaymentIntent"]["parameters"]["path"] };
@@ -828,8 +1025,10 @@ export interface OperationInputMap {
   "listProjectWebhookDeliveries": { path: operations["listProjectWebhookDeliveries"]["parameters"]["path"]; query?: operations["listProjectWebhookDeliveries"]["parameters"]["query"] };
   "reactivatePaymentLink": { path: operations["reactivatePaymentLink"]["parameters"]["path"]; body: NonNullable<operations["reactivatePaymentLink"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
   "requestPaymentRefund": { path: operations["requestPaymentRefund"]["parameters"]["path"]; body: NonNullable<operations["requestPaymentRefund"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
+  "sendAuthenticaOtp": { path: operations["sendAuthenticaOtp"]["parameters"]["path"]; body: NonNullable<operations["sendAuthenticaOtp"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
   "sendOtp": { path: operations["sendOtp"]["parameters"]["path"]; body: NonNullable<operations["sendOtp"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
   "updatePaymentLink": { path: operations["updatePaymentLink"]["parameters"]["path"]; body: NonNullable<operations["updatePaymentLink"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
+  "verifyAuthenticaOtp": { path: operations["verifyAuthenticaOtp"]["parameters"]["path"]; body: NonNullable<operations["verifyAuthenticaOtp"]["requestBody"]>["content"]["application/json"]; idempotencyKey: IdempotencyKey };
 }
 
 export interface OperationResponseMap {
@@ -839,6 +1038,7 @@ export interface OperationResponseMap {
   "createPaymentLink": operations["createPaymentLink"]["responses"][201]["content"]["application/json"];
   "createShipment": operations["createShipment"]["responses"][201]["content"]["application/json"] | operations["createShipment"]["responses"][202]["content"]["application/json"];
   "deactivatePaymentLink": operations["deactivatePaymentLink"]["responses"][200]["content"]["application/json"];
+  "getAuthenticaExecutionStatus": operations["getAuthenticaExecutionStatus"]["responses"][200]["content"]["application/json"];
   "getEjarContract": operations["getEjarContract"]["responses"][200]["content"]["application/json"] | operations["getEjarContract"]["responses"][202]["content"]["application/json"];
   "getPayment": operations["getPayment"]["responses"][200]["content"]["application/json"];
   "getPaymentIntent": operations["getPaymentIntent"]["responses"][200]["content"]["application/json"];
@@ -853,6 +1053,8 @@ export interface OperationResponseMap {
   "listProjectWebhookDeliveries": operations["listProjectWebhookDeliveries"]["responses"][200]["content"]["application/json"];
   "reactivatePaymentLink": operations["reactivatePaymentLink"]["responses"][200]["content"]["application/json"];
   "requestPaymentRefund": operations["requestPaymentRefund"]["responses"][201]["content"]["application/json"];
+  "sendAuthenticaOtp": operations["sendAuthenticaOtp"]["responses"][200]["content"]["application/json"] | operations["sendAuthenticaOtp"]["responses"][202]["content"]["application/json"] | operations["sendAuthenticaOtp"]["responses"][400]["content"]["application/json"] | operations["sendAuthenticaOtp"]["responses"][401]["content"]["application/json"] | operations["sendAuthenticaOtp"]["responses"][403]["content"]["application/json"] | operations["sendAuthenticaOtp"]["responses"][404]["content"]["application/json"] | operations["sendAuthenticaOtp"]["responses"][409]["content"]["application/json"] | operations["sendAuthenticaOtp"]["responses"][422]["content"]["application/json"] | operations["sendAuthenticaOtp"]["responses"][429]["content"]["application/json"] | operations["sendAuthenticaOtp"]["responses"][502]["content"]["application/json"] | operations["sendAuthenticaOtp"]["responses"][503]["content"]["application/json"] | operations["sendAuthenticaOtp"]["responses"][504]["content"]["application/json"];
   "sendOtp": operations["sendOtp"]["responses"][201]["content"]["application/json"] | operations["sendOtp"]["responses"][202]["content"]["application/json"];
   "updatePaymentLink": operations["updatePaymentLink"]["responses"][200]["content"]["application/json"];
+  "verifyAuthenticaOtp": operations["verifyAuthenticaOtp"]["responses"][200]["content"]["application/json"] | operations["verifyAuthenticaOtp"]["responses"][202]["content"]["application/json"] | operations["verifyAuthenticaOtp"]["responses"][400]["content"]["application/json"] | operations["verifyAuthenticaOtp"]["responses"][401]["content"]["application/json"] | operations["verifyAuthenticaOtp"]["responses"][403]["content"]["application/json"] | operations["verifyAuthenticaOtp"]["responses"][404]["content"]["application/json"] | operations["verifyAuthenticaOtp"]["responses"][409]["content"]["application/json"] | operations["verifyAuthenticaOtp"]["responses"][422]["content"]["application/json"] | operations["verifyAuthenticaOtp"]["responses"][429]["content"]["application/json"] | operations["verifyAuthenticaOtp"]["responses"][502]["content"]["application/json"] | operations["verifyAuthenticaOtp"]["responses"][503]["content"]["application/json"] | operations["verifyAuthenticaOtp"]["responses"][504]["content"]["application/json"];
 }

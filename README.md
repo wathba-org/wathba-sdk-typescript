@@ -189,6 +189,74 @@ The first `@wathba-cli/sdk` publication is a deliberately separate one-time boot
 4. Delete the `NPM_TOKEN` GitHub environment secret and revoke the granular token at npm before proceeding.
 5. Verify that the bootstrap-created `v0.1.0` tag points to the npm-provenance source commit (the original publication dispatch commit, which may differ from a later recovery dispatch) and that its release has exactly one `publication-attestation.json` asset. All later versions publish only through the trusted publisher; do not restore a long-lived npm token.
 
+## Project-linked verification (DEV candidate)
+
+`client.verification` uses a project-linked verification application through Wathba.
+This candidate depends on the matching Catalog 019 backend and service binding;
+its presence in the SDK does not enable the service. Existing `client.otp`
+methods retain their previous contract. Never give the member app a provider
+master key or application key.
+
+Configure the client on your server with its project/environment Wathba API key,
+API base URL and the API version returned for the selected service binding.
+Both Wathba environment kinds can send real provider production messages.
+
+```ts
+const send = await client.verification.sendOtp({
+  projectId: 'prj_selected',
+  environmentId: 'env_selected',
+  channel: 'email',
+  recipient: { email: 'user@example.com' },
+  maxCostSar: '0.0001',
+  idempotencyKey: asIdempotencyKey('login-send-unique-transaction'),
+});
+
+if (send.kind === 'final' && send.value.state === 'succeeded') {
+  // Store this ID against the intended user/login transaction on your server.
+  const originalSendId = send.value.executionId;
+  // The exact charge uses decimal integer strings: numerator / denominator SAR.
+  const exactCharge = send.value.result.charge;
+}
+```
+
+`maxCostSar` is your maximum allowed charge, expressed as a decimal string; it
+does not choose the tariff. The backend charges the existing member Wallet once
+when the provider accepts the send, even if the code is never verified. Accepted
+does not mean delivered. Email's SAR 0.0001 charge and rates such as 1/9 SAR remain
+exact numerator/denominator strings. Do not convert them to whole halalas or use
+floating-point amounts for accounting.
+
+```ts
+const verification = await client.verification.verifyOtp({
+  projectId: 'prj_selected',
+  environmentId: 'env_selected',
+  sendExecutionId: originalSendId, // Loaded from your server's login transaction.
+  otp: submittedCode, // A four-character string; do not log it.
+  idempotencyKey: asIdempotencyKey('login-verify-unique-attempt'),
+});
+if (verification.kind === 'final' && verification.value.state === 'succeeded') {
+  // Confirm the same login transaction and user, then create your app's session.
+  // Wathba's verification result is not a session token.
+}
+```
+
+Verification cannot change the recipient, creates no second send charge and
+does not refund the original send. An invalid or expired code returns a validated
+execution with `state: 'failed'`; `kind: 'final'` alone never means success.
+An uncertain result is `kind: 'pending'`, with no successful result or charge
+claim. Keep the original request and idempotency key. For a known execution ID,
+use `client.verification.getExecutionStatus({ projectId, executionId })` to read it
+without sending or checking a code again. The status HTTP response can be 200
+while the operation itself remains pending or failed. Never use a fresh send to
+resolve uncertainty.
+
+Send requires `tools:execute` and `otp:send`; verify requires `tools:execute` and
+`otp:verify`. Status requires the scope for the original operation. Its credential
+request exposes `scopeAlternatives`: a credential must satisfy one complete
+alternative, including the common `requiredScopes`. The server additionally
+enforces the original project's environment and operation. Credentials, codes
+and recipient values stay on the member app's server; no browser SDK is provided.
+
 ## Ejar contract information (DEV candidate)
 
 DEV prereleases publish under npm's `dev` tag and appear as GitHub prereleases.

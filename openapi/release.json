@@ -1,7 +1,7 @@
 {
   "artifact": "wathba-public.openapi.json",
-  "contractVersion": "2026.08.mvp.018",
-  "digest": "sha256:44251bd0d09d306b23551a3fa5692a91a4a7c8259ae4ecb438f9f637c36691d8",
+  "contractVersion": "2026.09.mvp.019",
+  "digest": "sha256:1673209298755838a48eacd0116ad6473f289249a8b2ee72e109734373f187ce",
   "digestAlgorithm": "sha256",
   "mediaType": "application/vnd.oai.openapi+json;version=3.1",
   "publicationStatus": "candidate",
