@@ -73,7 +73,7 @@ test('channel charges remain exact SAR including sub-halala Email and repeating 
       ...send.success.body.result, deliveryMethod: channel, charge: { currency: 'SAR', numerator, denominator },
     } } };
     const result = await client(async () => response(value)).verification.sendOtp({
-      ...input(send), channel, recipient: channel === 'email' ? { email: 'user@example.com' } : { phone: '+966500000000' },
+      ...input(send), recipient: channel === 'email' ? { email: 'user@example.com' } : { phone: '+966500000000' },
     });
     assert.deepEqual(result.value.result.charge, value.body.result.charge);
     assert.equal('amountMinor' in result.value, false);
@@ -122,8 +122,8 @@ test('invalid input fails before credentials or HTTP', async () => {
   const sdk = client(async () => { effects += 1; }, {
     credentialProvider: { async resolve() { effects += 1; return { apiKey: 'wth_sdk_fixture_key' }; } },
   });
-  for (const maxCostSar of [0.0001, '-1', '0.00001', '1e-4', undefined]) {
-    await assert.rejects(sdk.verification.sendOtp({ ...input(send), maxCostSar }), { code: 'wathba_invalid_request' });
+  for (const extra of [{ maxCostSar: '0.0001' }, { maxCostSar: 0.0001 }, { channel: 'email' }, { recipient: 'user@example.com' }]) {
+    await assert.rejects(sdk.verification.sendOtp({ ...input(send), ...extra }), { code: 'wathba_invalid_request' });
   }
   for (const otp of [1234, '123456', '12', 'abcd']) {
     await assert.rejects(sdk.verification.verifyOtp({ ...input(verify), otp }), { code: 'wathba_invalid_request' });
@@ -182,16 +182,16 @@ test('a Wathba problem retains its error contract and is not a failed execution 
   });
 });
 
-test('recipient/channel and custom-template constraints reject typed and raw calls before credentials', async () => {
+test('a send never names a channel or a cost ceiling, through typed and raw calls', async () => {
   let effects = 0;
   const sdk = client(async () => { effects += 1; }, {
     credentialProvider: { async resolve() { effects += 1; return { apiKey: 'wth_sdk_fixture_key' }; } },
   });
   for (const change of [
-    { channel: 'sms' },
-    { channel: 'whatsapp' },
-    { channel: 'email', recipient: { phone: '+966500000000' } },
-    { channel: 'whatsapp', recipient: { phone: '+966500000000' }, templateHandle: `actpl_${'a'.repeat(64)}` },
+    { channel: 'email' },
+    { channel: 'whatsapp', recipient: { phone: '+966500000000' } },
+    { maxCostSar: '0.0001' },
+    { fallback: 'sms' },
   ]) {
     await assert.rejects(sdk.verification.sendOtp({ ...input(send), ...change }), { code: 'wathba_invalid_request' });
     await assert.rejects(sdk.raw.execute(send.operationId, {
@@ -221,8 +221,8 @@ test('failed or pending envelopes must belong to the requested operation', async
       code: result.status === 202 ? 'wathba_invalid_success_response' : 'wathba_invalid_execution_response',
     });
   }
-  const mismatch = { ...send.success, body: { ...send.success.body, result: { ...send.success.body.result, deliveryMethod: 'sms' } } };
-  await assert.rejects(client(async () => response(mismatch)).verification.sendOtp(input(send)), { code: 'wathba_invalid_success_response' });
+  const pending = { ...send.pending, body: { ...send.pending.body, operationCode: 'verifyOtp' } };
+  await assert.rejects(client(async () => response(pending)).verification.sendOtp(input(send)), { code: 'wathba_invalid_success_response' });
 });
 
 test('response correlation uses the intent captured before credential resolution', async () => {

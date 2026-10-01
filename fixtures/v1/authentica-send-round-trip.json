@@ -1,6 +1,6 @@
 {
   "apiVersion": "2026-09-02",
-  "contractVersion": "2026.09.mvp.019",
+  "contractVersion": "2026.10.mvp.026",
   "operationId": "sendAuthenticaOtp",
   "pending": {
     "body": {
@@ -34,8 +34,6 @@
     "body": {
       "environmentId": "env_fixture_authentica",
       "input": {
-        "channel": "email",
-        "maxCostSar": "0.0001",
         "recipient": {
           "email": "user@example.com"
         }

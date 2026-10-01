@@ -192,7 +192,7 @@ The first `@wathba-cli/sdk` publication is a deliberately separate one-time boot
 ## Project-linked verification (DEV candidate)
 
 `client.verification` uses a project-linked verification application through Wathba.
-This candidate depends on the matching Catalog 019 backend and service binding;
+This candidate depends on the matching Catalog 026 backend and service binding;
 its presence in the SDK does not enable the service. Existing `client.otp`
 methods retain their previous contract. Never give the member app a provider
 master key or application key.
@@ -205,9 +205,7 @@ Both Wathba environment kinds can send real provider production messages.
 const send = await client.verification.sendOtp({
   projectId: 'prj_selected',
   environmentId: 'env_selected',
-  channel: 'email',
   recipient: { email: 'user@example.com' },
-  maxCostSar: '0.0001',
   idempotencyKey: asIdempotencyKey('login-send-unique-transaction'),
 });
 
@@ -219,9 +217,11 @@ if (send.kind === 'final' && send.value.state === 'succeeded') {
 }
 ```
 
-`maxCostSar` is your maximum allowed charge, expressed as a decimal string; it
-does not choose the tariff. The backend charges the existing member Wallet once
-when the provider accepts the send, even if the code is never verified. Accepted
+A send names only its recipient. The channel configured on the linked
+verification application is used, and its published rate is charged once to the existing
+member Wallet when the provider accepts the send, even if the code is never
+verified. The Wallet balance and the project's spending limit bound the spend;
+there is no per-request cost ceiling to choose. Accepted
 does not mean delivered. Email's SAR 0.0001 charge and rates such as 1/9 SAR remain
 exact numerator/denominator strings. Do not convert them to whole halalas or use
 floating-point amounts for accounting.

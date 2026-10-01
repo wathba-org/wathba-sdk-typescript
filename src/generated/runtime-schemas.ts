@@ -423,20 +423,8 @@ export const runtimeSchemas = {
   "AuthenticaSendOperationInput": {
     "additionalProperties": false,
     "properties": {
-      "channel": {
-        "enum": [
-          "sms",
-          "whatsapp",
-          "email"
-        ],
-        "type": "string"
-      },
       "environmentId": {
         "pattern": "^env_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
-        "type": "string"
-      },
-      "maxCostSar": {
-        "pattern": "^(?:0|[1-9]\\d{0,12})(?:\\.\\d{1,4})?$",
         "type": "string"
       },
       "recipient": {
@@ -478,7 +466,6 @@ export const runtimeSchemas = {
     },
     "required": [
       "recipient",
-      "maxCostSar",
       "environmentId"
     ],
     "type": "object"
@@ -493,18 +480,6 @@ export const runtimeSchemas = {
       "input": {
         "additionalProperties": false,
         "properties": {
-          "channel": {
-            "enum": [
-              "sms",
-              "whatsapp",
-              "email"
-            ],
-            "type": "string"
-          },
-          "maxCostSar": {
-            "pattern": "^(?:0|[1-9]\\d{0,12})(?:\\.\\d{1,4})?$",
-            "type": "string"
-          },
           "recipient": {
             "anyOf": [
               {
@@ -543,8 +518,7 @@ export const runtimeSchemas = {
           }
         },
         "required": [
-          "recipient",
-          "maxCostSar"
+          "recipient"
         ],
         "type": "object"
       }

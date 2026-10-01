@@ -1,7 +1,7 @@
 import { WathbaSdkError } from './errors.js';
 
 type VerificationContext =
-  | { readonly operationCode: 'sendOtp'; readonly channel?: string }
+  | { readonly operationCode: 'sendOtp' }
   | { readonly operationCode: 'verifyOtp'; readonly sendExecutionId: string }
   | { readonly executionId: string };
 
@@ -19,13 +19,9 @@ export function verificationRequestContext(operationId: string, request: unknown
     if (typeof input.sendExecutionId !== 'string') throw new WathbaSdkError('wathba_invalid_request');
     return { operationCode: 'verifyOtp', sendExecutionId: input.sendExecutionId };
   }
-  if (!isRecord(input.recipient) ||
-      (input.channel === 'email' && !('email' in input.recipient)) ||
-      ((input.channel === 'sms' || input.channel === 'whatsapp') && !('phone' in input.recipient)) ||
-      (input.channel === 'whatsapp' && input.templateHandle !== undefined)) {
-    throw new WathbaSdkError('wathba_invalid_request');
-  }
-  return { operationCode: 'sendOtp', ...(typeof input.channel === 'string' ? { channel: input.channel } : {}) };
+  // The application's configured channel applies, so a send result carries whichever one it used.
+  if (!isRecord(input.recipient)) throw new WathbaSdkError('wathba_invalid_request');
+  return { operationCode: 'sendOtp' };
 }
 
 /** Called after shape validation, against primitive values captured before dispatch. */
@@ -36,8 +32,7 @@ export function matchesVerificationContext(context: VerificationContext | undefi
   if (response.operationCode !== context.operationCode) return false;
   if (response.state !== 'succeeded') return true;
   if (!isRecord(response.result)) return false;
-  if (context.operationCode === 'verifyOtp') return response.result.sendExecutionId === context.sendExecutionId;
-  return context.channel === undefined || response.result.deliveryMethod === context.channel;
+  return context.operationCode === 'sendOtp' || response.result.sendExecutionId === context.sendExecutionId;
 }
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {

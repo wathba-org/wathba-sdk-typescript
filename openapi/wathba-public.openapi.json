@@ -424,20 +424,8 @@
       "AuthenticaSendOperationInput": {
         "additionalProperties": false,
         "properties": {
-          "channel": {
-            "enum": [
-              "sms",
-              "whatsapp",
-              "email"
-            ],
-            "type": "string"
-          },
           "environmentId": {
             "pattern": "^env_[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
-            "type": "string"
-          },
-          "maxCostSar": {
-            "pattern": "^(?:0|[1-9]\\d{0,12})(?:\\.\\d{1,4})?$",
             "type": "string"
           },
           "recipient": {
@@ -479,7 +467,6 @@
         },
         "required": [
           "recipient",
-          "maxCostSar",
           "environmentId"
         ],
         "type": "object"
@@ -494,18 +481,6 @@
           "input": {
             "additionalProperties": false,
             "properties": {
-              "channel": {
-                "enum": [
-                  "sms",
-                  "whatsapp",
-                  "email"
-                ],
-                "type": "string"
-              },
-              "maxCostSar": {
-                "pattern": "^(?:0|[1-9]\\d{0,12})(?:\\.\\d{1,4})?$",
-                "type": "string"
-              },
               "recipient": {
                 "anyOf": [
                   {
@@ -544,8 +519,7 @@
               }
             },
             "required": [
-              "recipient",
-              "maxCostSar"
+              "recipient"
             ],
             "type": "object"
           }
@@ -6305,7 +6279,7 @@
   },
   "info": {
     "title": "Wathba Public API",
-    "version": "2026.09.mvp.019"
+    "version": "2026.10.mvp.026"
   },
   "jsonSchemaDialect": "https://spec.openapis.org/oas/3.1/dialect/base",
   "openapi": "3.1.2",
@@ -10121,7 +10095,7 @@
     },
     "/v1/platform/projects/{projectId}/services/messaging.otp.authentica/operations/sendOtp": {
       "post": {
-        "description": "Both sandbox and production Wathba environments send real production messages. The selected channel rate is charged from the existing Wallet once the provider accepts the send, even if verification never happens. maxCostSar is the caller ceiling, not a price. A pending send retains its hold: retry the identical request with the same Idempotency-Key and never issue a fresh send to resolve uncertainty. Acceptance is not delivery. Custom sender names, paid fallback and unpriced destinations are unavailable.",
+        "description": "Sends through the channel configured on the linked Authentica application. Both sandbox and production Wathba environments send real production messages. That channel's published rate is charged from the existing Wallet once the provider accepts the send, even if verification never happens; the Wallet balance and the project's spending limit bound the spend. A pending send retains its hold: retry the identical request with the same Idempotency-Key and never issue a fresh send to resolve uncertainty. Acceptance is not delivery. Custom sender names, paid fallback and unpriced destinations are unavailable.",
         "operationId": "sendAuthenticaOtp",
         "parameters": [
           {
@@ -10162,8 +10136,6 @@
               "example": {
                 "environmentId": "env_selected",
                 "input": {
-                  "channel": "email",
-                  "maxCostSar": "0.0001",
                   "recipient": {
                     "email": "user@example.com"
                   }
@@ -12137,7 +12109,7 @@
     }
   },
   "x-wathba-provider-runtime": {
-    "contractVersion": "2026.09.mvp.019",
+    "contractVersion": "2026.10.mvp.026",
     "discriminator": {
       "operationCodeParameter": "operationCode",
       "serviceCodeParameter": "serviceCode"
@@ -12586,9 +12558,7 @@
         ],
         "provider": "authenta",
         "requestExample": {
-          "channel": "email",
           "environmentId": "env_selected",
-          "maxCostSar": "0.0001",
           "recipient": {
             "email": "user@example.com"
           }
