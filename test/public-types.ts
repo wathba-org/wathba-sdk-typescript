@@ -23,7 +23,7 @@ declare const client: WathbaClient;
 
 const authenticaSend: SendVerificationCodeInput = {
   projectId: 'prj_types', environmentId: 'env_types',
-  recipient: { email: 'user@example.com' }, channel: 'email', maxCostSar: '0.0001',
+  recipient: { email: 'user@example.com' },
   idempotencyKey: asIdempotencyKey('idem_authentica_send'),
 };
 const authenticaResult: Promise<WathbaOutcome<SendVerificationCodeResult>> = client.verification.sendOtp(authenticaSend);
@@ -33,8 +33,10 @@ const authenticaVerify: CheckVerificationCodeInput = {
   otp: '0123', idempotencyKey: asIdempotencyKey('idem_authentica_verify'),
 };
 void client.verification.verifyOtp(authenticaVerify);
-// @ts-expect-error The member ceiling is a decimal string, never a floating-point charge.
-void client.verification.sendOtp({ ...authenticaSend, maxCostSar: 0.0001 });
+// @ts-expect-error The linked application's channel applies; a send cannot pick one.
+void client.verification.sendOtp({ ...authenticaSend, channel: 'email' });
+// @ts-expect-error The published rate is charged; a send names no cost ceiling.
+void client.verification.sendOtp({ ...authenticaSend, maxCostSar: '0.0001' });
 // @ts-expect-error A verification code must preserve leading zeroes.
 void client.verification.verifyOtp({ ...authenticaVerify, otp: 1234 });
 // @ts-expect-error Original-send verification cannot change its recipient.

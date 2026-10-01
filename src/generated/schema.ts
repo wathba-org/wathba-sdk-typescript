@@ -387,7 +387,7 @@ export interface paths {
         put?: never;
         /**
          * Request a verification code using the linked application
-         * @description Both sandbox and production Wathba environments send real production messages. The selected channel rate is charged from the existing Wallet once the provider accepts the send, even if verification never happens. maxCostSar is the caller ceiling, not a price. A pending send retains its hold: retry the identical request with the same Idempotency-Key and never issue a fresh send to resolve uncertainty. Acceptance is not delivery. Custom sender names, paid fallback and unpriced destinations are unavailable.
+         * @description Sends through the channel configured on the linked Authentica application. Both sandbox and production Wathba environments send real production messages. That channel's published rate is charged from the existing Wallet once the provider accepts the send, even if verification never happens; the Wallet balance and the project's spending limit bound the spend. A pending send retains its hold: retry the identical request with the same Idempotency-Key and never issue a fresh send to resolve uncertainty. Acceptance is not delivery. Custom sender names, paid fallback and unpriced destinations are unavailable.
          */
         post: operations["sendAuthenticaOtp"];
         delete?: never;
@@ -729,10 +729,7 @@ export interface components {
             statusCode: number;
         };
         AuthenticaSendOperationInput: {
-            /** @enum {string} */
-            channel?: "sms" | "whatsapp" | "email";
             environmentId: string;
-            maxCostSar: string;
             recipient: {
                 phone: string;
             } | {
@@ -744,9 +741,6 @@ export interface components {
         AuthenticaSendRequest: {
             environmentId: string;
             input: {
-                /** @enum {string} */
-                channel?: "sms" | "whatsapp" | "email";
-                maxCostSar: string;
                 recipient: {
                     phone: string;
                 } | {
@@ -4207,8 +4201,6 @@ export interface operations {
                  * @example {
                  *       "environmentId": "env_selected",
                  *       "input": {
-                 *         "channel": "email",
-                 *         "maxCostSar": "0.0001",
                  *         "recipient": {
                  *           "email": "user@example.com"
                  *         }

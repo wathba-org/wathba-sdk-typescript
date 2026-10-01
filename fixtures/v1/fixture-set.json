@@ -1,14 +1,14 @@
 {
-  "aggregateDigest": "sha256:b6cf58dfa1188ac2e9b07e60a15e419316560cc2facdeb17f46e9faca08323eb",
-  "contractVersion": "2026.09.mvp.019",
+  "aggregateDigest": "sha256:904327c59d947f1b600239e14121bf6b4fd4fb6ef613a45c111216a9f491cc30",
+  "contractVersion": "2026.10.mvp.026",
   "fixtures": {
-    "authentica-send-round-trip.json": "sha256:53159372ed385e63b237de8b6fed09130d00f7eccc59878ddb3f01e9d9576ec8",
-    "authentica-status-round-trip.json": "sha256:f6ac8b94f208b8e36ff160db1ed9c52e9c7d66aaf1dbca8c6e0d3ae63b8dd6e9",
-    "authentica-verify-round-trip.json": "sha256:9ed7fd2d41dd1371e07bf12fbecce101a6c35759bb7ca179a805db510ceeb875",
-    "ejar-round-trip.json": "sha256:f740063b0521d001b1f794055dd4071efd3ed8ef402f3fe2a04d68b15031502f",
-    "otp-round-trip.json": "sha256:e90b172cb0abd6f6f52a5ed873ad9be283c7e12a9fffdf0720e9d7d3313081dd",
-    "otp-webhook-round-trip.json": "sha256:41c6161dfdcfe0cbe1d9b0c9a4024b1d2b1a8fdccf4828fe477a161f4319bf45",
-    "shipping-round-trip.json": "sha256:fc317a65b7b7dee65f169af7be39619622ab8216af5a6194cfed5f6ca6ebce51"
+    "authentica-send-round-trip.json": "sha256:408908a96cdfd41bcd14f196f2d783bfa40dbb95e68c4ec92493b24061b8e3b8",
+    "authentica-status-round-trip.json": "sha256:6831ff3733b65af53accf626632fee2a2f81b7859cda6d9fb39dd25ec0e82c25",
+    "authentica-verify-round-trip.json": "sha256:a8d5410cb943af9b506e3c8668a090ec4131a84180b3bc40afee73df88d2d954",
+    "ejar-round-trip.json": "sha256:2baaa5b760ebfe9c7951cba684f90f992a8d79dee6ed37705a950a68827cbb43",
+    "otp-round-trip.json": "sha256:a147cb3fcb1d3136c9eb0eee8abdf2a860affaa596975d513ba5cbfc8ccb8ec4",
+    "otp-webhook-round-trip.json": "sha256:0bc920cbcbc5d6f214bad7acb3b70e8222e8bd38250dd47ac4211c61eaa47071",
+    "shipping-round-trip.json": "sha256:4344b7f80b887c8454ad022c346649c3f90086c269888a64fdf0f1fd83b9ed0d"
   },
   "schemaVersion": "1.0"
 }
