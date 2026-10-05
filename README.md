@@ -80,7 +80,7 @@ Ergonomic clients are grouped by capability and preserve Wathba's three runtime 
 const outcome = await wathba.shipping.create({
   projectId: 'prj_123',
   environmentId: 'env_123',
-  // Sandbox-only: Wathba caps the provider-selected courier and spend.
+  // Sandbox development preview only; charges stay with the external shipping account.
   mode: 'order_first',
   amountMinor: 5_000,
   currency: 'SAR',
@@ -113,13 +113,13 @@ switch (outcome.kind) {
 }
 ```
 
-`order_first` is a capped sandbox certification path, not a production courier-selection guarantee. `amountMinor` is the maximum SAR exposure authorized for the logical shipment; item `amountMinor` values describe the provider-opaque order total. Recipient email, a non-empty item list, and parcel weight are required. Production stays fail closed until Wathba can prove the chosen courier and maximum cost before the provider write.
+Shipment creation is a sandbox development preview that runs only in an approved Wathba test deployment; production shipment creation is not available. `order_first` is not a courier-selection guarantee. Wathba creates no wallet reservation, settlement, quote, or Wathba-collected fee: funding and shipping charges stay between the member and the external shipping account. `amountMinor` is checked against the catalog's per-request limit and does not cap what the external shipping account charges; item `amountMinor` values describe the provider-opaque order total. Recipient email, a non-empty item list, and parcel weight are required.
 
 The typed SDK surface is release-time compatibility, not a live service catalog. Do not use the presence of `wathba.shipping` or another typed client as evidence that the service is currently offered. When an operator globally disables a service, discovery omits it and an in-flight or direct execution fails closed with a terminal `blocked` value whose message is `service_globally_disabled`; the SDK does not classify that response as pending or replay the mutation.
 
 ## External-service onboarding is not an SDK operation
 
-This SDK starts at the member-app runtime boundary, after a human has connected or registered the external shipping account, completed pickup-address and wallet readiness, activated `logistics.shipping`, created the exact test or production project key in the Wathba portal, and configured it in the server runtime outside the coding agent's view. It deliberately exposes no provider install/login, password, pickup-address, wallet-funding, activation, or key-minting method. Never add those provider or control-plane calls to member application code.
+This SDK starts at the member-app runtime boundary, after the member human has connected or registered the one member-wide external shipping account on hosted member pages (or a Wathba operator has), completed pickup-address and wallet readiness there, `logistics.shipping` reports enabled, and the member has created the exact test or production project key in the Wathba portal and configured it in the server runtime outside the coding agent's view. Readiness is necessary, not permission to create shipments. AI agents and member-app code never start that registration or connection or handle the external account password. The SDK deliberately exposes no provider install/login, password, pickup-address, wallet-funding, activation, or key-minting method. Never add those provider or control-plane calls to member application code.
 
 For a non-production Wathba origin, configure the test-environment key and the exact development API origin together in the server runtime:
 
