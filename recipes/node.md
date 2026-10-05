@@ -56,4 +56,4 @@ Persist the idempotency key with the logical command if your app may retry after
 
 For payments and shipping, branch on the typed outcome. Queue a bounded safe read for `pending`, render only the member-safe portal URL for `action_required`, and treat only `final` as terminal. Never automatically retry a mutation with a new idempotency key.
 
-For the complete capped staging request and its onboarding boundary, see [Shipping](./shipping.md).
+For the complete sandbox preview request and its onboarding boundary, see [Shipping](./shipping.md).

@@ -1,6 +1,6 @@
 # Shipping recipe
 
-Use this recipe only in a trusted Node.js 24+ server after Wathba CLI reports `logistics.shipping` active and its human-owned setup actions complete. External-service registration/login, pickup-address submission, wallet funding, capability activation, and project-key issuance belong to hosted member pages. They are not SDK or member-app responsibilities.
+Use this recipe only in a trusted Node.js 24+ server after Wathba CLI reports `logistics.shipping` enabled. The one member-wide external shipping account is connected or registered by the member human on hosted member pages, or by a Wathba operator. Pickup addresses, external-wallet funding, and project-key issuance also belong to hosted member pages. AI agents, the SDK, and member-app code never start that registration or connection, handle the external account password, or call setup routes. Readiness is necessary, not permission to create shipments.
 
 ## Configure the test project key
 
@@ -27,9 +27,9 @@ export const wathba = new WathbaClient({
 
 The SDK re-resolves the configured key for each bounded attempt. A mutation retry replays the exact URL, body bytes, and `Idempotency-Key`; it never creates a replacement key. Persist the idempotency key with the application’s logical shipment command so process restarts can do the same. Never persist the Wathba API key in that command record.
 
-## Create one capped sandbox shipment
+## Create one sandbox preview shipment
 
-Staging currently certifies `order_first`: the external service may select and charge for the courier during creation, while Wathba reserves and enforces the request’s maximum exposure. This is test-only and must not be treated as production route certification.
+Shipment creation is a sandbox development preview that runs only in an approved Wathba test deployment; production shipment creation is not available. In `order_first` mode the external service may select and charge for the courier during creation. Wathba creates no wallet reservation, settlement, quote, or Wathba-collected fee: funding and shipping charges stay between the member and the external shipping account. A pickup address is not proof of the shipment's origin or carrier.
 
 ```ts
 import {
@@ -80,8 +80,8 @@ const converged =
     : outcome;
 ```
 
-`amountMinor` is the authorized maximum exposure, not proof of the final provider charge. Item amounts describe the provider-opaque order total. Recipient email, at least one item, and parcel weight are required by the normalized contract.
+`amountMinor` is checked against the catalog's per-request limit. It is not a Wathba reservation and does not cap what the external shipping account charges. Item amounts describe the provider-opaque order total. Recipient email, at least one item, and parcel weight are required by the normalized contract.
 
-Treat only `final` as terminal. Keep `pending` or `blocked` executions pending and converge them through the SDK’s safe execution-status read using the same project credential. An `action_required` result contains only Wathba’s member-safe hosted action; show that URL to the member and never call the external service directly.
+Treat only `final` as terminal. The SDK classifies only a `pending` execution state as `pending`; every other state, including `blocked`, is `final`. While an execution is `pending` or its outcome is unknown (for example, a lost response), poll only the SDK’s safe execution-status read using the same project credential, and retry an uncertain create only with its original idempotency key and body. A `blocked` execution is a final fail-closed refusal, not a pending one: do not poll it. Surface its message, fix the cause (such as readiness or controls), and create a shipment again only as a new explicit decision. Never automatically replace, re-key, or retry a mutation. An `action_required` result contains only Wathba’s member-safe hosted action; show that URL to the member and never call the external service directly.
 
 Do not log request bodies, recipient data, tracking/label URLs, credential values, provider payloads, or external-service identifiers. Store only the application facts your own retention policy requires.
