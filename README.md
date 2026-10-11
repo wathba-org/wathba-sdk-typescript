@@ -72,6 +72,13 @@ an iframe or WebView. Treat a browser redirect as UX only: fulfill an order
 after a verified Wathba webhook or an authenticated `getIntent` result says
 `succeeded`. See [the payment recipe](./recipes/payments.md).
 
+Payment Links are deprecated (2026-10-10) and sunset on 2026-12-31. The API
+rejects new and reactivated links with `410 payment_links_deprecated`; existing
+links work until the sunset. The `payments.*Link` methods remain only for
+reading and winding down existing links. Use `payments.createIntent` with
+hosted Wathba Checkout as shown above, `payments.createCheckoutSession` for a
+fresh checkout session, and `payments.getIntent` for the result.
+
 OTP uses the same `final | pending | action_required` union as payments and shipping; a `201` or `202` transport status alone is never treated as proof of a completed business outcome.
 
 Ergonomic clients are grouped by capability and preserve Wathba's three runtime outcomes. A human action is never coerced into a transport error or a false success:
@@ -137,7 +144,7 @@ const devWathba = new WathbaClient({
 });
 ```
 
-`pollWathbaOutcome` is bounded and accepts a caller-supplied safe read operation only. It never replays a mutation. Payments expose the universal Payment Intent lifecycle, optional shareable Payment Links, payment reads, and refunds through typed ergonomic methods; shipping exposes the published create operation and its read-only execution-status operation. Payer-public checkout routes are deliberately not SDK operations. The raw client exposes authenticated published operations without inventing unsupported aliases. Payment amounts (`amountMinor`) are in the smallest currency unit, with a provider minimum of 100 (e.g. 100 halalas = 1.00 SAR); the server owns amount validation.
+`pollWathbaOutcome` is bounded and accepts a caller-supplied safe read operation only. It never replays a mutation. Payments expose the universal Payment Intent lifecycle, payment reads, and refunds through typed ergonomic methods; shipping exposes the published create operation and its read-only execution-status operation. Payer-public checkout routes are deliberately not SDK operations. The raw client exposes authenticated published operations without inventing unsupported aliases. Payment amounts (`amountMinor`) are in the smallest currency unit, with a provider minimum of 100 (e.g. 100 halalas = 1.00 SAR); the server owns amount validation.
 
 Keep an idempotency key with the logical command and reuse it for retries. Create a new key only for a new intent. Resolve the Wathba credential inside the trusted server runtime; never pass it to browser code, an AI agent, logs, or source control.
 

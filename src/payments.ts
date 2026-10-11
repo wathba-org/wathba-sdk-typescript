@@ -62,8 +62,11 @@ export type CreateCheckoutSessionInput = Readonly<
 export type CreateCheckoutSessionResult = OperationResponseMap['createCheckoutSession'];
 
 /**
- * Payment Links are an optional shareable wrapper around the same Payment
- * Intent and hosted Wathba Checkout engine. Use Payment Intents in apps.
+ * Payment Links were a shareable wrapper around the same Payment Intent and
+ * hosted Wathba Checkout engine.
+ *
+ * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+ * 2026-12-31. Use `payments.createIntent` with hosted Wathba Checkout instead.
  */
 export type CreatePaymentLinkInput = Readonly<
   CreateLinkOperation['body'] & {
@@ -71,36 +74,80 @@ export type CreatePaymentLinkInput = Readonly<
     readonly idempotencyKey: CreateLinkOperation['idempotencyKey'];
   }
 >;
+/**
+ * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+ * 2026-12-31. Use `payments.createIntent` with hosted Wathba Checkout instead.
+ */
 export type CreatePaymentLinkResult = OperationResponseMap['createPaymentLink'];
 
+/**
+ * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+ * 2026-12-31. Use `payments.createIntent` with hosted Wathba Checkout instead.
+ */
 export type ListPaymentLinksInput = Readonly<ListLinksOperation['path']>;
+/**
+ * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+ * 2026-12-31. Use `payments.createIntent` with hosted Wathba Checkout instead.
+ */
 export type ListPaymentLinksResult = OperationResponseMap['listPaymentLinks'];
 
+/**
+ * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+ * 2026-12-31. Use `payments.createIntent` with hosted Wathba Checkout instead.
+ */
 export type GetPaymentLinkInput = Readonly<GetLinkOperation['path']>;
+/**
+ * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+ * 2026-12-31. Use `payments.createIntent` with hosted Wathba Checkout instead.
+ */
 export type GetPaymentLinkResult = OperationResponseMap['getPaymentLink'];
 
+/**
+ * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+ * 2026-12-31. Use `payments.createIntent` with hosted Wathba Checkout instead.
+ */
 export type UpdatePaymentLinkInput = Readonly<
   UpdateLinkOperation['body'] &
     UpdateLinkOperation['path'] & {
       readonly idempotencyKey: UpdateLinkOperation['idempotencyKey'];
     }
 >;
+/**
+ * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+ * 2026-12-31. Use `payments.createIntent` with hosted Wathba Checkout instead.
+ */
 export type UpdatePaymentLinkResult = OperationResponseMap['updatePaymentLink'];
 
+/**
+ * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+ * 2026-12-31. Use `payments.createIntent` with hosted Wathba Checkout instead.
+ */
 export type DeactivatePaymentLinkInput = Readonly<
   DeactivateLinkOperation['path'] & {
     readonly idempotencyKey: DeactivateLinkOperation['idempotencyKey'];
   }
 >;
+/**
+ * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+ * 2026-12-31. Use `payments.createIntent` with hosted Wathba Checkout instead.
+ */
 export type DeactivatePaymentLinkResult =
   OperationResponseMap['deactivatePaymentLink'];
 
+/**
+ * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+ * 2026-12-31. Use `payments.createIntent` with hosted Wathba Checkout instead.
+ */
 export type ReactivatePaymentLinkInput = Readonly<
   ReactivateLinkOperation['body'] &
     ReactivateLinkOperation['path'] & {
       readonly idempotencyKey: ReactivateLinkOperation['idempotencyKey'];
     }
 >;
+/**
+ * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+ * 2026-12-31. Use `payments.createIntent` with hosted Wathba Checkout instead.
+ */
 export type ReactivatePaymentLinkResult =
   OperationResponseMap['reactivatePaymentLink'];
 
@@ -193,6 +240,15 @@ export class WathbaPaymentsClient {
     );
   }
 
+  /**
+   * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+   * 2026-12-31: the API rejects new and reactivated links with
+   * `410 payment_links_deprecated`, and existing links work until the sunset.
+   * Use {@link WathbaPaymentsClient.createIntent} and open the returned
+   * `checkout` with hosted Wathba Checkout; call
+   * {@link WathbaPaymentsClient.createCheckoutSession} for a fresh checkout
+   * session, and {@link WathbaPaymentsClient.getIntent} to read the outcome.
+   */
   createLink(
     input: CreatePaymentLinkInput,
   ): Promise<WathbaOutcome<CreatePaymentLinkResult>> {
@@ -206,6 +262,15 @@ export class WathbaPaymentsClient {
     );
   }
 
+  /**
+   * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+   * 2026-12-31: the API rejects new and reactivated links with
+   * `410 payment_links_deprecated`, and existing links work until the sunset.
+   * Use {@link WathbaPaymentsClient.createIntent} and open the returned
+   * `checkout` with hosted Wathba Checkout; call
+   * {@link WathbaPaymentsClient.createCheckoutSession} for a fresh checkout
+   * session, and {@link WathbaPaymentsClient.getIntent} to read the outcome.
+   */
   listLinks(
     input: ListPaymentLinksInput,
   ): Promise<WathbaOutcome<ListPaymentLinksResult>> {
@@ -217,6 +282,15 @@ export class WathbaPaymentsClient {
     );
   }
 
+  /**
+   * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+   * 2026-12-31: the API rejects new and reactivated links with
+   * `410 payment_links_deprecated`, and existing links work until the sunset.
+   * Use {@link WathbaPaymentsClient.createIntent} and open the returned
+   * `checkout` with hosted Wathba Checkout; call
+   * {@link WathbaPaymentsClient.createCheckoutSession} for a fresh checkout
+   * session, and {@link WathbaPaymentsClient.getIntent} to read the outcome.
+   */
   getLink(
     input: GetPaymentLinkInput,
   ): Promise<WathbaOutcome<GetPaymentLinkResult>> {
@@ -225,6 +299,15 @@ export class WathbaPaymentsClient {
     );
   }
 
+  /**
+   * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+   * 2026-12-31: the API rejects new and reactivated links with
+   * `410 payment_links_deprecated`, and existing links work until the sunset.
+   * Use {@link WathbaPaymentsClient.createIntent} and open the returned
+   * `checkout` with hosted Wathba Checkout; call
+   * {@link WathbaPaymentsClient.createCheckoutSession} for a fresh checkout
+   * session, and {@link WathbaPaymentsClient.getIntent} to read the outcome.
+   */
   updateLink(
     input: UpdatePaymentLinkInput,
   ): Promise<WathbaOutcome<UpdatePaymentLinkResult>> {
@@ -238,6 +321,15 @@ export class WathbaPaymentsClient {
     );
   }
 
+  /**
+   * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+   * 2026-12-31: the API rejects new and reactivated links with
+   * `410 payment_links_deprecated`, and existing links work until the sunset.
+   * Use {@link WathbaPaymentsClient.createIntent} and open the returned
+   * `checkout` with hosted Wathba Checkout; call
+   * {@link WathbaPaymentsClient.createCheckoutSession} for a fresh checkout
+   * session, and {@link WathbaPaymentsClient.getIntent} to read the outcome.
+   */
   deactivateLink(
     input: DeactivatePaymentLinkInput,
   ): Promise<WathbaOutcome<DeactivatePaymentLinkResult>> {
@@ -250,6 +342,15 @@ export class WathbaPaymentsClient {
     );
   }
 
+  /**
+   * @deprecated Payment Links were deprecated on 2026-10-10 and sunset on
+   * 2026-12-31: the API rejects new and reactivated links with
+   * `410 payment_links_deprecated`, and existing links work until the sunset.
+   * Use {@link WathbaPaymentsClient.createIntent} and open the returned
+   * `checkout` with hosted Wathba Checkout; call
+   * {@link WathbaPaymentsClient.createCheckoutSession} for a fresh checkout
+   * session, and {@link WathbaPaymentsClient.getIntent} to read the outcome.
+   */
   reactivateLink(
     input: ReactivatePaymentLinkInput,
   ): Promise<WathbaOutcome<ReactivatePaymentLinkResult>> {
