@@ -10,7 +10,7 @@ portal and configures it in the server runtime outside the coding agent's view:
 ```ts
 import { WathbaClient } from '@wathba-cli/sdk';
 
-const apiOrigin = 'https://apidev.wathba.info';
+const apiOrigin = 'https://apidev.wathba.sa';
 
 export const wathba = new WathbaClient({
   baseUrl: apiOrigin,

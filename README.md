@@ -131,7 +131,7 @@ This SDK starts at the member-app runtime boundary, after the member human has c
 For a non-production Wathba origin, configure the test-environment key and the exact development API origin together in the server runtime:
 
 ```ts
-const apiOrigin = 'https://apidev.wathba.info';
+const apiOrigin = 'https://apidev.wathba.sa';
 const devWathba = new WathbaClient({
   baseUrl: apiOrigin,
   credentialProvider: {

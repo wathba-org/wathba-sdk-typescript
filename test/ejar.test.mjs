@@ -19,7 +19,7 @@ function response(outcome) {
 }
 function client(fetch, options = {}) {
   return new WathbaClient({
-    baseUrl: 'https://api.test.wathba.info', apiVersion: fixture.apiVersion,
+    baseUrl: 'https://api.test.wathba.sa', apiVersion: fixture.apiVersion,
     credentialProvider, fetch, ...options,
   });
 }
@@ -43,14 +43,14 @@ for (const outcomeName of ['success', 'empty', 'pending', 'settlementPending']) 
     assert.deepEqual(raw, fixture[outcomeName].body);
     assert.equal(requests.length, 2);
     for (const request of requests) {
-      assert.equal(request.url, `https://api.test.wathba.info/v1/platform/projects/${input.projectId}/services/realestate.ejar/operations/getContract`);
+      assert.equal(request.url, `https://api.test.wathba.sa/v1/platform/projects/${input.projectId}/services/realestate.ejar/operations/getContract`);
       assert.equal(request.init.method, 'POST');
       assert.equal(request.init.body, JSON.stringify(fixture.request.body));
       assert.equal(request.init.headers.get('idempotency-key'), input.idempotencyKey);
       assert.equal(request.init.headers.get('wathba-version'), fixture.apiVersion);
     }
     assert.deepEqual(credentials[0], {
-      apiOrigin: 'https://api.test.wathba.info', capability: 'realestate.contracts',
+      apiOrigin: 'https://api.test.wathba.sa', capability: 'realestate.contracts',
       operationId: 'getEjarContract', requiredScopes: ['tools:execute', 'ejar:contracts:read'],
     });
   });

@@ -12,7 +12,7 @@ export const wathbaSdkRelease = {
   "protocolVersion": "1.0",
   "schemaVersion": "wathba.sdk-release.v1",
   "sdkPackage": "@wathba-cli/sdk",
-  "sdkVersion": "0.6.0-dev.2"
+  "sdkVersion": "0.6.0-dev.3"
 } as const;
 
 export type WathbaSdkRelease = typeof wathbaSdkRelease;

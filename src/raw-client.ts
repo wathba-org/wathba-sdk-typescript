@@ -76,7 +76,7 @@ export class RawWathbaClient {
 
   constructor(private readonly options: RawWathbaClientOptions) {
     assertServerRuntime();
-    const baseUrl = new URL(options.baseUrl ?? 'https://api.wathba.info');
+    const baseUrl = new URL(options.baseUrl ?? 'https://api.wathba.sa');
     if (
       (baseUrl.protocol !== 'https:' && baseUrl.protocol !== 'http:') ||
       baseUrl.username !== '' ||
