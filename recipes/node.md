@@ -47,8 +47,8 @@ user submits their email, then `verifyLoginOtp` when they submit the code. Only 
 `final` outcome confirms the code — treat everything else as not-yet-verified and
 never auto-retry the verify with a fresh idempotency key.
 
-Use the test key only with `https://apidev.wathba.info` and the production key
-only with `https://api.wathba.info`. Test and production keys are separate.
+Use the test key only with `https://apidev.wathba.sa` and the production key
+only with `https://api.wathba.sa`. Test and production keys are separate.
 There is no member-cloud credential destination or GCP workload-identity setup.
 Never pass the key to the coding agent or put its value in source control.
 

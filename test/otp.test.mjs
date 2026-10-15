@@ -16,7 +16,7 @@ test('OTP sends the canonical shared-fixture request with one resolved credentia
   const credentialRequests = [];
   let resolutions = 0;
   const client = new WathbaClient({
-    baseUrl: 'https://api.test.wathba.info',
+    baseUrl: 'https://api.test.wathba.sa',
     credentialProvider: {
       async resolve(request) {
         resolutions += 1;
@@ -41,14 +41,14 @@ test('OTP sends the canonical shared-fixture request with one resolved credentia
   assert.deepEqual(outcome.value, fixture.success.body);
   assert.equal(resolutions, 1);
   assert.deepEqual(credentialRequests, [{
-    apiOrigin: 'https://api.test.wathba.info',
+    apiOrigin: 'https://api.test.wathba.sa',
     capability: 'messaging.otp',
     operationId: 'sendOtp',
     requiredScopes: ['otp:send'],
   }]);
   assert.equal(
     requests[0].url,
-    `https://api.test.wathba.info/v1/platform/projects/${fixture.request.path.projectId}/otp/send`,
+    `https://api.test.wathba.sa/v1/platform/projects/${fixture.request.path.projectId}/otp/send`,
   );
   assert.equal(requests[0].init.headers.get('x-api-key'), 'wth_test_key');
   assert.equal(requests[0].init.headers.get('idempotency-key'), fixture.request.idempotencyKey);
@@ -62,7 +62,7 @@ test('OTP verify sends the canonical verify request with one resolved credential
   const credentialRequests = [];
   let resolutions = 0;
   const client = new WathbaClient({
-    baseUrl: 'https://api.test.wathba.info',
+    baseUrl: 'https://api.test.wathba.sa',
     credentialProvider: {
       async resolve(request) {
         resolutions += 1;
@@ -88,14 +88,14 @@ test('OTP verify sends the canonical verify request with one resolved credential
   assert.deepEqual(outcome.value, fixture.success.body);
   assert.equal(resolutions, 1);
   assert.deepEqual(credentialRequests, [{
-    apiOrigin: 'https://api.test.wathba.info',
+    apiOrigin: 'https://api.test.wathba.sa',
     capability: 'messaging.otp',
     operationId: 'verifyOtp',
     requiredScopes: ['otp:verify'],
   }]);
   assert.equal(
     requests[0].url,
-    `https://api.test.wathba.info/v1/platform/projects/${fixture.request.path.projectId}/otp/verify`,
+    `https://api.test.wathba.sa/v1/platform/projects/${fixture.request.path.projectId}/otp/verify`,
   );
   assert.equal(requests[0].init.headers.get('x-api-key'), 'wth_test_key');
   assert.equal(requests[0].init.headers.get('idempotency-key'), 'idem_otp_verify_123');

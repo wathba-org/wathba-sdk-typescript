@@ -36,7 +36,7 @@ The authorized member creates a test or production project key in the portal
 and configures it outside the agent's view. Keep it in server-only runtime
 configuration. Do not add it to a Nest config response, log line, source file,
 or browser bundle. Development uses the test key with
-`https://apidev.wathba.info`; production uses its separate key and origin.
+`https://apidev.wathba.sa`; production uses its separate key and origin.
 
 Model `final`, `pending`, and `action_required` explicitly in the application layer. Schedule only safe read operations for convergence; do not turn a pending provider outcome into an HTTP success claim or replay a mutation with a fresh key.
 

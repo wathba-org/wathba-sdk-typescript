@@ -19,7 +19,7 @@ const credentialProvider = {
 test('shipping.create sends the complete sandbox order_first contract and preserves pending', async () => {
   let observed;
   const client = new WathbaClient({
-    baseUrl: 'https://api.test.wathba.info',
+    baseUrl: 'https://api.test.wathba.sa',
     apiVersion: '2026-09-02',
     credentialProvider,
     fetch: async (url, init) => {
@@ -44,7 +44,7 @@ test('shipping.create sends the complete sandbox order_first contract and preser
   assert.deepEqual(outcome.value, shippingFixture.pending.body);
   assert.equal(
     observed.url,
-    `https://api.test.wathba.info/v1/platform/projects/${shippingFixture.request.path.projectId}/shipments`,
+    `https://api.test.wathba.sa/v1/platform/projects/${shippingFixture.request.path.projectId}/shipments`,
   );
   assert.equal(
     observed.init.headers.get('idempotency-key'),
@@ -61,7 +61,7 @@ test('shipping transport retry replays the exact URL, idempotency key, and reque
   const requests = [];
   const idempotencyKey = asIdempotencyKey('idem_shipping_retry_001');
   const client = new WathbaClient({
-    baseUrl: 'https://api.test.wathba.info',
+    baseUrl: 'https://api.test.wathba.sa',
     credentialProvider,
     retry: { maximumAttempts: 2, delayMs: 0 },
     fetch: async (url, init) => {
@@ -97,7 +97,7 @@ test('shipping.getStatus performs only the published safe read and converges the
   let observed;
   let credentialRequest;
   const client = new WathbaClient({
-    baseUrl: 'https://api.test.wathba.info',
+    baseUrl: 'https://api.test.wathba.sa',
     credentialProvider: {
       async resolve(request) {
         credentialRequest = request;
@@ -119,14 +119,14 @@ test('shipping.getStatus performs only the published safe read and converges the
   assert.equal(outcome.kind, 'final');
   assert.deepEqual(outcome.value, shippingFixture.resolved.body);
   assert.deepEqual(credentialRequest, {
-    apiOrigin: 'https://api.test.wathba.info',
+    apiOrigin: 'https://api.test.wathba.sa',
     capability: 'logistics.shipping',
     operationId: 'getShipmentExecutionStatus',
     requiredScopes: ['tools:execute'],
   });
   assert.equal(
     observed.url,
-    `https://api.test.wathba.info/v1/platform/projects/${shippingFixture.statusRequest.path.projectId}/executions/${shippingFixture.statusRequest.path.executionId}`,
+    `https://api.test.wathba.sa/v1/platform/projects/${shippingFixture.statusRequest.path.projectId}/executions/${shippingFixture.statusRequest.path.executionId}`,
   );
   assert.equal(observed.init.method, 'GET');
   assert.equal(observed.init.body, undefined);
@@ -137,7 +137,7 @@ test('shipping.getStatus retries only the bounded safe read and re-resolves cred
   const requests = [];
   const credentialRequests = [];
   const client = new WathbaClient({
-    baseUrl: 'https://api.test.wathba.info',
+    baseUrl: 'https://api.test.wathba.sa',
     retry: { maximumAttempts: 2, delayMs: 0 },
     credentialProvider: {
       async resolve(request) {
@@ -166,13 +166,13 @@ test('shipping.getStatus retries only the bounded safe read and re-resolves cred
   assert.equal(credentialRequests.length, 2);
   assert.deepEqual(credentialRequests[0], credentialRequests[1]);
   assert.deepEqual(credentialRequests[1], {
-    apiOrigin: 'https://api.test.wathba.info',
+    apiOrigin: 'https://api.test.wathba.sa',
     capability: 'logistics.shipping',
     operationId: 'getShipmentExecutionStatus',
     requiredScopes: ['tools:execute'],
   });
   const expectedUrl =
-    `https://api.test.wathba.info/v1/platform/projects/` +
+    `https://api.test.wathba.sa/v1/platform/projects/` +
     `${shippingFixture.statusRequest.path.projectId}/executions/` +
     shippingFixture.statusRequest.path.executionId;
   for (const request of requests) {

@@ -39,7 +39,7 @@ const actionRef = {
   decideOperationId: 'decideSpendCapAction',
   statusOperationId: 'getSpendCapActionStatus',
   browserUrl:
-    'https://platformdev.wathba.info/app/projects/prj_sdk_001/integrations/actions/act_sdk_001',
+    'https://platformdev.wathba.sa/app/projects/prj_sdk_001/integrations/actions/act_sdk_001',
   resumeRef: 'resume_sdk_001',
   cancellation: 'allowed_before_decision',
 };
@@ -49,7 +49,7 @@ test('captureWathbaOutcome returns a typed action without retrying a mutation', 
   const outcome = await captureWathbaOutcome(async () => {
     attempts += 1;
     throw new WathbaApiError({
-      type: 'https://api.wathba.info/problems/action-required',
+      type: 'https://api.wathba.sa/problems/action-required',
       title: 'Member action required',
       status: 409,
       code: 'action_required',

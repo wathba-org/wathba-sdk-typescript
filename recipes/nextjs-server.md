@@ -25,8 +25,8 @@ browser bundling, but the server-only module boundary remains part of the
 app's design.
 
 For development or test, set `baseUrl` to
-`https://apidev.wathba.info` and configure a test-environment key. Production
-uses a separate production key and `https://api.wathba.info`.
+`https://apidev.wathba.sa` and configure a test-environment key. Production
+uses a separate production key and `https://api.wathba.sa`.
 
 If an operation returns `action_required`, pass only the validated member-safe action URL or a server-owned reference to the UI. Keep the Wathba credential, raw problem object, and correlation details on the server.
 

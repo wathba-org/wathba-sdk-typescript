@@ -26,7 +26,7 @@ function response(value, apiVersion = send.apiVersion) {
 }
 function client(fetch, options = {}) {
   return new WathbaClient({
-    baseUrl: 'https://api.test.wathba.info', apiVersion: send.apiVersion,
+    baseUrl: 'https://api.test.wathba.sa', apiVersion: send.apiVersion,
     credentialProvider, fetch, ...options,
   });
 }
@@ -54,7 +54,7 @@ for (const [value, method, outcomes] of [
       assert.deepEqual(typed.value, raw);
       assert.deepEqual(raw, value[outcome].body);
       for (const request of requests) {
-        assert.equal(request.url, `https://api.test.wathba.info/v1/platform/projects/${value.request.path.projectId}/services/messaging.otp.authentica/operations/${method}`);
+        assert.equal(request.url, `https://api.test.wathba.sa/v1/platform/projects/${value.request.path.projectId}/services/messaging.otp.authentica/operations/${method}`);
         assert.equal(request.init.method, 'POST');
         assert.deepEqual(JSON.parse(request.init.body), value.request.body);
         assert.equal(request.init.headers.get('idempotency-key'), value.request.idempotencyKey);
@@ -98,7 +98,7 @@ for (const outcome of ['success', 'pending', 'failed']) {
     assert.equal(request.init.method, 'GET');
     assert.equal(request.init.body, undefined);
     assert.equal(request.init.headers.has('idempotency-key'), false);
-    assert.equal(request.url, `https://api.test.wathba.info/v1/platform/projects/${status.request.path.projectId}/services/messaging.otp.authentica/executions/${status.request.path.executionId}`);
+    assert.equal(request.url, `https://api.test.wathba.sa/v1/platform/projects/${status.request.path.projectId}/services/messaging.otp.authentica/executions/${status.request.path.executionId}`);
     assert.deepEqual(credentialRequest.requiredScopes, ['tools:execute']);
     assert.deepEqual(credentialRequest.scopeAlternatives, [['tools:execute', 'otp:send'], ['tools:execute', 'otp:verify']]);
   });
