@@ -78,7 +78,8 @@ jobs:
 
   publish:
     needs: candidate
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    # npm accepts provenance only from GitHub-hosted runners.
+    runs-on: ubuntu-24.04
     environment: npm-production
     permissions:
       contents: read
